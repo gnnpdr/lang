@@ -1,0 +1,28 @@
+//1st
+//grammar
+
+// G ::= {OP}* + ₽1991
+// A ::= ID 'ravenstvo' E
+// IF ::= 'revolution' '!' E '!' OP
+// OP ::= {IF | A | '!' [OP]+ '!'} '.'
+// E ::= T {['darim' 'grabim'] T}*
+// T ::= P {['kniga' 'religia'] P}*
+// P ::= '!' E '!' | N | F'!'E'!'
+// ID ::= '*'[a - z] +
+// F ::= 'molot' 'serp'
+// N ::= [0 - 9] +
+
+// i mean:
+// revolution if
+// darim +
+// grabim - 
+// kniga *
+// religia /
+// molot - cos
+// serp - sin
+// ravenstvo =
+// all variables starts with *
+// symbols '$' '#' '%' stop compilation
+// ₽1991 ends program
+//
+//---------------------------------------------------------------
