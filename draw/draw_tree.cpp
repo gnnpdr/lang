@@ -6,14 +6,14 @@
 
 static void make_file_names(char* const input_file_name, char* const output_file_name, size_t enter_cnt, Err_param *const error);
 
-static void make_nodes(const Node* const node, const Node* const definite_node, char* const input_file_data, Err_param *const error);
+static void make_nodes(const Node* const node, Id *const ids, const Node* const definite_node, char* const input_file_data, Err_param *const error) ;
 static void make_connections(const Node* const node, char* const input_file_data, Err_param *const error);
 
 static void fill_input_file(const char* const  input_file_name, const char* const input_file_data, Err_param *const error);
 
 static void do_graph_cmd(const char* const input_file_name, const char* const output_file_name, Err_param *const error);
 
-void graph_dump(Node* const node, Node* const definite_node, Err_param *const error)
+void graph_dump(Node* const node, Id *const ids, Node* const definite_node, Err_param *const error)
 {
     assert(node);
     assert(definite_node);
@@ -33,7 +33,7 @@ void graph_dump(Node* const node, Node* const definite_node, Err_param *const er
     sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%sdigraph G\n{\n\tnode [shape = Mrecord; fillcolor = \"#9FDFDA\";];\n", input_file_data);
     SPRINTF_CHECK
 
-    make_nodes(node, definite_node, input_file_data, error);
+    make_nodes(node, ids, definite_node, input_file_data, error);
     
     RETURN_VOID
 
@@ -83,7 +83,7 @@ void make_file_names(char* const input_file_name, char* const output_file_name, 
 
 
 //make_nudes
-void make_nodes(const Node* const node, const Node* const definite_node, char* const input_file_data, Err_param *const error) 
+void make_nodes(const Node* const node, Id *const ids, const Node* const definite_node, char* const input_file_data, Err_param *const error) 
 {
     assert(node);
     assert(input_file_data);
@@ -98,7 +98,7 @@ void make_nodes(const Node* const node, const Node* const definite_node, char* c
     {
         if (node->type == NUM)
         {
-            sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#E64F72\"; label = \"{<f0> %s | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
+            sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#E64F72\"; label = \"{<f0> %s | %d  |{<f1> left%p | <f2> right%p}} \"];\n", \
                 input_file_data, node, NUM_DEF, node->value, node->Left, node->Right);
             SPRINTF_CHECK
         }
@@ -110,21 +110,25 @@ void make_nodes(const Node* const node, const Node* const definite_node, char* c
         }
         else if (node->type == ID)
         {
+            char id[MAX_STR_LEN] = {};
+            strncpy(id, ids[node->value].start_address, ids[node->value].len); 
             sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#E64F72\"; label = \"{<f0> %s | %s  |{<f1> left%p | <f2> right%p}} \"];\n", \
-                input_file_data, node, VAR_DEF, /*variables[(int)node->value]->name*/, node->Left, node->Right);
+                input_file_data, node, VAR_DEF, id, node->Left, node->Right);
             SPRINTF_CHECK
         }
     } 
     else if (node->type == NUM)
     {
-        sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#177E89\"; label = \"{<f0> %s | %lg  |{<f1> left%p | <f2> right%p}} \"];\n", \
+        sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#177E89\"; label = \"{<f0> %s | %d  |{<f1> left%p | <f2> right%p}} \"];\n", \
             input_file_data, node, NUM_DEF, node->value, node->Left, node->Right);
         SPRINTF_CHECK
     }
     else if (node->type == ID)
     {
+        char id[MAX_STR_LEN] = {};
+        strncpy(id, ids[node->value].start_address, ids[node->value].len); 
         sprintf_res = sprintf_s(input_file_data, INPUT_FILE_SIZE, "%s\tnode%p [style = filled; fillcolor = \"#084C61\"; label = \"{<f0> %s | %s  |{<f1> left%p | <f2> right%p}} \"];\n", \
-            input_file_data, node, VAR_DEF, variables[(int)node->value]->name, node->Left, node->Right);
+            input_file_data, node, VAR_DEF, id, node->Left, node->Right);
         SPRINTF_CHECK
     }
     else if (node->type == OP)
@@ -136,13 +140,13 @@ void make_nodes(const Node* const node, const Node* const definite_node, char* c
     
     if (node->Left)
     {
-        make_nodes(node->Left, definite_node, input_file_data, error);
+        make_nodes(node->Left, ids, definite_node, input_file_data, error);
         RETURN_VOID
     }
         
     if (node->Right)
     {
-        make_nodes(node->Right, definite_node, input_file_data, error);
+        make_nodes(node->Right, ids, definite_node, input_file_data, error);
         RETURN_VOID
     }
 }

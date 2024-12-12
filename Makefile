@@ -6,43 +6,30 @@ HOME = $(shell cd)
 CFLAGS += -I $(HOME)
 
 ERRDIR = errors
-OBJDIR  = obj
 DRAWDIR = draw
-STRUCTDIR = structure
+DIFFDIR = differentiator_lib
 LEXDIR = lex_analysis
 SYNDIR = syn_analysis
-INTERACTIONSDIR = interactions
-TREELIBDIR = tree_lib
-STKLIBDIR = stack_lib
-USERDIR = user
 
-TARGET = differentiator
+TARGET = soviet_lang
 
 SOURCES = main.cpp
 ERR = errors/errors.cpp 
 DRAW = draw/draw_tree.cpp 
-STRUCT = structure/tree_structure.cpp 
+DIFF = differentiator_lib/tree_structure.cpp differentiator_lib/get_database.cpp
 LEX = lex_analysis/lex_analysis.cpp
 SYN = syn_analysis/syn_analysis.cpp
-INTERACTIONS = interactions/diff.cpp interactions/talor.cpp interactions/latex_dump.cpp interactions/write_math_expression.cpp  
-TREELIB = tree_lib/get_database.cpp 
-STKLIB = stack_lib/stk.cpp 
-USER = user/user.cpp 
 
 OBJECTS = $(SOURCES:%.cpp = $(OBJDIR)/%.o)
 ERROBJ = $(ERR:$(ERRDIR)/%.cpp = $(OBJDIR)/%.o)
 DRAWOBJ = $(DRAW:$(DRAWDIR)/%.cpp = $(OBJDIR)/%.o)
-STRUCTOBJ = $(STRUCT:$(STRUCTDIR)/%.cpp = $(OBJDIR)/%.o)
+DIFFOBJ = $(DIFF:$(DIFFDIR)/%.cpp = $(OBJDIR)/%.o)
 LEXOBJ = $(LEX:$(LEXDIR)/%.cpp = $(OBJDIR)/%.o)
 SYNOBJ = $(SYN:$(SYNDIR)/%.cpp = $(OBJDIR)/%.o)
-INTERACTIONSOBJ = $(INTERACTIONS:$(INTERACTIONSDIR)/%.cpp = $(OBJDIR)/%.o)
-TREELIBOBJ = $(TREELIB:$(TREELIBDIR)/%.cpp = $(OBJDIR)/%.o)
-STKLIBOBJ = $(STKLIB:$(STKLIBDIR)/%.cpp = $(OBJDIR)/%.o)
-USEROBJ = $(USER:$(USERDIR)/%.cpp = $(USER)/%.o)
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS) $(ERROBJ) $(STRUCTOBJ) $(DRAWOBJ) $(TREELIBOBJ) $(STKLIBOBJ) $(LEXOBJ) $(SYNOBJ) $(INTERACTIONSOBJ) $(USEROBJ)
+$(TARGET): $(OBJECTS) $(ERROBJ) $(DIFFOBJ) $(LEXOBJ) $(DRAWOBJ) $(SYNOBJ)
 	$(CC) $^ -o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : %.cpp
@@ -51,28 +38,16 @@ $(OBJDIR)/%.o : %.cpp
 $(OBJDIR)/%.o : $(ERRDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
 
-$(OBJDIR)/%.o : $(STRUCTDIR)/%.cpp
-	$(CC) -c $^ - o $@ $(CFLAGS)
-
-$(OBJDIR)/%.o : $(DRAWDIR)/%.cpp
-	$(CC) -c $^ - o $@ $(CFLAGS)
-
-$(OBJDIR)/%.o : $(TREELIBDIR)/%.cpp
-	$(CC) -c $^ - o $@ $(CFLAGS)
-
-$(OBJDIR)/%.o : $(STKLIBDIR)/%.cpp
+$(OBJDIR)/%.o : $(DIFFDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : $(LEXDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
 
+$(OBJDIR)/%.o : $(DRAWDIR)/%.cpp
+	$(CC) -c $^ - o $@ $(CFLAGS)
+
 $(OBJDIR)/%.o : $(SYNDIR)/%.cpp
-	$(CC) -c $^ - o $@ $(CFLAGS)
-
-$(OBJDIR)/%.o : $(INTERACTIONSDIR)/%.cpp
-	$(CC) -c $^ - o $@ $(CFLAGS)
-
-$(OBJDIR)/%.o : $(USERDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
  
 clean:

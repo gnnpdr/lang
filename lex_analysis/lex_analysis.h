@@ -4,12 +4,10 @@
 #include <ctype.h>
 #include <math.h>
 
-#include "..\differentiator_lib\tree_structure.h"
-#include "..\differentiator_lib\draw_tree.h"
 #include "..\differentiator_lib\get_database.h"
 
-static const size_t TOKEN_AMT = 10;
-static const size_t ID_AMT = 10;
+static const size_t TOKEN_AMT = 30;
+static const size_t ID_AMT = 5;
 static const size_t ERROR_VALUE_SIZE_T = 993;
 static const int ERROR_VALUE = -8;
 

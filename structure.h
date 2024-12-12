@@ -9,6 +9,7 @@ static const size_t OP_AMT  =  14;
 
 static const double START_VALUE =  0;
 static const char ID_MARK = '*';
+static const char END_MARK = '@';
 
 static const char* ADD_STR   = "darim";
 static const char* SUB_STR   = "grabim";
@@ -16,7 +17,7 @@ static const char* MUL_STR   = "kniga";
 static const char* DIV_STR   = "religia";
 static const char* SIN_STR   = "serp";
 static const char* COS_STR   = "molot";
-static const char* END_STR   = "₽1991";
+static const char* END_STR   = "@1991";
 static const char* BR_STR    = "!";
 static const char* IF_STR    = "revolution";
 static const char* EQUAL_STR = "ravenstvo";

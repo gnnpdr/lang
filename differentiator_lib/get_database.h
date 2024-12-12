@@ -1,12 +1,14 @@
 #ifndef _BASE_H_
 #define _BASE_H_ 
 
-#include "draw_tree.h"
+#include "tree_structure.h"
 
 #include <sys/stat.h>
+#include <string.h>
 
 static const size_t MAX_STRS_AMT  =  50;
 static const size_t MAX_FILE_SIZE = 3000;
+static const size_t MAX_STR_LEN   = 100;
 
 struct Input 
 {

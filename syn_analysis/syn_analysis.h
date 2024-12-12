@@ -1,7 +1,7 @@
 #ifndef _SYN_H_
 #define _SYN_H_
 
-#include "lex_analysis.h"
+#include "..\draw\draw_tree.h"
 
 static const size_t FIRST_PR_AMT = 2;
 static const size_t SEC_PR_AMT = 3;
@@ -17,6 +17,6 @@ static const struct OperationParameters sec_pr [SEC_PR_AMT] = {MUL_STRUCT,
 static const struct OperationParameters unary_op [UNARY_OP_AMT]  = {SIN_STRUCT,
 																    COS_STRUCT};
 
-Node* syn_analysis(Token *const tokens, Err_param *const error);
+Node* syn_analysis(Token *const tokens, Id *const ids, Err_param *const error);
 
 #endif //_SYN_H_

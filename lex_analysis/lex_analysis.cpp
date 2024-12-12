@@ -2,15 +2,20 @@
 
 #include "lex_analysis.h"
 
+//и еще - хотелось бы, чтобы концевой эдемент начинался с рубля, а он не читается. почему?
+//проблемы - не читается концевой элемент  (он будто конец и число)
+//----------готово
+//айди ситаются разными. Надо вставить проверку на наличие таких 
+
 static void make_token(Token *const tokens, Type type, double val, Err_param *const error);
 static int find_free_token(Token *const tokens, Err_param *const error);
 
 static size_t make_id(Id *const ids, size_t len, char *const text, Err_param *const error);
-static int find_free_id(Id *const ids, Err_param *const error);
 
 static void get_num(char *const text, size_t *const pointer, Token *const tokens, Err_param *const error);
 static void get_op(char *const text, size_t *const pointer, Token *const tokens, Err_param *const error);
 static size_t find_match(char *const start_address, size_t len);
+static size_t find_id(Id *const ids, size_t len, char *const text, Err_param *const error);
 static void get_id(char *const text, Id *const ids, size_t *const pointer, Token *const tokens, Err_param *const error);
 
 void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Err_param* error)
@@ -22,28 +27,38 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
 
     size_t pointer = 0;
     size_t size = base_text->size;
+    printf("SIZE %d\n", size);
     char symb = text[pointer];
 
     while (pointer != size)
     {
-        while (isspace(symb))
-            pointer++;
-
         symb = text[pointer];
+        while (isspace(symb))
+        {
+            pointer++;
+            symb = text[pointer];
+        }
+        printf("cur pointer %d\n", pointer);
+        printf("CUR TEXT\n--------\n%s\n-----\n", text + pointer);
 
         if (symb >= '0' && symb <= '9')
+        {
+            printf("GET NUM\n");
             get_num(text, &pointer, tokens, error);
-
+        }
         else if (symb == ID_MARK)
+        {
+            printf("GET ID\n");
             get_id(text, ids, &pointer, tokens, error);
-            
+        }
         else
+        {
+            printf("GET OP\n");
             get_op(text, &pointer, tokens, error);
-            
-        //RETURN_VOID
+        }
     }
 
-    /*printf("TOKENS\n");
+    printf("TOKENS\n");
     for (int i = 0; i < TOKEN_AMT; i++)
     {
         printf("num %d, type %d, value %d\n", i, tokens[i].type, tokens[i].value);
@@ -53,9 +68,9 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
     printf("IDS\n");
     for (int i = 0; i < ID_AMT; i++)
     {
-        printf("num %d, str %s, len %d\n", i, ids[i].start_address, ids[i].len);
+        printf("num %d, str %.10s, len %d\n", i, ids[i].start_address, ids[i].len);
     }
-    printf("---------------\n");*/
+    printf("---------------\n");
 }
 
 //------------------TOKENS------------------------------
@@ -134,38 +149,37 @@ size_t make_id(Id *const ids, size_t len, char *const text, Err_param *const err
     assert(text);
     assert(error);
 
-    size_t free_ind = find_free_id(ids, error);
-    RETURN_SIZE_T
+    size_t ind = find_id(ids, len, text, error);
+    if (ind == ERROR_VALUE_SIZE_T)
+    {
+        printf("no free ids\n");
+        return ind;
+    }
 
-    ids[free_ind].len = len;
-    ids[free_ind].start_address = text;
+    ids[ind].len = len;
+    ids[ind].start_address = text;
 
-    return free_ind;
+    return ind;
 }
 
-int find_free_id(Id *const ids, Err_param *const error)
+size_t find_id(Id *const ids, size_t len, char *const text, Err_param *const error)
 {
     assert(ids);
     assert(error);
+    assert(text);
 
-    size_t free_ind = ERROR_VALUE_SIZE_T;
-
-    for (size_t ind = 0; ind < TOKEN_AMT; ind++)
+    for (size_t i = 0; i < ID_AMT; i++)
     {
-        if (ids[ind].len == ERROR_VALUE_SIZE_T)
-        {
-            free_ind = ind;
-            break;
-        }
+        if (ids[i].len == ERROR_VALUE_SIZE_T)
+            return i;
+
+        int cmp_res = strncmp(ids[i].start_address, text, len);
+
+        if (cmp_res == 0)
+            return i;
     }
 
-    if (free_ind == ERROR_VALUE_SIZE_T)
-    {
-        printf("no free ids\n");
-        ERROR(ALLOCATION_ERROR)
-    }
-
-    return free_ind;
+    return ERROR_VALUE_SIZE_T;
 }
 
 void ids_dtor(Id *const ids)
@@ -209,9 +223,19 @@ void get_op(char *const text, size_t *const pointer, Token *const tokens, Err_pa
 
     size_t len = 0;
     char* start_address = text + *pointer;
-
+    
     while (isalpha(*(start_address + len)))
         len++;
+
+    char op_mark = text[*pointer];
+
+    if (len == 0)
+    {
+        if (op_mark == END_MARK)//вот такой вот костыль, но что уж
+            len = 5;
+        else 
+            len = 1;
+    }
 
     size_t op_ind = find_match(start_address, len);
     if (op_ind == ERROR_VALUE_SIZE_T)
@@ -231,9 +255,9 @@ size_t find_match(char *const start_address, size_t len)
     for (size_t ind = 0; ind < OP_AMT; ind++)
     {
         int cmp_res = strncmp(start_address, operations[ind]->name, len);
-
         if(cmp_res == 0)
         {
+            printf("def op %s\n", operations[ind]->name);
             match_ind = ind;
             break;
         }
@@ -254,15 +278,10 @@ void get_id(char *const text, Id *const ids, size_t *const pointer, Token *const
     size_t len = 0;
     char* start_address = text + *pointer;
 
-    //printf("%s\n", start_address);
-
     while (isalpha(*(start_address + len)))
         len++;
-
-    //printf("len %d\n", len);
     
     size_t id_ind = make_id(ids, len, start_address, error);
-    //printf("id ind %d\n", id_ind);
     RETURN_VOID
 
     make_token(tokens, ID, id_ind, error);
