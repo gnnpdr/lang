@@ -8,6 +8,7 @@ static Node* get_operation(Token *const tokens, Id *const ids, size_t *const poi
 static Node* get_if(Token *const tokens, Id *const ids, size_t *const pointer, Err_param *const error);
 static Node* get_equality(Token *const tokens, Id *const ids, size_t *const pointer, Err_param *const error);
 
+static Node* get_together(Token *const tokens, Id *const ids, size_t *const pointer, Err_param *const error);
 static Node* get_expression(Token *const tokens, Id *const ids, size_t *const pointer, Err_param *const error);
 static Node* get_t (Token *const tokens, Id *const ids, size_t *const pointer, Err_param *const error);
 static Node* get_brace (Token *const tokens, Id *const ids, size_t *const pointer, Err_param *const error);
@@ -23,7 +24,7 @@ Node* syn_analysis(Token *const tokens, Id *const ids, Err_param *const error)
 
     size_t pointer = 0;
 
-    Node* root = get_operation(tokens, ids, &pointer, error);
+    Node* root = get_together(tokens, ids, &pointer, error);
 
     if (tokens[pointer].type != OP && tokens[pointer].value != END)
     {
@@ -34,7 +35,35 @@ Node* syn_analysis(Token *const tokens, Id *const ids, Err_param *const error)
 
     pointer++;
 
+    graph_dump(root, ids, root, error);
+
     return root;
+}
+
+Node* get_together(Token *const tokens, Id *const ids, size_t *const pointer, Err_param *const error)
+{
+    Node* val = get_operation(tokens, ids, pointer, error);
+    
+    bool is_end = false;
+    if (tokens[*pointer].type == OP && tokens[*pointer].value == END)
+        is_end = true;
+
+    while (!is_end)
+    {
+        //printf("GET TOGETHER\n");
+        if (tokens[*pointer].type == OP && tokens[*pointer].value == SEP)
+        {
+            (*pointer)++;
+            Node* val2 = get_operation(tokens, ids, pointer, error);
+
+            val = make_node(OP, SEP, val, val2, error);
+        }
+
+        if (tokens[*pointer].type == OP && tokens[*pointer].value == END)
+            is_end = true;
+    }
+
+    return val;
 }
 
 Node* get_operation(Token *const tokens, Id *const ids, size_t *const pointer, Err_param *const error)
@@ -46,19 +75,19 @@ Node* get_operation(Token *const tokens, Id *const ids, size_t *const pointer, E
     Node* val = nullptr;
     
     bool is_end = false;
-    if (tokens[*pointer].type == OP && tokens[*pointer].value == END)
+    if (tokens[*pointer].type == OP && tokens[*pointer].value == SEP || tokens[*pointer].value == END)
         is_end = true;
 
     while (!is_end)
     {
         //сепараторная точка может пройти только если она в начале
-        printf("!! type %d, value %d\n", tokens[*pointer].type, tokens[*pointer].value);  //второй раз жолжен вывести разделительную точку
+        //printf("!! type %d, value %d\n", tokens[*pointer].type, tokens[*pointer].value);  //второй раз жолжен вывести разделительную точку
         //а в третий - айди 1 (второй короче)
         if (tokens[*pointer].type == OP)
         {
             if (tokens[*pointer].value == BR)
             {
-                printf("GET BRACE\n");
+                //printf("GET BRACE\n");
                 (*pointer)++;
 
                 size_t start_pointer = *pointer;
@@ -74,28 +103,27 @@ Node* get_operation(Token *const tokens, Id *const ids, size_t *const pointer, E
             }
             else if (tokens[*pointer].value == IF)
             {
-                printf("GET IF\n");
+                //printf("GET IF\n");
                 (*pointer)++;
                 val = get_if(tokens, ids, pointer, error);
             }
-            
         }
         else if (tokens[*pointer].type == ID)
         {
-            printf("GET A\n");
+            ///printf("GET A\n");
             val = get_equality(tokens, ids, pointer, error);
         }
 
-        if (tokens[*pointer].value == SEP)
+        /*if (tokens[*pointer].value == SEP)
         {
             printf("SEP\n");
             (*pointer)++;
             Node* val2 = get_operation(tokens, ids, pointer, error);
             val = make_node(OP, SEP, val, val2, error);
             graph_dump(val, ids, val, error);
-        }
+        }*/
 
-        if (tokens[*pointer].type == OP && tokens[*pointer].value == END/*|| tokens[*pointer].value == SEP*/ )
+        if (tokens[*pointer].type == OP && tokens[*pointer].value == SEP || tokens[*pointer].value == END)
             is_end = true;
     }
 
@@ -116,7 +144,7 @@ Node* get_if(Token *const tokens, Id *const ids, size_t *const pointer, Err_para
     (*pointer)++;
 
     Node* left = get_expression(tokens, ids, pointer, error);
-    graph_dump(left, ids, left, error);
+    //graph_dump(left, ids, left, error);
 
     if (tokens[*pointer].type != OP && tokens[*pointer].value != BR) // надо вложить проверку в макрос
     {
@@ -126,11 +154,11 @@ Node* get_if(Token *const tokens, Id *const ids, size_t *const pointer, Err_para
     (*pointer)++;
 
     Node* right = get_operation(tokens, ids, pointer, error);  //после этого он не остановился на разделительном знаке, а пошел дальше и тут все просто по пизде
-    graph_dump(right, ids, right, error);
+    //graph_dump(right, ids, right, error);
 
     Node* val = make_node(OP, IF, left, right, error);
     //printf("val %p, left %p, right %p\n", val, left, right);
-    graph_dump(val, ids, val, error);
+    //graph_dump(val, ids, val, error);
 
     return val;
 }
@@ -154,7 +182,7 @@ Node* get_equality(Token *const tokens, Id *const ids, size_t *const pointer, Er
 
     Node* val = make_node(OP, EQUAL, left, right, error);
 
-    graph_dump(val, ids, val, error);
+    //graph_dump(val, ids, val, error);
 
     return val;
 }
@@ -242,19 +270,19 @@ Node* get_brace (Token *const tokens, Id *const ids, size_t* pointer, Err_param 
         }
         else
         {
-            printf("GET UNARY\n");
+            //printf("GET UNARY\n");
             val = get_unary(tokens, ids, pointer, error);
         }
     }
     else if (tokens[*pointer].type == NUM)
     {
-        printf("GET NUM\n");
+        //printf("GET NUM\n");
         val = get_num(tokens, ids, pointer, error);
     }
         
     else 
     {
-        printf("GET ID\n");
+        //printf("GET ID\n");
         val = get_id(tokens, ids, pointer, error);
     }
         

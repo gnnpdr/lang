@@ -27,7 +27,7 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
 
     size_t pointer = 0;
     size_t size = base_text->size;
-    printf("SIZE %d\n", size);
+    //printf("SIZE %d\n", size);
     char symb = text[pointer];
 
     while (pointer != size)
@@ -38,22 +38,22 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
             pointer++;
             symb = text[pointer];
         }
-        printf("cur pointer %d\n", pointer);
-        printf("CUR TEXT\n--------\n%s\n-----\n", text + pointer);
+        //printf("cur pointer %d\n", pointer);
+        //printf("CUR TEXT\n--------\n%s\n-----\n", text + pointer);
 
         if (symb >= '0' && symb <= '9')
         {
-            printf("GET NUM\n");
+            //printf("GET NUM\n");
             get_num(text, &pointer, tokens, error);
         }
         else if (symb == ID_MARK)
         {
-            printf("GET ID\n");
+            //printf("GET ID\n");
             get_id(text, ids, &pointer, tokens, error);
         }
         else
         {
-            printf("GET OP\n");
+            //printf("GET OP\n");
             get_op(text, &pointer, tokens, error);
         }
     }
@@ -257,7 +257,7 @@ size_t find_match(char *const start_address, size_t len)
         int cmp_res = strncmp(start_address, operations[ind]->name, len);
         if(cmp_res == 0)
         {
-            printf("def op %s\n", operations[ind]->name);
+            //printf("def op %s\n", operations[ind]->name);
             match_ind = ind;
             break;
         }

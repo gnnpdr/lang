@@ -10,6 +10,7 @@ DRAWDIR = draw
 DIFFDIR = differentiator_lib
 LEXDIR = lex_analysis
 SYNDIR = syn_analysis
+GENDIR = code_gen
 
 TARGET = soviet_lang
 
@@ -19,6 +20,7 @@ DRAW = draw/draw_tree.cpp
 DIFF = differentiator_lib/tree_structure.cpp differentiator_lib/get_database.cpp
 LEX = lex_analysis/lex_analysis.cpp
 SYN = syn_analysis/syn_analysis.cpp
+GEN = code_gen/code_gen.cpp
 
 OBJECTS = $(SOURCES:%.cpp = $(OBJDIR)/%.o)
 ERROBJ = $(ERR:$(ERRDIR)/%.cpp = $(OBJDIR)/%.o)
@@ -26,10 +28,11 @@ DRAWOBJ = $(DRAW:$(DRAWDIR)/%.cpp = $(OBJDIR)/%.o)
 DIFFOBJ = $(DIFF:$(DIFFDIR)/%.cpp = $(OBJDIR)/%.o)
 LEXOBJ = $(LEX:$(LEXDIR)/%.cpp = $(OBJDIR)/%.o)
 SYNOBJ = $(SYN:$(SYNDIR)/%.cpp = $(OBJDIR)/%.o)
+GENOBJ = $(GEN:$(GENDIR)/%.cpp = $(OBJDIR)/%.o)
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS) $(ERROBJ) $(DIFFOBJ) $(LEXOBJ) $(DRAWOBJ) $(SYNOBJ)
+$(TARGET): $(OBJECTS) $(ERROBJ) $(DIFFOBJ) $(LEXOBJ) $(DRAWOBJ) $(SYNOBJ) $(GENOBJ)
 	$(CC) $^ -o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : %.cpp
@@ -48,6 +51,9 @@ $(OBJDIR)/%.o : $(DRAWDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : $(SYNDIR)/%.cpp
+	$(CC) -c $^ - o $@ $(CFLAGS)
+
+$(OBJDIR)/%.o : $(GENDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
  
 clean:
