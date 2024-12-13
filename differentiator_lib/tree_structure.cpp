@@ -14,8 +14,6 @@ Node* node_ctor (ErrList *const list)
 
 Node* make_node(Type type, double value, Node* Left, Node* Right, ErrList *const list)
 {
-	assert(Left);
-	assert(Right);
 	assert(list);
 
 	Node* node = node_ctor(list);

@@ -23,25 +23,20 @@ int main(int argc, char** argv)
 	Node* root = node_ctor(&list);
 	MAIN
 
-	printf("root address %p\n", root);
-
 	Token* tokens = tokens_ctor(&list);
 	MAIN
     Id* ids = id_ctor(&list);
 	MAIN
 
-	printf("made\n");
-
-	analyse_text(tokens, ids, &base_text, &list);
+	root = analyse_text(tokens, ids, &base_text, &list);
 	MAIN
-
-	printf("fuck\n");
+	graph_dump(root, ids, root, &list);
 	Tree the_tree = {};
 	tree_ctor (&the_tree, root);
-	printf("you are funny\n");
 	code_gen(&the_tree, &list);
 	MAIN
-	printf("give me a paper\n");
+	
+	//с этого момента ничего не работает. При комментировании проверок или диторов тоже ничего не работает
 	input_dtor(&base_text);
 	tokens_dtor(tokens);
 	ids_dtor(ids);
@@ -59,7 +54,6 @@ int main(int argc, char** argv)
 	MAIN
     ctor_labels(&labels, &list);
 	MAIN
-
     Stack new_buf = {};
     stk_ctor(&new_buf, &list);
 	MAIN

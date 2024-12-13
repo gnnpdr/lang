@@ -191,6 +191,7 @@ void fill_input_file(const char* const  input_file_name, const char* const input
     assert(input_file_data);
     assert(list);
 
+
     FILE* input_file;
     input_file = fopen(input_file_name, "w");
     FILE_CHECK(input_file)

@@ -11,7 +11,7 @@
 #define IS_EQUAL node->type == OP && node->value == EQUAL
 
 static const size_t APPR_CMD = 7;
-static const char* ASM_NAME = "asm_file";
+static const char* ASM_NAME = "asm_file.txt";
 
 struct CodeOp
 {

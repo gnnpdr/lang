@@ -24,11 +24,14 @@ static void print_binary_int (int a);
 void assembly (Input *const asm_text, Labels *const labels, Stack* new_buf, Stack* functions, ErrList *const list)
 {
     assert(asm_text);
-    assert(labels );
+    assert(labels);
     assert(new_buf);
 
     fill_labels(labels, asm_text, functions, list);
     RETURN_VOID
+
+    for (int i = 0; i < LABELS_AMT; i++);
+        printf("lab name %s\n", labels->labels->name);
 
     handle_commands(labels, asm_text, new_buf, list);
     RETURN_VOID

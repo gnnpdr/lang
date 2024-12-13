@@ -25,8 +25,6 @@ void code_gen(Tree *const the_tree, ErrList *const list)
     SPRINTF_CHECK_VOID
 
     fill_input_file(ASM_NAME, asm_code, list);
-
-    printf("%s\n", asm_code);
 }
 
 void get_part(Node *const node, char* asm_code, ErrList *const list)

@@ -44,7 +44,7 @@ Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list)
     size_t pointer = 0;
 
     Node* root = get_together(tokens, ids, &pointer, list);
-    printf("root address %p\n", root);
+    
     RETURN_PTR
 
     if (tokens[pointer].type != OP && tokens[pointer].value != END)
@@ -55,8 +55,6 @@ Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list)
     }
 
     pointer++;
-
-    graph_dump(root, ids, root, list);
 
     return root;
 }
@@ -313,8 +311,9 @@ Node* get_id(Token *const tokens, Id *const ids, size_t *const pointer, ErrList 
 {
     REC_ASSERT
 
-    double id_num = tokens[*pointer].value;
+    int id_num = tokens[*pointer].value;
     (*pointer)++;
+
 
     Node* val = make_node(ID, id_num, nullptr, nullptr, list);
     RETURN_PTR
