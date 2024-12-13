@@ -17,6 +17,24 @@ static Node* get_unary(Token *const tokens, Id *const ids, size_t *const pointer
 static Node* get_num(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
 static Node* get_id(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
 
+static Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list);
+
+Node* analyse_text(Token *const tokens, Id *const ids, Input *const base_text, ErrList *const list)
+{
+    assert(tokens);
+    assert(ids);
+    assert(list);
+    assert(base_text);
+
+    lex_analysis(tokens, ids, base_text, list);
+	RETURN_PTR
+	Node* root = syn_analysis(tokens, ids, list);
+    
+	RETURN_PTR
+
+    return root;
+}
+
 Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list)
 {
     assert(tokens);
@@ -26,6 +44,7 @@ Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list)
     size_t pointer = 0;
 
     Node* root = get_together(tokens, ids, &pointer, list);
+    printf("root address %p\n", root);
     RETURN_PTR
 
     if (tokens[pointer].type != OP && tokens[pointer].value != END)

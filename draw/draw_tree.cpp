@@ -9,8 +9,6 @@ static void make_file_names(char* const input_file_name, char* const output_file
 static void make_nodes(const Node* const node, Id *const ids, const Node* const definite_node, char* const input_file_data, ErrList *const list) ;
 static void make_connections(const Node* const node, char* const input_file_data, ErrList *const list);
 
-static void fill_input_file(const char* const  input_file_name, const char* const input_file_data, ErrList *const list);
-
 static void do_graph_cmd(const char* const input_file_name, const char* const output_file_name, ErrList *const list);
 
 void graph_dump(Node* const node, Id *const ids, Node* const definite_node, ErrList *const list)

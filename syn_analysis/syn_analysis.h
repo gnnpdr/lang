@@ -36,6 +36,5 @@ static const struct OperationParameters unary_op [UNARY_OP_AMT]  = {SIN_STRUCT,
 						(*pointer)++;														\
 					}while(0);
 
-Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list);
-
+Node* analyse_text(Token *const tokens, Id *const ids, Input *const base_text, ErrList *const list);
 #endif //_SYN_H_

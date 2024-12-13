@@ -24,7 +24,8 @@ enum Errors
     SYN_ERROR,
     MATH_ERROR,
     TOKEN_ERROR,
-    RET_ERROR
+    RET_ERROR,
+    SSCANF_ERROR
 };
 
 //------------STRUCTS------------------------
@@ -142,7 +143,7 @@ struct ErrList
                             }                                                   \
                         }while(0);
 
-#define CLOSE_CHECK           do                                                \
+#define CLOSE_CHECK         do                                                  \
                             {                                                   \
                                 if(close_res != 0)                              \
                                 {                                               \
@@ -150,6 +151,15 @@ struct ErrList
                                     return;                                     \
                                 }                                               \
                             }while(0);
+
+#define SSCANF_CHECK    do                                 \
+                        {                                  \
+                            if (sscanf_res == -1)        \
+                            {                              \
+                                ERROR(SSCANF_ERROR)       \
+                                return;                     \
+                            }                              \
+                        }while(0);
 
 //=================RET================================
 

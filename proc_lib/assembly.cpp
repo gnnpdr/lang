@@ -1,52 +1,53 @@
-/*#include <stdio.h>
+#include <stdio.h>
 
 #include "assembly.h"
 
-static Errors fill_labels(Labels *const labels, Text *const input, Stack *const functions);
+static void fill_labels(Labels *const labels, Input *const asm_text, Stack *const functions, ErrList *const list);
 static bool find_label_mark (const char* const str);
 static bool find_arg (const char *const str);
 static size_t find_label(Labels* labels, const char *const str);
 
-static Errors find_cmd_num(char *const str, size_t* cmd);
+static void find_cmd_num(char *const str, size_t* cmd, ErrList *const list);
 
-static Errors handle_commands(Labels *const labels, Text *const input, Stack* new_buf);
-static Errors handle_args (Labels *const labels, Text *const input, const size_t cmd, Stack* new_buf);
-static bool complicated_arg_case (Stack* new_buf, Text *const input, char *const str);
+static void handle_commands(Labels *const labels, Input *const asm_text, Stack* new_buf, ErrList *const list);
+static void handle_args (Labels *const labels, Input *const asm_text, const size_t cmd, Stack* new_buf, ErrList *const list);
+static bool complicated_arg_case (Stack* new_buf, Input *const asm_text, char *const str, ErrList *const list);
 
-static Errors arg_analysis (Text *const input, int *const arg1, int *const arg2);
-static Errors RAM_case (int *const arg1, int *const arg2, Text *const input);
-static Errors plus_case(size_t* cmd_num, Text* input, int* arg2);
+static void arg_analysis (Input *const asm_text, int *const arg1, int *const arg2, ErrList *const list);
+static void RAM_case (int *const arg1, int *const arg2, Input *const asm_text, ErrList *const list);
+static void plus_case(size_t *const cmd_num, Input *const asm_text, int* arg2, ErrList *const list);
 
 static bool find_register (const char *const str, int *const arg);
 
 static void print_binary_int (int a);
 
-void assembly (Text *const input, Labels *const labels, Stack* new_buf, Stack* functions)
+void assembly (Input *const asm_text, Labels *const labels, Stack* new_buf, Stack* functions, ErrList *const list)
 {
-    assert(input  );
+    assert(asm_text);
     assert(labels );
     assert(new_buf);
 
-    fill_labels(labels, input, functions);
+    fill_labels(labels, asm_text, functions, list);
+    RETURN_VOID
 
-    handle_commands(labels, input, new_buf);
+    handle_commands(labels, asm_text, new_buf, list);
+    RETURN_VOID
 }
 
 //----------------------LABELS---------------------------------------------------------------------------------------
 
-Errors ctor_labels(Labels* labels)
+void ctor_labels(Labels* labels, ErrList *const list)
 {
     assert(labels);
+    assert(list);
 
     LabelParameters* label = (LabelParameters*)calloc(LABELS_AMT, sizeof(LabelParameters));
-    ALLOCATION_CHECK(labels);
+    ALLOCATION_CHECK_VOID(labels)
 
     for (size_t i = 0; i < LABELS_AMT; i++)
         label[i].target = START_VALUE;
 
     labels->labels = label;
-
-    return ALL_RIGHT;
 }
 
 void dtor_labels(Labels* labels)
@@ -54,33 +55,35 @@ void dtor_labels(Labels* labels)
     free(labels->labels);
 }
 
-Errors fill_labels(Labels *const labels, Text *const input, Stack *const functions)
+void fill_labels(Labels *const labels, Input *const asm_text, Stack *const functions, ErrList *const list)
 {
     assert(labels);
-    assert(input );
+    assert(asm_text);
     assert(functions);
+    assert(list);
 
-    char** buf = input->addresses;
+    char** buf = asm_text->addresses;
     bool is_label = false;
     bool is_arg  = false;
     size_t label_ind = 0;
-    char str[MAX_STR_LEN] = "";
+    char str[MAX_STR_LEN] = {};
 
-    for (size_t word_cnt = 0; word_cnt < input->cmd_amt; word_cnt++)
+    for (size_t word_cnt = 0; word_cnt < asm_text->cmd_amt; word_cnt++)
     {
-
         strncpy(str, buf[word_cnt], MAX_STR_LEN);
-        if(str == nullptr)
-            return CPY_ERROR;
-        
+        CPY_CHECK(str)
+
         is_label = find_label_mark(str);
 
         if (!is_label)
             continue;
 
         label_ind = find_label(labels, str);
-        if (label_ind == ERROR_VALUE)
-            return LABEL_ERROR;
+        if (label_ind == ERROR_VALUE_SIZE_T)
+        {
+            ERROR(ALLOCATION_ERROR)
+            return;
+        }
 
         is_arg = find_arg(buf[word_cnt - 1]);
 
@@ -93,42 +96,42 @@ Errors fill_labels(Labels *const labels, Text *const input, Stack *const functio
         }
         else if (is_arg && cmp_res == 0)
         {
-            stk_push(functions, word_cnt);
+            stk_push(functions, word_cnt, list);
+            RETURN_VOID
         }
             
-
         is_label = false;
-    }
-
-   return ALL_RIGHT;    
+    } 
 }
 
 //------------------------COMMANDS-----------------------------------------------------------------------------------
 
 
-Errors handle_commands(Labels *const labels, Text *const input, Stack* new_buf)
+void handle_commands(Labels *const labels, Input *const asm_text, Stack* new_buf, ErrList *const list)
 {
-    assert(labels );
-    assert(input  );
+    assert(labels);
+    assert(asm_text);
     assert(new_buf);
+    assert(list);
 
     int sscanf_check = 0;
 
-    size_t cmd_amt = input->cmd_amt;
+    size_t cmd_amt = asm_text->cmd_amt;
     char str [MAX_STR_LEN] = {};
     char* file_buf = {};
     bool is_label = false;
     size_t cmd = 0;
+    int sscanf_res = 0;
     bool is_compl = false;
 
     for (size_t cmd_num = 0; cmd_num < cmd_amt; cmd_num++)
     {
-        input->cmd_num = cmd_num;
+        asm_text->cmd_num = cmd_num;
         labels->label_type = LABEL_DEF;
         is_label = false;
         
-        file_buf = input->addresses[cmd_num];
-        sscanf(file_buf, "%s", str);
+        file_buf = asm_text->addresses[cmd_num];
+        sscanf_res = sscanf(file_buf, "%s", str);
         SSCANF_CHECK
 
         is_label = find_label_mark(str);
@@ -136,40 +139,41 @@ Errors handle_commands(Labels *const labels, Text *const input, Stack* new_buf)
         if (is_label)
             continue;
 
-        find_cmd_num(str, &cmd);
+        find_cmd_num(str, &cmd, list);
 
-        stk_push(new_buf, (stack_element_t)cmd);
+        stk_push(new_buf, (stack_element_t)cmd, list);  //выглядит немного лажова, понятно, что можно явно приводить типы, но это вообще принято или кирнж?
+        RETURN_VOID
 
-        is_compl = complicated_arg_case(new_buf, input, str);
+        is_compl = complicated_arg_case(new_buf, asm_text, str, list);
         
         if (is_compl)
         {
-            cmd_num = input->cmd_num;
+            cmd_num = asm_text->cmd_num;
             continue;
         }
 
-        handle_args(labels, input, cmd, new_buf);
+        handle_args(labels, asm_text, cmd, new_buf, list);
     }
-    
-    return ALL_RIGHT; 
 }
 
 
 
 //---------------------------------------ARGS---------------------------------------------------------------------
 
-Errors handle_args (Labels *const labels, Text *const input, const size_t cmd, Stack* new_buf)
+void handle_args (Labels *const labels, Input *const asm_text, const size_t cmd, Stack* new_buf, ErrList *const list)
 {
     assert(labels);
-    assert(input);
+    assert(asm_text);
     assert(new_buf);
+    assert(list);
 
     int arg = 0;
     char str[MAX_STR_LEN] = {};
     bool is_label = false;
     size_t ind = 0;
+    int sscanf_res = 0;
 
-    size_t cmd_num = input->cmd_num;
+    size_t cmd_num = asm_text->cmd_num;
     size_t args_amt = bunch_of_commands[cmd].arg_amt;
     int sscanf_check = 0;
 
@@ -177,32 +181,33 @@ Errors handle_args (Labels *const labels, Text *const input, const size_t cmd, S
     {
         is_label = false;
         cmd_num++; 
-        char* file_buf = input->addresses[cmd_num];
-        sscanf(file_buf, "%s", str);
+        char* file_buf = asm_text->addresses[cmd_num];
+        sscanf_res = sscanf(file_buf, "%s", str);
         SSCANF_CHECK
 
         is_label = find_label_mark(str);
         if (is_label)
         {
             ind = find_label(labels, str);
-            stk_push(new_buf, labels->labels[ind].target);
+            stk_push(new_buf, labels->labels[ind].target, list);
+            RETURN_VOID
         }         
         else
         {
-            sscanf(file_buf, "%d", &arg);
+            sscanf_res = sscanf(file_buf, "%d", &arg);
             SSCANF_CHECK
-            stk_push(new_buf, arg);
+            stk_push(new_buf, arg, list);
+            RETURN_VOID
         }
     }
-
-    return ALL_RIGHT;
 }
 
-bool complicated_arg_case (Stack* new_buf, Text *const input, char *const str)  //надо еще посмотреть, что тут с cmd_num
+bool complicated_arg_case (Stack* new_buf, Input *const asm_text, char *const str, ErrList *const list)  //надо еще посмотреть, что тут с cmd_num
 {
     assert(new_buf);
-    assert(input  );
-    assert(str    );
+    assert(asm_text);
+    assert(str);
+    assert(list);
 
     bool is_compl = false;
 
@@ -218,41 +223,51 @@ bool complicated_arg_case (Stack* new_buf, Text *const input, char *const str)  
     int arg1 = POISON;
     int arg2 = POISON;
 
-    arg_analysis(input, &arg1, &arg2);
+    arg_analysis(asm_text, &arg1, &arg2, list);
+    RETURN_BOOL
 
     if (arg1 != POISON)
-        stk_push(new_buf, arg1);
+    {
+        stk_push(new_buf, arg1, list);
+        RETURN_BOOL
+    }
     
     if (arg2 != POISON)
-        stk_push(new_buf, arg2);
+    {
+        stk_push(new_buf, arg2, list);
+        RETURN_BOOL
+    }
+        
 
     return is_compl;
 }
 
-Errors arg_analysis (Text *const input, int *const arg1, int *const arg2)
+void arg_analysis (Input *const asm_text, int *const arg1, int *const arg2, ErrList *const list)
 {
-    assert(input);
-    assert(arg1 );
-    assert(arg2 );
+    assert(asm_text);
+    assert(arg1);
+    assert(arg2);
+    assert(list);
 
-    size_t cmd_num = input->cmd_num;
+    size_t cmd_num = asm_text->cmd_num;
     char str[MAX_STR_LEN] = {};
     cmd_num++;
-    char* file_buf = input->addresses[cmd_num];
-    int sscanf_check = sscanf (file_buf, "%s", str); 
+    char* file_buf = asm_text->addresses[cmd_num];
+    int sscanf_res = sscanf (file_buf, "%s", str); 
     SSCANF_CHECK
 
     bool is_register = find_register(str, arg1);
 
     bool is_int = false;
-    if (sscanf_check != 0)
+    if (sscanf_res != 0)
         is_int = true;
 
     if (strncmp(str, BRACE, MAX_STR_LEN) == 0)
     {
-        input->cmd_num = cmd_num;
-        RAM_case(arg1, arg2, input);
-        cmd_num = input->cmd_num;
+        asm_text->cmd_num = cmd_num;
+        RAM_case(arg1, arg2, asm_text, list);
+        RETURN_VOID
+        cmd_num = asm_text->cmd_num;
     }
     else if (is_register)
     {
@@ -260,32 +275,31 @@ Errors arg_analysis (Text *const input, int *const arg1, int *const arg2)
     }
     else if (is_int)
     {
-        sscanf_check = sscanf(file_buf, "%d", arg1);
+        sscanf_res = sscanf(file_buf, "%d", arg1);
         SSCANF_CHECK
 
         *arg1 |= INT;
     }
 
-    input->cmd_num = cmd_num;
-
-    return ALL_RIGHT;
+    asm_text->cmd_num = cmd_num;
 }
 
-Errors RAM_case (int *const arg1, int *const arg2, Text *const input)
+void RAM_case (int *const arg1, int *const arg2, Input *const asm_text, ErrList *const list)
 {
-    assert(input);
+    assert(asm_text);
     assert(arg1);
     assert(arg2);
+    assert(list);
 
     *arg1 |= RAM;
     *arg2 |= RAM;
     
-    size_t cmd_num = input->cmd_num;
+    size_t cmd_num = asm_text->cmd_num;
     char str[MAX_STR_LEN] = {};
     
     cmd_num++;
-    char* file_buf = input->addresses[cmd_num];
-    int sscanf_check = sscanf (file_buf, "%s", str);
+    char* file_buf = asm_text->addresses[cmd_num];
+    int sscanf_res = sscanf (file_buf, "%s", str);
     SSCANF_CHECK
     
     bool is_register = find_register(str, arg1);
@@ -296,56 +310,62 @@ Errors RAM_case (int *const arg1, int *const arg2, Text *const input)
     }
     else
     {
-        sscanf_check = sscanf(file_buf, "%d", arg1);
+        sscanf_res = sscanf(file_buf, "%d", arg1);
         SSCANF_CHECK
         *arg1 |= INT;
         
         cmd_num++;
-        file_buf = input->addresses[cmd_num];
+        file_buf = asm_text->addresses[cmd_num];
 
-        sscanf_check = sscanf (file_buf, "%s", str);
+        sscanf_res = sscanf (file_buf, "%s", str);
         SSCANF_CHECK
 
         if (strncmp(str, PLUS, MAX_STR_LEN) == 0)
         {
-            plus_case(&cmd_num, input, arg2);
+            plus_case(&cmd_num, asm_text, arg2, list);
+            RETURN_VOID
             *arg2 |= REG;
         }
     }
 
     cmd_num++;
 
-    file_buf = input->addresses[cmd_num];
+    file_buf = asm_text->addresses[cmd_num];
 
-    sscanf_check = sscanf (file_buf, "%s", str); 
+    sscanf_res = sscanf (file_buf, "%s", str); 
     SSCANF_CHECK
 
-    input->cmd_num = cmd_num;
-
-    return ALL_RIGHT;
+    asm_text->cmd_num = cmd_num;
 }
 
-Errors plus_case(size_t* cmd_num, Text* input, int* arg2)
+void plus_case(size_t *const cmd_num, Input *const asm_text, int* arg2, ErrList *const list)
 {
+    assert(cmd_num);
+    assert(asm_text);
+    assert(arg2);
+    assert(list);
+
     char str[MAX_STR_LEN] = {};
-    char* file_buf = input->addresses[*cmd_num];
+    char* file_buf = asm_text->addresses[*cmd_num];
 
     (*cmd_num)++;
-    file_buf = input->addresses[*cmd_num];
-    int sscanf_check = sscanf (file_buf, "%s", str);
+    file_buf = asm_text->addresses[*cmd_num];
+    int sscanf_res = sscanf (file_buf, "%s", str);
     SSCANF_CHECK
 
     find_register(str, arg2);
-
-    return ALL_RIGHT;
 }
 
 
-Errors make_binary_file (Stack *const new_buf)
+void make_binary_file (Stack *const new_buf, ErrList *const list)
 {
+    assert(new_buf);
+    assert(list);
+
     int* stack_buf = new_buf->data;
     int* file_buf = (int*)calloc(new_buf->capacity, sizeof(int));
-    ALLOCATION_CHECK(file_buf)
+    ALLOCATION_CHECK_VOID(file_buf)
+
     int file_size = 0;
 
     while(stack_buf[file_size] != POISON)
@@ -358,16 +378,13 @@ Errors make_binary_file (Stack *const new_buf)
     output_file = fopen("out.txt", "wb");
     FILE_CHECK(output_file)
 
-    if (fwrite (file_buf, sizeof(int), file_size, output_file) == false)
-        return WRITE_ERROR;
+    int write_res = fwrite (file_buf, sizeof(int), file_size, output_file);
+    WRITE_CHECK    
 
-    fclose(output_file);
-    if (output_file != nullptr)
-        return CLOSE_ERROR;
+    int close_res = fclose(output_file);
+    CLOSE_CHECK
 
     free(file_buf);
-
-    return ALL_RIGHT;
 }
 
 void print_binary_int (int a) //надо убрать ее в более подходящее место. Или удалить
@@ -416,10 +433,11 @@ bool find_register (const char *const str, int *const arg)
 }
 
 //find_cum_num
-Errors find_cmd_num(char *const str, size_t* cmd)
+void find_cmd_num(char *const str, size_t* cmd, ErrList *const list)
 {
     assert(str);
     assert(cmd);
+    assert(list);
 
     for (size_t cmd_num = 0; cmd_num < CMD_AMT; cmd_num++)
     {
@@ -430,11 +448,10 @@ Errors find_cmd_num(char *const str, size_t* cmd)
         else if (cmd_num > CMD_AMT - 1)
         {
             //printf("there is no such command\n");
-            return SYN_ERROR;
+            ERROR(SYN_ERROR)
+            return;
         }
     }
-
-    return ALL_RIGHT;
 }
 
 bool find_label_mark (const char* const str)
@@ -450,7 +467,7 @@ bool find_label_mark (const char* const str)
     {
         ch = str[i];
 
-        if (ch == LABEL_MARK && i == strlen(str) - 1)  //считается с пробелом. Можно поправить в выявке адресов
+        if (ch == LABEL_MARK && i == strlen(str) - 1)
             is_label = true;
         
         i++;
@@ -486,5 +503,5 @@ size_t find_label(Labels* labels, const char *const str)  //ret будет ра�
             return i;
     }
 
-    return ERROR_VALUE;
-}*/
+    return ERROR_VALUE_SIZE_T;
+}

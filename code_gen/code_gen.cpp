@@ -24,6 +24,8 @@ void code_gen(Tree *const the_tree, ErrList *const list)
     int sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s%s", asm_code, HLT_STR);
     SPRINTF_CHECK_VOID
 
+    fill_input_file(ASM_NAME, asm_code, list);
+
     printf("%s\n", asm_code);
 }
 
@@ -35,7 +37,6 @@ void get_part(Node *const node, char* asm_code, ErrList *const list)
 
     if (IS_SEP)
     {
-
         //это лажово, но я еще подумаю над тем, как бы разделить эти штуки пробелами красиво :(
         get_part(node->Left, asm_code, list);
         RETURN_VOID
@@ -62,7 +63,8 @@ void get_part(Node *const node, char* asm_code, ErrList *const list)
 }
 
 void code_if(Node* node, char *const str, ErrList *const list)
-{  //здесь будет обрабатываться равенство нулю (пока)
+{  
+    //здесь будет обрабатываться равенство нулю (пока тока это, но это легко исправить легкой рукой в грамматиеи)
     assert(node);
     assert(str);
     assert(list);

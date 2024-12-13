@@ -55,7 +55,7 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
         RETURN_VOID
     }
 
-    /*printf("TOKENS\n");
+    printf("TOKENS\n");
     for (int i = 0; i < TOKEN_AMT; i++)
     {
         printf("num %d, type %d, value %d\n", i, tokens[i].type, tokens[i].value);
@@ -67,7 +67,7 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
     {
         printf("num %d, str %.10s, len %d\n", i, ids[i].start_address, ids[i].len);
     }
-    printf("---------------\n");*/
+    printf("---------------\n");
 }
 
 //------------------TOKENS------------------------------
@@ -144,7 +144,7 @@ size_t make_id(Id *const ids, size_t len, char *const text, ErrList *const list)
     assert(list);
 
     size_t ind = find_id(ids, len, text, list);
-    RETURN_VOID
+    RETURN_SIZE_T
 
     ids[ind].len = len;
     ids[ind].start_address = text;

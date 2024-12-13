@@ -4,6 +4,17 @@
 
 static void count_file_size(const char *const name, size_t* size, ErrList *const list);
 
+void get_text(Input *const base_text, char **const argv, ErrList *const list)
+{
+    assert(base_text);
+    assert(argv);
+    assert(list);
+
+    get_database_name(base_text, argv, list);
+	RETURN_VOID
+    get_database_text(base_text, list);
+	RETURN_VOID
+}
 void input_ctor (Input *const base_text, ErrList *const list)
 {
     assert(base_text);
@@ -14,6 +25,9 @@ void input_ctor (Input *const base_text, ErrList *const list)
 
     char* text = (char*)calloc(MAX_FILE_SIZE, sizeof(char));
     ALLOCATION_CHECK_VOID(name)
+
+    char** addresses = (char**)calloc(MAX_CMD_AMT, sizeof(char*));
+    ALLOCATION_CHECK_VOID(addresses)
 
     base_text->name = name;
     base_text->text = text;
@@ -76,4 +90,5 @@ void input_dtor(Input* base_text)
 {
     free(base_text->name);
     free(base_text->text);
+    free(base_text->addresses);
 }
