@@ -17,6 +17,7 @@ static const struct OperationParameters sec_pr [SEC_PR_AMT] = {MUL_STRUCT,
 static const struct OperationParameters unary_op [UNARY_OP_AMT]  = {SIN_STRUCT,
 																    COS_STRUCT};
 
+
 #define REC_ASSERT 	do						\
 					{						\
 						assert(tokens);		\

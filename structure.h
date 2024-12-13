@@ -106,4 +106,5 @@ static const struct OperationParameters* operations [OP_AMT] = {&ADD_STRUCT,
 																&ST3_STRUCT};
 
 
+
 #endif //_STRUCTURE_H_

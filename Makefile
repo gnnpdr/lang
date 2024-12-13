@@ -13,11 +13,6 @@ SYNDIR = syn_analysis
 GENDIR = code_gen
 PROCDIR = proc_lib
 
-#include "code_gen\code_gen.h"
-#include "proc_lib\input.h"
-#include "proc_lib\assembly.h"
-#include "proc_lib\proc.h"
-
 TARGET = soviet_lang
 
 SOURCES = main.cpp

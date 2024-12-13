@@ -36,4 +36,5 @@ static const CodeOp appropriate_cmds[APPR_CMD] = {ADD_CMD,
                                                   END_CMD};
 
 void code_gen(Tree *const the_tree, ErrList *const list);
+
 #endif //_GEN_H_

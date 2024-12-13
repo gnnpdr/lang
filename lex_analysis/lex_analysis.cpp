@@ -3,9 +3,7 @@
 #include "lex_analysis.h"
 
 //и еще - хотелось бы, чтобы концевой эдемент начинался с рубля, а он не читается. почему?
-//проблемы - не читается концевой элемент  (он будто конец и число)
-//----------готово
-//айди ситаются разными. Надо вставить проверку на наличие таких 
+
 
 static void make_token(Token *const tokens, Type type, double val, ErrList *const list);
 static int find_free_token(Token *const tokens, ErrList *const list);

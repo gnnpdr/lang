@@ -19,6 +19,7 @@ static Node* get_id(Token *const tokens, Id *const ids, size_t *const pointer, E
 
 static Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list);
 
+
 Node* analyse_text(Token *const tokens, Id *const ids, Input *const base_text, ErrList *const list)
 {
     assert(tokens);

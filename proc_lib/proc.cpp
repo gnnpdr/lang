@@ -13,8 +13,6 @@ static void jb(Processor* proc, Stack* stk, ErrList *const list);
 static void jbe(Processor* proc, Stack* stk, ErrList *const list);
 static ResultOfComparing comparing(int first_el, int sec_el);
 
-//static void print_regs (RegisterParameters* registers);
-
 void proc_file (Stack* const stk, Processor* const proc, Stack* functions, ErrList *const list)
 {
     assert(stk);

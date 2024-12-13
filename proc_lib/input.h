@@ -9,4 +9,5 @@ static const char SPACE = ' ';
 void handle_text_argv (Input *const text, char **const argv, ErrList *const list);
 void handle_text_wname (Input *const text, const char *const name, ErrList *const list);
 
+
 #endif //_INPUT_H_

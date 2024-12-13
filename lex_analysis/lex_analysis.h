@@ -10,7 +10,6 @@ static const size_t TOKEN_AMT = 30;
 static const size_t ID_AMT = 5;
 
 
-
 struct Token
 {
     Type type;

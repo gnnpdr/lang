@@ -2,6 +2,7 @@
 
 #include "assembly.h"
 
+
 static void fill_labels(Labels *const labels, Input *const asm_text, Stack *const functions, ErrList *const list);
 static bool find_label_mark (const char* const str);
 static bool find_arg (const char *const str);
