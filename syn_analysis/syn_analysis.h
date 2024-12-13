@@ -17,6 +17,25 @@ static const struct OperationParameters sec_pr [SEC_PR_AMT] = {MUL_STRUCT,
 static const struct OperationParameters unary_op [UNARY_OP_AMT]  = {SIN_STRUCT,
 																    COS_STRUCT};
 
-Node* syn_analysis(Token *const tokens, Id *const ids, Err_param *const error);
+#define REC_ASSERT 	do						\
+					{						\
+						assert(tokens);		\
+    					assert(ids);		\
+    					assert(pointer);	\
+    					assert(list);		\
+					}while(0);
+
+#define BR_CHECK  	do 																		\
+					{																		\
+						if (tokens[*pointer].type != OP && tokens[*pointer].value != BR) 	\
+					    {																	\
+					        printf("you dont have a brace at char number %d\n", *pointer);	\
+					        ERROR(SYN_ERROR)												\
+					        return nullptr;													\
+					    }																	\
+						(*pointer)++;														\
+					}while(0);
+
+Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list);
 
 #endif //_SYN_H_

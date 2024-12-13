@@ -9,6 +9,6 @@ static const char* VAR_DEF = "variable";
 
 static const size_t INPUT_FILE_SIZE = 10000;
 
-void graph_dump(Node* const node, Id *const ids, Node* const definite_node, Err_param *const error);
+void graph_dump(Node* const node, Id *const ids, Node* const definite_node, ErrList *const list);
 
 #endif //_DRAW_H_

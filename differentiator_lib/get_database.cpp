@@ -2,29 +2,28 @@
 
 #include "get_database.h"
 
-static void count_file_size(const char *const name, size_t* size, Err_param *const error);
+static void count_file_size(const char *const name, size_t* size, ErrList *const list);
 
-
-void input_ctor (Input *const base_text, Err_param *const error)
+void input_ctor (Input *const base_text, ErrList *const list)
 {
     assert(base_text);
-    assert(error);
+    assert(list);
 
     char* name = (char*)calloc(MAX_STR_LEN, sizeof(char));
-    ALLOCATION_CHECK(name)
+    ALLOCATION_CHECK_VOID(name)
 
     char* text = (char*)calloc(MAX_FILE_SIZE, sizeof(char));
-    ALLOCATION_CHECK(name)
+    ALLOCATION_CHECK_VOID(name)
 
     base_text->name = name;
     base_text->text = text;
 }
 
-void get_database_name(Input *const base_text, char **const argv, Err_param *const error)
+void get_database_name(Input *const base_text, char **const argv, ErrList *const list)
 {
     assert(base_text);
     assert(argv);
-    assert(error);
+    assert(list);
 
     char* name = base_text->name;
 
@@ -34,10 +33,10 @@ void get_database_name(Input *const base_text, char **const argv, Err_param *con
     base_text->name = name;
 }
 
-void get_database_text (Input *const base_text, Err_param *const error)
+void get_database_text (Input *const base_text, ErrList *const list)
 {
     assert(base_text);
-    assert(error);
+    assert(list);
 
     char* base_file_name = base_text->name;
     FILE* input_file;
@@ -47,7 +46,7 @@ void get_database_text (Input *const base_text, Err_param *const error)
 
     size_t size = 0;
 
-    count_file_size(base_text->name, &size, error);
+    count_file_size(base_text->name, &size, list);
     RETURN_VOID
 
     char* text = base_text->text;
@@ -62,13 +61,12 @@ void get_database_text (Input *const base_text, Err_param *const error)
     base_text->size = size;
 }
 
-void count_file_size(const char *const name, size_t* size, Err_param *const error)
+void count_file_size(const char *const name, size_t* size, ErrList *const list)
 {
     assert(name);
     assert(size);
 
     struct stat file_info;
-
     STAT_CHECK(name)
 
     *size = file_info.st_size;

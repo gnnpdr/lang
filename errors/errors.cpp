@@ -2,6 +2,8 @@
 
 #include "errors.h"
 
+static void fill_error(Err_param *const error, LOCATION_DEF, Errors err);
+
 void fill_error(Err_param *const error, LOCATION_DEF, Errors err)
 {
     assert(error);
@@ -12,4 +14,22 @@ void fill_error(Err_param *const error, LOCATION_DEF, Errors err)
     error->file = file;
     error->func = func;
     error->line = line;
+}
+
+void error_list_ctor(ErrList *const list)
+{
+    Err_param* err_list = (Err_param*)calloc(MAX_FILES_AMT, sizeof(Err_param));
+    list->list = err_list;
+    list->head = 0;
+}
+
+void list_push(ErrList *const list, LOCATION_DEF, Errors err)
+{
+    fill_error(list->list + list->head, LOCATION, err);
+    list->head++;
+}
+
+void error_list_dtor(ErrList *const list)
+{
+    free(list->list);
 }

@@ -7,27 +7,28 @@
 //----------готово
 //айди ситаются разными. Надо вставить проверку на наличие таких 
 
-static void make_token(Token *const tokens, Type type, double val, Err_param *const error);
-static int find_free_token(Token *const tokens, Err_param *const error);
+static void make_token(Token *const tokens, Type type, double val, ErrList *const list);
+static int find_free_token(Token *const tokens, ErrList *const list);
 
-static size_t make_id(Id *const ids, size_t len, char *const text, Err_param *const error);
+static size_t make_id(Id *const ids, size_t len, char *const text, ErrList *const list);
 
-static void get_num(char *const text, size_t *const pointer, Token *const tokens, Err_param *const error);
-static void get_op(char *const text, size_t *const pointer, Token *const tokens, Err_param *const error);
+static void get_num(char *const text, size_t *const pointer, Token *const tokens, ErrList *const list);
+static void get_op(char *const text, size_t *const pointer, Token *const tokens, ErrList *const list);
 static size_t find_match(char *const start_address, size_t len);
-static size_t find_id(Id *const ids, size_t len, char *const text, Err_param *const error);
-static void get_id(char *const text, Id *const ids, size_t *const pointer, Token *const tokens, Err_param *const error);
+static size_t find_id(Id *const ids, size_t len, char *const text, ErrList *const list);
+static void get_id(char *const text, Id *const ids, size_t *const pointer, Token *const tokens, ErrList *const list);
 
-void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Err_param* error)
+void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, ErrList *const list)
 {
+    assert(tokens);
+    assert(ids);
     assert(base_text);
-    assert(error);
+    assert(list);
 
     char* text = base_text->text;
 
     size_t pointer = 0;
     size_t size = base_text->size;
-    //printf("SIZE %d\n", size);
     char symb = text[pointer];
 
     while (pointer != size)
@@ -38,27 +39,23 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
             pointer++;
             symb = text[pointer];
         }
-        //printf("cur pointer %d\n", pointer);
-        //printf("CUR TEXT\n--------\n%s\n-----\n", text + pointer);
 
         if (symb >= '0' && symb <= '9')
         {
-            //printf("GET NUM\n");
-            get_num(text, &pointer, tokens, error);
+            get_num(text, &pointer, tokens, list);
         }
         else if (symb == ID_MARK)
         {
-            //printf("GET ID\n");
-            get_id(text, ids, &pointer, tokens, error);
+            get_id(text, ids, &pointer, tokens, list);
         }
         else
         {
-            //printf("GET OP\n");
-            get_op(text, &pointer, tokens, error);
+            get_op(text, &pointer, tokens, list);
         }
+        RETURN_VOID
     }
 
-    printf("TOKENS\n");
+    /*printf("TOKENS\n");
     for (int i = 0; i < TOKEN_AMT; i++)
     {
         printf("num %d, type %d, value %d\n", i, tokens[i].type, tokens[i].value);
@@ -70,45 +67,45 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
     {
         printf("num %d, str %.10s, len %d\n", i, ids[i].start_address, ids[i].len);
     }
-    printf("---------------\n");
+    printf("---------------\n");*/
 }
 
 //------------------TOKENS------------------------------
-Token* tokens_ctor(Err_param *const error)
+Token* tokens_ctor(ErrList *const list)
 {
-    assert(error);
+    assert(list);
 
     Token* tokens = (Token*)calloc(TOKEN_AMT, sizeof(Token));
-    ALLOCATION_CHECK_RET(tokens)
+    ALLOCATION_CHECK_PTR(tokens)
 
     for (int i = 0; i < TOKEN_AMT; i++)
-        tokens[i].value = ERROR_VALUE;
+        tokens[i].value = ERROR_VALUE_INT;
 
     return tokens;
 }
 
-void make_token(Token *const tokens, Type type, double val, Err_param *const error)
+void make_token(Token *const tokens, Type type, double val, ErrList *const list)
 {
     assert(tokens);
-    assert(error);
+    assert(list);
 
-    size_t ind = find_free_token(tokens, error);
+    size_t ind = find_free_token(tokens, list);
     RETURN_VOID
 
     tokens[ind].type = type;
     tokens[ind].value = val;
 }
 
-int find_free_token(Token *const tokens, Err_param *const error)
+int find_free_token(Token *const tokens, ErrList *const list)
 {
     assert(tokens);
-    assert(error);
+    assert(list);
 
     size_t free_ind = ERROR_VALUE_SIZE_T;
 
     for (size_t ind = 0; ind < TOKEN_AMT; ind++)
     {
-        if (tokens[ind].value == ERROR_VALUE)
+        if (tokens[ind].value == ERROR_VALUE_INT)
         {
             free_ind = ind;
             break;
@@ -116,10 +113,7 @@ int find_free_token(Token *const tokens, Err_param *const error)
     }
 
     if (free_ind == ERROR_VALUE_SIZE_T)
-    {
-        printf("no free tokens\n");
         ERROR(ALLOCATION_ERROR)
-    }
 
     return free_ind;
 }
@@ -130,12 +124,12 @@ void tokens_dtor(Token *const tokens)
 }
 
 //-------------------------IDS--------------------------------
-Id* id_ctor(Err_param *const error)
+Id* id_ctor(ErrList *const list)
 {
-    assert(error);
+    assert(list);
 
     Id* ids = (Id*)calloc(ID_AMT, sizeof(Id));
-    ALLOCATION_CHECK_RET(ids)
+    ALLOCATION_CHECK_PTR(ids)
 
     for (int i = 0; i < ID_AMT; i++)
         ids[i].len = ERROR_VALUE_SIZE_T;
@@ -143,18 +137,14 @@ Id* id_ctor(Err_param *const error)
     return ids;
 }
 
-size_t make_id(Id *const ids, size_t len, char *const text, Err_param *const error)
+size_t make_id(Id *const ids, size_t len, char *const text, ErrList *const list)
 {
     assert(ids);
     assert(text);
-    assert(error);
+    assert(list);
 
-    size_t ind = find_id(ids, len, text, error);
-    if (ind == ERROR_VALUE_SIZE_T)
-    {
-        printf("no free ids\n");
-        return ind;
-    }
+    size_t ind = find_id(ids, len, text, list);
+    RETURN_VOID
 
     ids[ind].len = len;
     ids[ind].start_address = text;
@@ -162,10 +152,10 @@ size_t make_id(Id *const ids, size_t len, char *const text, Err_param *const err
     return ind;
 }
 
-size_t find_id(Id *const ids, size_t len, char *const text, Err_param *const error)
+size_t find_id(Id *const ids, size_t len, char *const text, ErrList *const list)
 {
     assert(ids);
-    assert(error);
+    assert(list);
     assert(text);
 
     for (size_t i = 0; i < ID_AMT; i++)
@@ -188,12 +178,12 @@ void ids_dtor(Id *const ids)
 }
 
 //----------------------LEX_ANALYSIS-------------------------
-void get_num(char *const text, size_t *const pointer, Token *const tokens, Err_param *const error)
+void get_num(char *const text, size_t *const pointer, Token *const tokens, ErrList *const list)
 {
     assert(text);
     assert(pointer);
     assert(tokens);
-    assert(error);
+    assert(list);
 
     double val = 0;
 
@@ -210,16 +200,16 @@ void get_num(char *const text, size_t *const pointer, Token *const tokens, Err_p
         return;
     }
 
-    make_token(tokens, NUM, val, error);
+    make_token(tokens, NUM, val, list);
     RETURN_VOID
 }
 
-void get_op(char *const text, size_t *const pointer, Token *const tokens, Err_param *const error)
+void get_op(char *const text, size_t *const pointer, Token *const tokens, ErrList *const list)
 {
     assert(text);
     assert(pointer);
     assert(tokens);
-    assert(error);
+    assert(list);
 
     size_t len = 0;
     char* start_address = text + *pointer;
@@ -241,7 +231,8 @@ void get_op(char *const text, size_t *const pointer, Token *const tokens, Err_pa
     if (op_ind == ERROR_VALUE_SIZE_T)
         return;
     
-    make_token(tokens, OP, op_ind, error);
+    make_token(tokens, OP, op_ind, list);
+    RETURN_VOID
 
     *pointer += len;
 }
@@ -257,7 +248,6 @@ size_t find_match(char *const start_address, size_t len)
         int cmp_res = strncmp(start_address, operations[ind]->name, len);
         if(cmp_res == 0)
         {
-            //printf("def op %s\n", operations[ind]->name);
             match_ind = ind;
             break;
         }
@@ -266,12 +256,12 @@ size_t find_match(char *const start_address, size_t len)
     return match_ind;
 }
 
-void get_id(char *const text, Id *const ids, size_t *const pointer, Token *const tokens, Err_param *const error)
+void get_id(char *const text, Id *const ids, size_t *const pointer, Token *const tokens, ErrList *const list)
 {
     assert(text);
     assert(pointer);
     assert(tokens);
-    assert(error);
+    assert(list);
 
     (*pointer)++;
 
@@ -281,10 +271,10 @@ void get_id(char *const text, Id *const ids, size_t *const pointer, Token *const
     while (isalpha(*(start_address + len)))
         len++;
     
-    size_t id_ind = make_id(ids, len, start_address, error);
+    size_t id_ind = make_id(ids, len, start_address, list);
     RETURN_VOID
 
-    make_token(tokens, ID, id_ind, error);
+    make_token(tokens, ID, id_ind, list);
     RETURN_VOID
 
     *pointer += len;

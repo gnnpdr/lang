@@ -8,8 +8,8 @@
 
 static const size_t TOKEN_AMT = 30;
 static const size_t ID_AMT = 5;
-static const size_t ERROR_VALUE_SIZE_T = 993;
-static const int ERROR_VALUE = -8;
+
+
 
 struct Token
 {
@@ -24,12 +24,12 @@ struct Id
     //доп инфа
 };
 
-Token* tokens_ctor(Err_param *const error);
-Id* id_ctor(Err_param *const error);
+Token* tokens_ctor(ErrList *const list);
+Id* id_ctor(ErrList *const list);
 
 void tokens_dtor(Token *const tokens);
 void ids_dtor(Id *const ids);
 
-void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Err_param* error);
+void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, ErrList *const list);
 
 #endif //_LEX_H_

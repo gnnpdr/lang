@@ -2,19 +2,24 @@
 
 #include "tree_structure.h"
 
-Node* node_ctor ()
+Node* node_ctor (ErrList *const list)
 {
+	assert(list);
+
 	Node* node = (Node*)calloc(1, sizeof(Node));
+	ALLOCATION_CHECK_PTR(node)
 
 	return node;  //проверка осуществляется вне функции
 }
 
-Node* make_node(Type type, double value, Node* Left, Node* Right, Err_param *const error)
+Node* make_node(Type type, double value, Node* Left, Node* Right, ErrList *const list)
 {
-	assert(error);
+	assert(Left);
+	assert(Right);
+	assert(list);
 
-	Node* node = node_ctor();
-	ALLOCATION_CHECK_RET(node)
+	Node* node = node_ctor(list);
+	RETURN_PTR
 	
 	node->type = type;
 	node->value = value;
@@ -34,6 +39,8 @@ void tree_ctor (Tree *const the_tree, Node *const start_node)
 
 Node* tree_dtor(Node* node)
 {
+	assert(node);
+	
 	if (!node->Left && !node->Right)
 	{
 		free(node);
