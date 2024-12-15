@@ -8,6 +8,7 @@ static const int    REG_START_VALUE =  -1;
 
 static const size_t CMD_AMT     =  19;
 
+
 enum CommandsNums
 {
     PUSH_A  = 1 ,

@@ -37,6 +37,7 @@ int main(int argc, char** argv)
 	MAIN
 	
 	//с этого момента ничего не работает. При комментировании проверок или диторов тоже ничего не работает
+	
 	input_dtor(&base_text);
 	tokens_dtor(tokens);
 	ids_dtor(ids);

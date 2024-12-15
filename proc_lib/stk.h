@@ -32,4 +32,5 @@ void stk_dtor(Stack *const stk);
 void stk_push(Stack *const stk, stack_element_t element, ErrList *const list);
 void stk_pop(Stack *const stk, stack_element_t* elem, ErrList *const list);
 
+
 #endif //_CTOR_H_

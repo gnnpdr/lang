@@ -68,6 +68,7 @@ struct JumpParameters
     comparator_t comparator;
 };
 
+
 void proc_file (Stack* const stk, Processor* const proc, Stack* functions, ErrList *const list);
 
 #endif //_PROC_H_

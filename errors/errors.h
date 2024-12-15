@@ -219,4 +219,5 @@ void error_list_ctor(ErrList *const list);
 void list_push(ErrList *const list, LOCATION_DEF, Errors err);
 void error_list_dtor(ErrList *const list);
 
+
 #endif //_ERRORS_H_

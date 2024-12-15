@@ -30,4 +30,5 @@ void get_database_name(Input *const base_text, char **const argv, ErrList *const
 void get_database_text (Input *const base_text, ErrList *const list);
 void input_dtor(Input* base_text);
 
+
 #endif //_BASE_H_

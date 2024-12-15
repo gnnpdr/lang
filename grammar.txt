@@ -28,14 +28,13 @@
 //---------------------------------------------------------------
 
 text:
-
 *superstar ravenstvo 2.
 revolution !*superstar darim 2! *superstar ravenstvo 1991.
 *stalin ravenstvo *superstar religia 9.
 @1991
 
 //-----------------
-// 2st
+// 2 ver
 // изменения в том, как скрепляются строчки кода
 
 // G ::= PART + ₽1991
