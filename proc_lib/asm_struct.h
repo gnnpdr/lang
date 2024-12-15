@@ -1,13 +1,21 @@
 #ifndef _DATA_H_
 #define _DATA_H_
 
-static const char   START_CHAR  = 'a';
-static const int    REG_START_VALUE =  -1;
+//static const char   START_CHAR  = 'a';
+//static const int    REG_START_VALUE =  -1;
 
 //-----------------------COMMANDS---------------------------------------------------------------------------
 
-static const size_t CMD_AMT     =  19;
+static const size_t CMD_AMT  =  18;
 
+
+enum ArgType
+{
+    ARG_NUM, 
+    ARG_LAB,
+    ARG_RAM,
+    ARG_REG
+};
 
 enum CommandsNums
 {
@@ -16,20 +24,19 @@ enum CommandsNums
     SUB_A   = 3 ,
     MUL_A   = 4 ,
     DIV_A   = 5 ,
-    SQRT_A  = 6 ,
-    SIN_A   = 7 ,
-    COS_A   = 8 ,
-    OUT_A   = 9 ,
-    HLT_A   = 10,
-    POP_A   = 11,
-    JA_A    = 12,
-    JAE_A   = 13,
-    JB_A    = 14,
-    JBE_A   = 15,
-    JE_A    = 16,
-    JNE_A   = 17,
-    JMP_A   = 18,
-    RET_A   = 19
+    SIN_A   = 6 ,
+    COS_A   = 7 ,
+    OUT_A   = 8 ,
+    HLT_A   = 9 ,
+    POP_A   = 10,
+    JA_A    = 11,
+    JAE_A   = 12,
+    JB_A    = 13,
+    JBE_A   = 14,
+    JE_A    = 15,
+    JNE_A   = 16,
+    JMP_A   = 17,
+    RET_A   = 18
 };
 
 static const char* POP_STR  =  "pop";
@@ -54,17 +61,16 @@ struct CommandParameters
     size_t       arg_amt;
 };
 
-const struct CommandParameters PushStr  =  {"push" , PUSH_A , 2};
+const struct CommandParameters PushStr  =  {"push" , PUSH_A , 1};
 const struct CommandParameters AddStr   =  {"add"  , ADD_A  , 0};
 const struct CommandParameters SubStr   =  {"sub"  , SUB_A  , 0};
 const struct CommandParameters MulStr   =  {"mul"  , MUL_A  , 0};
 const struct CommandParameters DivStr   =  {"div"  , DIV_A  , 0};
-const struct CommandParameters SqrtStr  =  {"sqrt" , SQRT_A , 1};
 const struct CommandParameters SinStr   =  {"sin"  , SIN_A  , 1};
 const struct CommandParameters CosStr   =  {"cos"  , COS_A  , 1};
 const struct CommandParameters HltStr   =  {"hlt"  , HLT_A  , 0};
 const struct CommandParameters OutStr   =  {"out"  , OUT_A  , 0};
-const struct CommandParameters PopStr   =  {"pop"  , POP_A  , 2};
+const struct CommandParameters PopStr   =  {"pop"  , POP_A  , 1};
 const struct CommandParameters JaStr    =  {"ja"   , JA_A   , 1};
 const struct CommandParameters JaeStr   =  {"jae"  , JAE_A  , 1};
 const struct CommandParameters JbStr    =  {"jb"   , JB_A   , 1};
@@ -79,7 +85,6 @@ static const CommandParameters bunch_of_commands [CMD_AMT]  =   {PushStr,
                                                                 SubStr   ,
                                                                 MulStr   ,
                                                                 DivStr   ,
-                                                                SqrtStr  ,
                                                                 SinStr   ,
                                                                 CosStr   ,
                                                                 HltStr   ,
@@ -102,27 +107,28 @@ static const size_t LABELS_AMT = 10;
 
 static const char LABEL_MARK = ':';
 
-enum LabelType
+/*enum LabelType
 {
     LABEL_DEF,
-    ARG
-};
+    LABEL_ARG
+};*/
 
 struct LabelParameters
 {
     int target;
-    char* name;
+    char* start_word;  //это надо будет тсправить: переместить структуру так, чтобы можно было прикрепить слово
+    size_t len;        // хотя стоит ли??  все-таки таких слов может быть несколько, пусть они так хранятся
 };
 
-struct Labels
+/*struct Labels
 {
     LabelParameters* labels;
-    LabelType label_type;
-};
+    
+};*/
 
 //--------------------------------REGISTERS---------------------------------------------------------------
 
-static const size_t REG_AMT = 4;
+/*static const size_t REG_AMT = 4;
 
 enum Registers
 {
@@ -152,7 +158,7 @@ static struct RegisterParameters dx = {REG_START_VALUE, DX_STR, DX};
 static struct RegisterParameters* registers [REG_AMT] = {&ax,
                                                          &bx,
                                                          &cx,
-                                                         &dx};
+                                                         &dx};*/
 
 //--------------------------------ARGS----------------------------------------------------------------
 
@@ -161,18 +167,19 @@ static const size_t COMPL_ARG_AMT =  2;
 static const size_t RAM_AMT       = 50;
 
 static const char* PLUS  = "+";
-static const char* BRACE = "[";
+static const char RAM_MARK = '[';
+//static const char RAM_MARK_C = ']';
 
 static const int BITS_IN_BYTES = 8;
 static const int INT_BYTE_SIZE = sizeof(int)*BITS_IN_BYTES;
 
-enum ArgType
+/*enum ArgType
 {
     INT  =   1 << (sizeof(int)*BITS_IN_BYTES - 1) ,
     REG  =   1 << (sizeof(int)*BITS_IN_BYTES - 2) ,
     RAM  =   1 << (sizeof(int)*BITS_IN_BYTES - 3) ,
     FREE = ~(7 << (sizeof(int)*BITS_IN_BYTES - 3)),
-};
+};*/
 
 static const char* MK_ARGS[6] = {
                                  JA_STR,

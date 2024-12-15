@@ -4,20 +4,24 @@
 
 #include "input.h"
 
-static void remove_carriage(Input *const text, ErrList *const list);
+//надо сделать так, чтобы не читало нули в конце
 
-void handle_text_argv (Input *const text, char **const argv, ErrList *const list)
+Word* word_list_ctor(ErrList *const list)
 {
-    assert(text);
-    assert(argv);
     assert(list);
 
-    get_database_name(text, argv, list);  
-    RETURN_VOID
-    get_database_text(text, list);
-    RETURN_VOID
-    remove_carriage(text, list);
-    RETURN_VOID
+    Word* words = (Word*)calloc(FILE_CMD_AMT, sizeof(Word));
+    ALLOCATION_CHECK_PTR(words)
+
+    for (size_t i = 0; i < FILE_CMD_AMT; i++)
+        words[i].len = ERROR_VALUE_SIZE_T;
+
+    return words;
+}
+
+void word_list_dtor(Word *const words)
+{
+    free(words);
 }
 
 void handle_text_wname (Input *const text, const char *const name, ErrList *const list)
@@ -29,56 +33,58 @@ void handle_text_wname (Input *const text, const char *const name, ErrList *cons
     CPY_CHECK(text->name)
     get_database_text(text, list);
     RETURN_VOID
-    remove_carriage(text, list);
-    RETURN_VOID
 }
 
-void remove_carriage(Input *const text, ErrList *const list)
+void get_code(Input *const asm_text, Word *const words, ErrList *const list)
 {
-    assert(text);
+    assert(asm_text);
+    assert(words);
     assert(list);
 
-    size_t symb_num = 0;
-    size_t word_cnt = 0;
+    char* text = asm_text->text;  //он уже загружен другой функцией в мэйне
 
-    size_t size = text->size;
-    char* buf = text->text;
-    char** addresses = text->addresses;
+    size_t size = asm_text->size;
+    size_t str_num = 0;
+    size_t len = 1;
+    size_t word_num = 0;
 
-    addresses[word_cnt] = buf + symb_num;
-
-    while (symb_num < size)
+    for (size_t pointer = 0; pointer < size; pointer++)
     {
-        char* ch = buf + symb_num;
+        if (!isspace(text[pointer]))
+        {
+            words[word_num].word_start = text + pointer;
+            pointer++;
 
-        if (*ch == SPACE)
-        {
-            *ch = '\0';
-            word_cnt++;
-            addresses[word_cnt] = buf + symb_num + 1;  //было +1. Можно поменять на +2 чтобы не было проблем в нахождении : в лэйблах
-        }
-        else if (*ch == '\r')
-        {
-            *ch = '\0';
-        }
-        else if (*ch == COMMENT_MARK)
-        {
-            do
+            while(!isspace(text[pointer]))
             {
-                symb_num++;
-                ch = buf + symb_num;
+                len++;
+                pointer++;
             }
-            while (*ch != '\n');
-        }
-        else if (*ch == '\n')
-        {
-            *ch = '\0';
-            word_cnt++;
-            addresses[word_cnt] = buf + symb_num + 1;
-        }
+            words[word_num].len = len;
+            words[word_num].str_num = str_num;
+            if (str_num != 0)
+            {
+                if (words[word_num - 1].str_num < str_num)
+                    words[word_num].type = CMD;
+                else
+                    words[word_num].type = ARG;
+            }
 
-        symb_num++;
+            if (text[pointer] == '\n')
+                str_num++;
+
+            len = 1;
+            word_num++;
+        }
+        else
+        {
+            if (text[pointer] == '\n')
+                str_num++;
+            continue;
+        }
+            
     }
 
-    text->cmd_amt = word_cnt;
+    for (int i = 0; i < word_num; i++)
+        printf("text %.10s\nlen %d\nstr %d\ntype %d\n----------\n", words[i].word_start, words[i].len, words[i].str_num, words[i].type);
 }

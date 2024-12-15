@@ -3,11 +3,28 @@
 
 #include "..\code_gen\code_gen.h"
 
-static const char COMMENT_MARK = ';';
-static const char SPACE = ' ';
+enum WordType
+{
+    CMD, 
+    ARG,
+    LABEL_ARG,
+    LABEL_CMD
+};
 
-void handle_text_argv (Input *const text, char **const argv, ErrList *const list);
+struct Word
+{
+    char* word_start;
+    size_t len;
+    size_t str_num; 
+    WordType type;
+};
+
+static const size_t FILE_CMD_AMT = 100;
+
+Word* word_list_ctor(ErrList *const list);
+void word_list_dtor(Word *const words);
+
 void handle_text_wname (Input *const text, const char *const name, ErrList *const list);
-
+void get_code(Input *const asm_text, Word *const words, ErrList *const list);
 
 #endif //_INPUT_H_

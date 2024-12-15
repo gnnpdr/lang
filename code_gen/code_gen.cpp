@@ -16,15 +16,24 @@ void code_gen(Tree *const the_tree, ErrList *const list)
     assert(the_tree);
     assert(list);
 
-    char asm_code[MAX_FILE_SIZE] = {};
+    char* asm_code = (char*)calloc(MAX_FILE_SIZE, sizeof(char));
+    ALLOCATION_CHECK_VOID(asm_code)
 
     Node* root = the_tree->root;
     get_part(root, asm_code, list);
     RETURN_VOID
-    int sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s%s", asm_code, HLT_STR);
+    int sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s%s\n", asm_code, HLT_STR);
     SPRINTF_CHECK_VOID
 
+    printf("%s\n", asm_code);
+    //printf("hello\n");
+    //проблема здесью Получается, программа прекращает работу на этой функции, но при этом доходит в ней до концаю
+    //попробуд сейчас просто с созданным файлом подключить процессор
     fill_input_file(ASM_NAME, asm_code, list);
+    //printf("here\n");
+    //RETURN_VOID
+    free(asm_code);
+    
 }
 
 void get_part(Node *const node, char* asm_code, ErrList *const list)

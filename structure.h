@@ -7,7 +7,7 @@
 static const size_t VAR_AMT =  1;
 static const size_t OP_AMT  =  14;
 
-static const double START_VALUE =  0;
+static const double START_VALUE =  -1;
 static const char ID_MARK = '*';
 static const char END_MARK = '@';
 

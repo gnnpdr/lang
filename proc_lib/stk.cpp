@@ -52,11 +52,11 @@ void stk_push(Stack *const stk, stack_element_t element, ErrList *const list)
     size++;
     stk->size = size;
 
-    /*printf("--------------------------------\nSTACK PUSH\n");
+    printf("--------------------------------\nSTACK PUSH\n");
     printf("\n\n");
     for (size_t i = 0; i < stk->capacity; i++)
             printf("%d ", stk->data[i]);
-    printf("\n");*/
+    printf("\n");
 }
 
 

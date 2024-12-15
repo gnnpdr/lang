@@ -30,14 +30,16 @@ int main(int argc, char** argv)
 
 	root = analyse_text(tokens, ids, &base_text, &list);
 	MAIN
-	graph_dump(root, ids, root, &list);
+	
 	Tree the_tree = {};
+	
 	tree_ctor (&the_tree, root);
+	graph_dump(root, ids, root, &list);
+
+
 	code_gen(&the_tree, &list);
+	//printf("88\n");
 	MAIN
-	
-	//с этого момента ничего не работает. При комментировании проверок или диторов тоже ничего не работает
-	
 	input_dtor(&base_text);
 	tokens_dtor(tokens);
 	ids_dtor(ids);
@@ -45,25 +47,29 @@ int main(int argc, char** argv)
 
 	Input asm_text = {};
     input_ctor(&asm_text, &list);
+
+	//Wors
+	//printf("52\n");
+	//printf("text %p\naddresses %p\n text->text %p\n", &asm_text, asm_text.addresses, asm_text.text);
 	MAIN
     handle_text_wname (&asm_text, ASM_NAME, &list);
 	MAIN
+	Word* words = word_list_ctor(&list);
+	get_code(&asm_text, words, &list);
 
-	Labels labels = {};
-    Stack functions = {};
-    stk_ctor(&functions, &list);
+	LabelParameters* labels = ctor_labels(&list);
+	//printf("here!!\n");
+    Stack stk_code = {};
+    stk_ctor(&stk_code, &list);
+	//printf("now_here\n");
 	MAIN
-    ctor_labels(&labels, &list);
+	
+    assembly(words, labels, &stk_code, &list);
 	MAIN
-    Stack new_buf = {};
-    stk_ctor(&new_buf, &list);
-	MAIN
+	
+	dtor_labels(labels);
 
-    assembly(&asm_text, &labels, &new_buf, &functions, &list);
-	MAIN
-    dtor_labels(&labels);
-
-    Stack stk = {};
+    /*Stack stk = {};
     stk_ctor(&stk, &list);
 	MAIN
 
@@ -71,12 +77,14 @@ int main(int argc, char** argv)
     proc.new_file_buf = new_buf.data;
     proc.ncmd = new_buf.size;
     proc_file (&stk, &proc, &functions, &list);
-	MAIN
+	MAIN*/
+
 
 	input_dtor(&asm_text);
-    stk_dtor(&stk);
-    stk_dtor(&new_buf);
-    stk_dtor(&functions);
+	word_list_dtor(words);
+    stk_dtor(&stk_code);
+    /*stk_dtor(&new_buf);
+    stk_dtor(&functions);*/
 
 	error_list_dtor(&list);
 }
