@@ -38,8 +38,8 @@ int main(int argc, char** argv)
 
 
 	code_gen(&the_tree, &list);
-	//printf("88\n");
 	MAIN
+
 	input_dtor(&base_text);
 	tokens_dtor(tokens);
 	ids_dtor(ids);
@@ -47,21 +47,17 @@ int main(int argc, char** argv)
 
 	Input asm_text = {};
     input_ctor(&asm_text, &list);
-
-	//Wors
-	//printf("52\n");
-	//printf("text %p\naddresses %p\n text->text %p\n", &asm_text, asm_text.addresses, asm_text.text);
 	MAIN
+
     handle_text_wname (&asm_text, ASM_NAME, &list);
 	MAIN
 	Word* words = word_list_ctor(&list);
 	get_code(&asm_text, words, &list);
 
 	LabelParameters* labels = ctor_labels(&list);
-	//printf("here!!\n");
+	
     Stack stk_code = {};
     stk_ctor(&stk_code, &list);
-	//printf("now_here\n");
 	MAIN
 	
     assembly(words, labels, &stk_code, &list);
@@ -69,22 +65,31 @@ int main(int argc, char** argv)
 	
 	dtor_labels(labels);
 
-    /*Stack stk = {};
-    stk_ctor(&stk, &list);
+	Input bin_code = {};
+    input_ctor(&bin_code, &list);
 	MAIN
 
-	Processor proc = {};
-    proc.new_file_buf = new_buf.data;
-    proc.ncmd = new_buf.size;
-    proc_file (&stk, &proc, &functions, &list);
-	MAIN*/
+	handle_text_wname (&bin_code, BIN_FILE_NAME, &list);
+	MAIN
 
+	Proc proc = {};
+	proc_ctor(&proc, &list);
+	MAIN
+	printf("1\n");
+	get_bin_code(&bin_code, &proc, &list);  //надо поставить проверку на EOF и все ок должно пройти
+	printf("2\n");
+	Stack prog = {};
+    stk_ctor(&prog, &list);
+	MAIN
+	printf("3\n");
+	proc_code(&proc, &prog, &list);  // надо добавить регистры, некоторые функции типа вывод аргумента
+									 //надо сделать все необходимые штуки для написания функций - ret и тд
+	proc_dtor(&proc);
+	stk_dtor(&prog);
 
 	input_dtor(&asm_text);
 	word_list_dtor(words);
     stk_dtor(&stk_code);
-    /*stk_dtor(&new_buf);
-    stk_dtor(&functions);*/
 
 	error_list_dtor(&list);
 }

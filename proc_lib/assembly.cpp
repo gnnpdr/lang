@@ -5,8 +5,9 @@
 static void get_labels(Word *const words, LabelParameters *const labels, ErrList *const list);
 static bool find_label_mark(char *const word, size_t len);
 static size_t find_label (LabelParameters *const labels, char *const word, size_t len);
-static void handle_cmds(Word *const words, LabelParameters *const labels, Stack *const stk_code, ErrList *const list);
+static size_t handle_cmds(Word *const words, LabelParameters *const labels, Stack *const stk_code, ErrList *const list);
 static void handle_args(Word word, LabelParameters *const labels, Stack *const stk_code, ErrList *const list);
+static void fill_bin_file(const char* const  input_file_name, size_t size, const int* const input_file_data, ErrList *const list);
 
 void assembly(Word *const words, LabelParameters *const labels, Stack *const stk_code, ErrList *const list)
 {
@@ -18,8 +19,16 @@ void assembly(Word *const words, LabelParameters *const labels, Stack *const stk
     get_labels(words, labels, list);
     //get_labels(words, labels, list);  //это еще понадобится
     //printf("HERE\n");
-    handle_cmds(words, labels, stk_code, list);
+    size_t dig_amt = handle_cmds(words, labels, stk_code, list);
 
+    int* bin_code = (int*)calloc(dig_amt, sizeof(int));
+    
+    for (size_t i = 0; i < dig_amt; i++)
+        bin_code[i] = stk_code->data[i];
+
+    fill_bin_file(BIN_FILE_NAME, dig_amt, bin_code, list);
+
+    free(bin_code);
 }
 
 LabelParameters* ctor_labels(ErrList *const list)
@@ -52,7 +61,7 @@ void get_labels(Word *const words, LabelParameters *const labels, ErrList *const
 
     while (words[word].len != ERROR_VALUE_SIZE_T)
     {
-        printf("here\n");
+        //printf("here\n");
         //for (int i = 0; i < 20; i++)
         //    printf("text %.10s\nlen %d\nstr %d\ntype %d\n----------\n", words[i].word_start, words[i].len, words[i].str_num, words[i].type);
         //printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
@@ -61,7 +70,7 @@ void get_labels(Word *const words, LabelParameters *const labels, ErrList *const
         if(is_label)
         {
             label = find_label(labels, words[word].word_start, words[word].len);  //с этой штукой стоит еще разобраться. Скорее всего и так работать будет, но можно проще сделать
-            printf("is label\n");
+            //printf("is label\n");
             if (words[word].type == CMD)
             {
                 words[word].type = LABEL_CMD;
@@ -106,7 +115,7 @@ size_t find_label (LabelParameters *const labels, char *const word, size_t len)
     return lab_num;
 }
 
-void handle_cmds(Word *const words, LabelParameters *const labels, Stack *const stk_code, ErrList *const list)
+size_t handle_cmds(Word *const words, LabelParameters *const labels, Stack *const stk_code, ErrList *const list)
 {
     assert(words);
     assert(labels);
@@ -116,6 +125,7 @@ void handle_cmds(Word *const words, LabelParameters *const labels, Stack *const 
     size_t word = 0;
     bool is_label = false;
     size_t label = 0;
+    size_t dig_amt = 0;
 
     while (words[word].len != ERROR_VALUE_SIZE_T)
     {
@@ -125,7 +135,6 @@ void handle_cmds(Word *const words, LabelParameters *const labels, Stack *const 
             continue;
         }
             
-        
         size_t cmd_num = ERROR_VALUE_SIZE_T;
         printf("cmd %.10s\nlen %d\n", words[word].word_start, words[word].len);
         for (size_t cmd = 0; cmd < CMD_AMT; cmd++)  //можно переделать в вайл, там будет красивее
@@ -139,20 +148,23 @@ void handle_cmds(Word *const words, LabelParameters *const labels, Stack *const 
         if(cmd_num == ERROR_VALUE_SIZE_T)
         {
             ERROR(SYN_ERROR)
-            return;
+            return ERROR_VALUE_SIZE_T;
         }
+        dig_amt++;
         stk_push(stk_code, bunch_of_commands[cmd_num].cmd_num, list);
         printf("arg amt %d\n", bunch_of_commands[cmd_num].arg_amt);
-        // за аргумент. Проблема в том, что записываемое и выводимое не совпадают, поэтому хуйня с числом
-        //надо будет придумать, как это пофиксить
+        
         for (size_t arg = 0; arg < bunch_of_commands[cmd_num].arg_amt; arg++)
         {
             word++;
+            dig_amt += 2;
             handle_args(words[word], labels, stk_code, list);
         }
           
         word++;
     }
+
+    return dig_amt;
 }
 
 void handle_args(Word word, LabelParameters *const labels, Stack *const stk_code, ErrList *const list)
@@ -184,11 +196,34 @@ void handle_args(Word word, LabelParameters *const labels, Stack *const stk_code
         stk_push(stk_code, ARG_RAM, list);
         stk_push(stk_code, arg, list);
     }
+    // else - после всего этого будет выделяться тот случай - pop не требует аргументов вообще
+    // для стандартизации закинем туда значение типа 0 или error, будто оно есть но фиктивное
+    /* хорошо бы еще вставить проверку на то, что функция, вызвавшая этот аргумент - pop
+    {
+        
+    }*/
     //регистр
     /*else      //потом расписать регистр, не до этого сейчас
     {
         size_t reg_num = find_reg(word.word_start, word.len);
     }*/
+}
+
+void fill_bin_file(const char* const  input_file_name, size_t size, const int* const input_file_data, ErrList *const list)
+{
+    assert(input_file_name);
+    assert(input_file_data);
+    assert(list);
+
+    FILE* output_file;
+    output_file = fopen(input_file_name, "w");
+    FILE_CHECK(output_file)
+
+    for (size_t i = 0; i < size; i++)
+        fprintf(output_file, "%d ", input_file_data[i]);
+        
+    //fwrite(input_file_data, sizeof(int), INPUT_FILE_SIZE, input_file); 
     
-    
+    int close_res = fclose(output_file);
+    CLOSE_CHECK
 }

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "stk.h"
 
+static const char* BIN_FILE_NAME = "bin_code";
 
 LabelParameters* ctor_labels(ErrList *const list);
 void dtor_labels(LabelParameters *const labels);

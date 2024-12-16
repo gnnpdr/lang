@@ -2,6 +2,7 @@
 #define _INPUT_H_
 
 #include "..\code_gen\code_gen.h"
+#include "proc_struct.h"
 
 enum WordType
 {
@@ -26,5 +27,7 @@ void word_list_dtor(Word *const words);
 
 void handle_text_wname (Input *const text, const char *const name, ErrList *const list);
 void get_code(Input *const asm_text, Word *const words, ErrList *const list);
+
+void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list);
 
 #endif //_INPUT_H_

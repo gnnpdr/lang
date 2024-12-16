@@ -4,8 +4,6 @@
 
 #include "input.h"
 
-//надо сделать так, чтобы не читало нули в конце
-
 Word* word_list_ctor(ErrList *const list)
 {
     assert(list);
@@ -41,7 +39,7 @@ void get_code(Input *const asm_text, Word *const words, ErrList *const list)
     assert(words);
     assert(list);
 
-    char* text = asm_text->text;  //он уже загружен другой функцией в мэйне
+    char* text = asm_text->text;
 
     size_t size = asm_text->size;
     size_t str_num = 0;
@@ -52,6 +50,9 @@ void get_code(Input *const asm_text, Word *const words, ErrList *const list)
     {
         if (!isspace(text[pointer]))
         {
+            if (text[pointer] == '\0')
+                continue;
+
             words[word_num].word_start = text + pointer;
             pointer++;
 
@@ -78,13 +79,48 @@ void get_code(Input *const asm_text, Word *const words, ErrList *const list)
         }
         else
         {
-            if (text[pointer] == '\n')
+            if (text[pointer] == '\n' )
                 str_num++;
             continue;
         }
             
     }
 
-    for (int i = 0; i < word_num; i++)
-        printf("text %.10s\nlen %d\nstr %d\ntype %d\n----------\n", words[i].word_start, words[i].len, words[i].str_num, words[i].type);
+    //for (int i = 0; i < word_num; i++)
+    //    printf("text %.10s\nlen %d\nstr %d\ntype %d\n----------\n", words[i].word_start, words[i].len, words[i].str_num, words[i].type);
+}
+
+void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)
+{
+    assert(base_text);
+    assert(list);
+
+    char* base_file_name = base_text->name;
+    FILE* input_file;
+
+    input_file = fopen(base_file_name, "r");
+    FILE_CHECK(input_file)
+
+    char* text = base_text->text;
+    int* code = proc->code;
+
+    size_t dig = 0;
+    char* ch = nullptr;
+
+    while (text[])  // проверку на EOF
+    {
+        fscanf(input_file, "%d", code[dig]);  // проверка
+        ch* = strchr()
+        dig++;
+    }
+    printf("here\n");
+    int close_res = fclose(input_file);
+    CLOSE_CHECK
+
+    for (int i = 0; i < dig; i++)
+        printf("%d ", code[dig]);
+
+    printf("few\n");
+    
+    proc->size = dig;
 }

@@ -61,18 +61,15 @@ void get_database_text (Input *const base_text, ErrList *const list)
     RETURN_VOID
 
     char* text = base_text->text;
-    
 
     size_t read_result = fread(text, sizeof(char), size, input_file);
     READ_CHECK
-    //printf("OH HELLO\n%s\n", text);
-    //вот здесь он нормально вывелся
+    
     int close_res = fclose(input_file);
     CLOSE_CHECK
 
-    //base_text->text = text;
     strncpy(base_text->text, text, size);
-    //printf("OH HELLO\n%s\n", base_text->text);
+    
     base_text->size = size;
 }
 
