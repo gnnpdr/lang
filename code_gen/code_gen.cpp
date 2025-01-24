@@ -25,10 +25,6 @@ void code_gen(Tree *const the_tree, ErrList *const list)
     int sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s%s\n", asm_code, HLT_STR);
     SPRINTF_CHECK_VOID
 
-    printf("%s\n", asm_code);
-    //printf("hello\n");
-    //проблема здесью Получается, программа прекращает работу на этой функции, но при этом доходит в ней до концаю
-    //попробуд сейчас просто с созданным файлом подключить процессор
     fill_input_file(ASM_NAME, asm_code, list);
     //printf("here\n");
     //RETURN_VOID

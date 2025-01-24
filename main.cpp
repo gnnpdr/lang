@@ -10,33 +10,38 @@
 
 int main(int argc, char** argv)
 {
+	// лист ошибок
     ErrList list = {};
 	error_list_ctor(&list);
 	MAIN
 
+	// получение текста с кодом
 	Input base_text = {};
     input_ctor(&base_text, &list);
 	MAIN
     get_text(&base_text, argv, &list);
 	MAIN
 
+	// создание узла для дерева
 	Node* root = node_ctor(&list);
 	MAIN
-
+	
+	//создание массива слов и айди
 	Token* tokens = tokens_ctor(&list);
 	MAIN
     Id* ids = id_ctor(&list);
 	MAIN
 
+	//создание дерева на основе текста
 	root = analyse_text(tokens, ids, &base_text, &list);
 	MAIN
 	
 	Tree the_tree = {};
-	
+	// связь созданного дерева со структурой дерева и графический вывод
 	tree_ctor (&the_tree, root);
 	graph_dump(root, ids, root, &list);
 
-
+	// генерация ассемблерного кода
 	code_gen(&the_tree, &list);
 	MAIN
 
@@ -44,46 +49,53 @@ int main(int argc, char** argv)
 	tokens_dtor(tokens);
 	ids_dtor(ids);
 	tree_dtor(the_tree.root);
-
+///-----------------------
 	Input asm_text = {};
     input_ctor(&asm_text, &list);
 	MAIN
 
     handle_text_wname (&asm_text, ASM_NAME, &list);
 	MAIN
+	
 	Word* words = word_list_ctor(&list);
+	// заполнение массива слов
 	get_code(&asm_text, words, &list);
 
 	LabelParameters* labels = ctor_labels(&list);
 	
     Stack stk_code = {};
     stk_ctor(&stk_code, &list);
-	MAIN
-	
-    assembly(words, labels, &stk_code, &list);
+	MAIN 
+
+	FuncParameters* funcs = ctor_funcs(&list);
+
+	// переход от ассемблерного кода к цифровому
+    assembly(words, labels, stk_ret, &stk_code, &list);
 	MAIN
 	
 	dtor_labels(labels);
 
+	// обработка цифрового кода
 	Input bin_code = {};
     input_ctor(&bin_code, &list);
 	MAIN
 
 	handle_text_wname (&bin_code, BIN_FILE_NAME, &list);
 	MAIN
-
+	
 	Proc proc = {};
 	proc_ctor(&proc, &list);
 	MAIN
-	printf("1\n");
-	get_bin_code(&bin_code, &proc, &list);  //надо поставить проверку на EOF и все ок должно пройти
-	printf("2\n");
+	
+	get_bin_code(&bin_code, &proc, &list);
+	
 	Stack prog = {};
     stk_ctor(&prog, &list);
 	MAIN
-	printf("3\n");
+	
 	proc_code(&proc, &prog, &list);  // надо добавить регистры, некоторые функции типа вывод аргумента
 									 //надо сделать все необходимые штуки для написания функций - ret и тд
+
 	proc_dtor(&proc);
 	stk_dtor(&prog);
 

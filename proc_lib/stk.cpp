@@ -108,9 +108,9 @@ void stk_pop(Stack *const stk, stack_element_t* elem, ErrList *const list)
     stk->size = size;
     stk->data = data;
 
-    /*printf("--------------------------------\nSTACK POP\n");
+    printf("--------------------------------\nSTACK POP\n");
     printf("\n\n");
     for (size_t i = 0; i < stk->capacity; i++)
             printf("%d ", stk->data[i]);
-    printf("\n");*/
+    printf("\n");
 }

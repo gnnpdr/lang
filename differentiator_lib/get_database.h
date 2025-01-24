@@ -23,6 +23,6 @@ void get_text(Input *const base_text, char **const argv, ErrList *const list);
 void get_database_name(Input *const base_text, char **const argv, ErrList *const list);
 void get_database_text (Input *const base_text, ErrList *const list);
 void input_dtor(Input* base_text);
-
+void count_file_size(const char *const name, size_t* size, ErrList *const list);
 
 #endif //_BASE_H_

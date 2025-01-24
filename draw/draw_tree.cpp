@@ -196,10 +196,9 @@ void fill_input_file(const char* const  input_file_name, const char* const input
     FILE_CHECK(input_file)
 
     fwrite(input_file_data, sizeof(char), INPUT_FILE_SIZE, input_file); 
-    printf("hey\n");
+    
     int close_res = fclose(input_file);
-    printf("1\n");
-    //CLOSE_CHECK
+    CLOSE_CHECK
 }
 
 void do_graph_cmd(const char* const input_file_name, const char* const output_file_name, ErrList *const list)

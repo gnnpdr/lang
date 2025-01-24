@@ -11,8 +11,8 @@ void proc_code(Proc *const proc, Stack *const prog, ErrList *const list);
 
 #define GET_TWO_ARGS    do                                  \
                         {                                   \
-                            sec_el = get_arg(proc, &ip);    \
-                            first_el = get_arg(proc, &ip);  \
+                            /*sec_el = */stk_pop(prog, &sec_el, list);    \
+                            /*first_el = */stk_pop(prog, &first_el, list);  \
                         } while(0);
 
 #define JUMP_INFO       assert(stk != nullptr);                     \

@@ -2,8 +2,6 @@
 
 #include "get_database.h"
 
-static void count_file_size(const char *const name, size_t* size, ErrList *const list);
-
 void get_text(Input *const base_text, char **const argv, ErrList *const list)
 {
     assert(base_text);

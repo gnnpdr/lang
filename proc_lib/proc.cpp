@@ -55,31 +55,38 @@ void proc_code(Proc *const proc, Stack *const prog, ErrList *const list)
         switch(code[ip])
         {
             case PUSH_A:
+                printf("push\n");
                 arg = get_arg(proc, &ip);
+                printf("ARG %d\n\n", arg);
                 stk_push(prog, arg, list);
                 break;
 
             case ADD_A:
+                printf("add\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el + sec_el, list);
                 break;
 
             case SUB_A:
+                printf("sub\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el - sec_el, list);
                 break;
 
             case MUL_A:
+                printf("mul\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el * sec_el, list);
                 break;
 
             case DIV_A:
+                printf("div\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el / sec_el, list);
                 break;
             
             case JA_A:
+                printf("ja\n");
                 ja(proc, prog, &ip, list);
                 break;
 
@@ -100,6 +107,7 @@ void proc_code(Proc *const proc, Stack *const prog, ErrList *const list)
                 break;
 
             case JNE_A:
+                printf("jne\n");
                 jne(proc, prog, &ip, list);
                 break;
 
@@ -109,10 +117,12 @@ void proc_code(Proc *const proc, Stack *const prog, ErrList *const list)
                 break;
 
             case POP_A:
+                printf("pop\n");
                 give_arg(proc, prog, &ip, list);
                 break;
 
             case HLT_A:
+                printf("hlt\n");
                 return;
                 break;
 
@@ -141,16 +151,21 @@ int get_arg(Proc *const proc, size_t *const ip)
     ARG_LAB,
     ARG_RAM,
     ARG_REG*/
+    printf("TYPE %d\n\n", prog[*ip]);
 
-    if (prog[*ip] == ARG_NUM || ARG_LAB)
+    if (prog[*ip] == ARG_NUM || prog[*ip] == ARG_LAB)
     {
+        printf("NUM\n");
         (*ip)++;
         return prog[*ip];
     }
     else if (prog[*ip] == ARG_RAM)
     {
+        printf("RAM\n");
         (*ip)++;
+        printf("PLACE %d\n\n", prog[*ip]);
         arg = RAM[prog[*ip]];
+        //printf("ARG %d\n\n", arg);
     }
     /*else if (prog[ip] == ARG_REG)
     {
@@ -356,9 +371,17 @@ void give_arg(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *co
 
     else if (code[*ip] == ARG_RAM)
     {
+        printf("RAM case\n\n");
         stk_pop(prog, &arg, list);
+        printf("ARG RAM %d\n\n", arg);
         (*ip)++;
+        printf("PLACE %d\n\n", code[*ip]);
         RAM[code[*ip]] = arg;
+
+        printf("RAM\n\n");
+        for (int i = 0; i < 10; i++)
+            printf("%d ", RAM[i]);
+        printf("RAM END\n\n");
     }
     /*else if (code[ip] == ARG_REG)
     {

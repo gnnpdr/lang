@@ -70,6 +70,13 @@ void get_code(Input *const asm_text, Word *const words, ErrList *const list)
                 else
                     words[word_num].type = ARG;
             }
+            else
+            {
+                if (word_num == 0)
+                    words[word_num].type = CMD;
+                else
+                    words[word_num].type = ARG;
+            }
 
             if (text[pointer] == '\n')
                 str_num++;
@@ -83,11 +90,11 @@ void get_code(Input *const asm_text, Word *const words, ErrList *const list)
                 str_num++;
             continue;
         }
-            
     }
-
-    //for (int i = 0; i < word_num; i++)
-    //    printf("text %.10s\nlen %d\nstr %d\ntype %d\n----------\n", words[i].word_start, words[i].len, words[i].str_num, words[i].type);
+    printf("WORDS!\n");
+    for (int i = 0; i < word_num; i++)
+        printf("text %.5s\nlen %d\nstr %d\ntype %d\n----------\n", words[i].word_start, words[i].len, words[i].str_num, words[i].type);
+    printf("WORD END\n\n");
 }
 
 void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)
@@ -104,23 +111,44 @@ void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)
     char* text = base_text->text;
     int* code = proc->code;
 
-    size_t dig = 0;
-    char* ch = nullptr;
+    size_t size = 0;
 
-    while (text[])  // проверку на EOF
+    count_file_size(base_text->name, &size, list);
+    RETURN_VOID
+
+    size_t dig = 0;
+    size_t ind = 0;
+    size_t num_len = 0;
+
+    int num = 0;
+
+    for (int ind = 0; ind < size; ind++)
     {
-        fscanf(input_file, "%d", code[dig]);  // проверка
-        ch* = strchr()
+        if (isspace(text[ind]) || text[ind] == '\0')
+            continue;
+            
+
+        while (isdigit(text[ind]))
+        {
+            num = num * 10 + text[ind] - '0';
+            num_len++;
+            ind++;
+        }
+
+        code[dig] = num;
+        num_len = 0;
+        num = 0;
+
         dig++;
     }
-    printf("here\n");
+
     int close_res = fclose(input_file);
     CLOSE_CHECK
 
-    for (int i = 0; i < dig; i++)
-        printf("%d ", code[dig]);
+    /*for (int i = 0; i < dig; i++)
+        printf("%d ", code[i]);*/
 
-    printf("few\n");
+    //printf("few\n");
     
     proc->size = dig;
 }

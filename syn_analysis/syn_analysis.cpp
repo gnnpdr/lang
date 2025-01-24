@@ -45,7 +45,6 @@ Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list)
     size_t pointer = 0;
 
     Node* root = get_together(tokens, ids, &pointer, list);
-    
     RETURN_PTR
 
     if (tokens[pointer].type != OP && tokens[pointer].value != END)

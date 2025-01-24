@@ -2,11 +2,10 @@
 #define _DATA_H_
 
 //static const char   START_CHAR  = 'a';
-//static const int    REG_START_VALUE =  -1;
 
 //-----------------------COMMANDS---------------------------------------------------------------------------
 
-static const size_t CMD_AMT  =  18;
+static const size_t CMD_AMT  =  19;
 
 
 enum ArgType
@@ -14,7 +13,8 @@ enum ArgType
     ARG_NUM, 
     ARG_LAB,
     ARG_RAM,
-    ARG_REG
+    ARG_REG,
+    ARG_CALL
 };
 
 enum CommandsNums
@@ -36,7 +36,8 @@ enum CommandsNums
     JE_A    = 15,
     JNE_A   = 16,
     JMP_A   = 17,
-    RET_A   = 18
+    CALL_A  = 18,
+    RET_A   = 19
 };
 
 static const char* POP_STR  =  "pop";
@@ -53,6 +54,8 @@ static const char* JBE_STR = "jbe";
 static const char* RET_STR = "ret";
 static const char* HLT_STR = "hlt";
 
+static const char* CALL_STR = "call";
+static const char* RET_STR  = "ret";
 
 struct CommandParameters 
 {
@@ -78,6 +81,7 @@ const struct CommandParameters JbeStr   =  {"jbe"  , JBE_A  , 1};
 const struct CommandParameters JeStr    =  {"je"   , JE_A   , 1};
 const struct CommandParameters JneStr   =  {"jne"  , JNE_A  , 1};
 const struct CommandParameters JmpStr   =  {"jmp"  , JMP_A  , 1};
+const struct CommandParameters CallStr  =  {"call" , CALL_A , 1};
 const struct CommandParameters RetStr   =  {"ret"  , RET_A  , 0};
 
 static const CommandParameters bunch_of_commands [CMD_AMT]  =   {PushStr,
@@ -97,6 +101,7 @@ static const CommandParameters bunch_of_commands [CMD_AMT]  =   {PushStr,
                                                                 JeStr    ,
                                                                 JneStr   ,
                                                                 JmpStr   ,
+                                                                CallStr  ,
                                                                 RetStr   };
 
 
@@ -104,31 +109,37 @@ static const CommandParameters bunch_of_commands [CMD_AMT]  =   {PushStr,
 //----------------------------------LABELS---------------------------------------------------------------------
 
 static const size_t LABELS_AMT = 10;
+static const size_t RET_AMT    = 10;
 
 static const char LABEL_MARK = ':';
 
-/*enum LabelType
-{
-    LABEL_DEF,
-    LABEL_ARG
-};*/
-
 struct LabelParameters
 {
-    int target;
-    char* start_word;  //это надо будет тсправить: переместить структуру так, чтобы можно было прикрепить слово
-    size_t len;        // хотя стоит ли??  все-таки таких слов может быть несколько, пусть они так хранятся
+    size_t arg_target;
+    size_t cmd_target;
+    char* start_word;
+    size_t len;
 };
 
-/*struct Labels
+//--------------------------------FUNCS-------------------------------------
+
+static const size_t FUNCS_AMT = 10;
+
+struct FuncParameters
 {
-    LabelParameters* labels;
-    
-};*/
+    char* start_word;
+    size_t len;
+
+    int* ret_array;   //int на случай, если код слишком большой и error_value_size_t не будет неправильным
+    size_t call_target;  //чтобы потом поменять код, надо знать, где менять, для этого отмечаются здесь и в лэйблах, targetы
+    size_t ret_target;  //заполняться это место будет числом из массива
+
+    size_t ret_word;
+};
 
 //--------------------------------REGISTERS---------------------------------------------------------------
 
-/*static const size_t REG_AMT = 4;
+static const size_t REG_AMT = 4;
 
 enum Registers
 {
@@ -150,15 +161,15 @@ static const char* BX_STR = "bx";
 static const char* CX_STR = "cx";
 static const char* DX_STR = "dx";
 
-static struct RegisterParameters ax = {REG_START_VALUE, AX_STR, AX};
-static struct RegisterParameters bx = {REG_START_VALUE, BX_STR, BX};
-static struct RegisterParameters cx = {REG_START_VALUE, CX_STR, CX};
-static struct RegisterParameters dx = {REG_START_VALUE, DX_STR, DX};
+static struct RegisterParameters ax = {ERROR_VALUE_INT, AX_STR, AX};
+static struct RegisterParameters bx = {ERROR_VALUE_INT, BX_STR, BX};
+static struct RegisterParameters cx = {ERROR_VALUE_INT, CX_STR, CX};
+static struct RegisterParameters dx = {ERROR_VALUE_INT, DX_STR, DX};
 
 static struct RegisterParameters* registers [REG_AMT] = {&ax,
                                                          &bx,
                                                          &cx,
-                                                         &dx};*/
+                                                         &dx};
 
 //--------------------------------ARGS----------------------------------------------------------------
 
