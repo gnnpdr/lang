@@ -9,6 +9,12 @@
 static const size_t TOKEN_AMT = 30;
 static const size_t ID_AMT = 5;
 
+enum IdType
+{
+    VAR_ID,
+    FUNC_ID
+};
+
 
 struct Token
 {
@@ -21,6 +27,8 @@ struct Id
     char* start_address;
     size_t len;
     //доп инфа
+    IdType type;
+    size_t var_amt; //в случае функции, считаем, что последняя переменная - возвращаемое значение
 };
 
 Token* tokens_ctor(ErrList *const list);

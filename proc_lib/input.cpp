@@ -117,7 +117,6 @@ void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)
     RETURN_VOID
 
     size_t dig = 0;
-    size_t ind = 0;
     size_t num_len = 0;
 
     int num = 0;
@@ -127,7 +126,6 @@ void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)
         if (isspace(text[ind]) || text[ind] == '\0')
             continue;
             
-
         while (isdigit(text[ind]))
         {
             num = num * 10 + text[ind] - '0';

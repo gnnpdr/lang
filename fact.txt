@@ -1,0 +1,11 @@
+*num ravenstvo 5.
+*res ravenstvo 1.
+*cnt ravenstvo 1.
+
+v_techenie (*cnt RSDRPM *num)
+!
+    *res ravenstvo *res darim *cnt
+!
+
+slovo *res
+@1991

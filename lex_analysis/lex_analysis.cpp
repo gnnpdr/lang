@@ -2,10 +2,7 @@
 
 #include "lex_analysis.h"
 
-//и еще - хотелось бы, чтобы концевой эдемент начинался с рубля, а он не читается. почему?
-
-
-static void make_token(Token *const tokens, Type type, double val, ErrList *const list);
+static void make_token(Token *const tokens, Type type, int val, ErrList *const list);
 static int find_free_token(Token *const tokens, ErrList *const list);
 
 static size_t make_id(Id *const ids, size_t len, char *const text, ErrList *const list);
@@ -76,13 +73,13 @@ Token* tokens_ctor(ErrList *const list)
     Token* tokens = (Token*)calloc(TOKEN_AMT, sizeof(Token));
     ALLOCATION_CHECK_PTR(tokens)
 
-    for (int i = 0; i < TOKEN_AMT; i++)
+    for (size_t i = 0; i < TOKEN_AMT; i++)
         tokens[i].value = ERROR_VALUE_INT;
 
     return tokens;
 }
 
-void make_token(Token *const tokens, Type type, double val, ErrList *const list)
+void make_token(Token *const tokens, Type type, int val, ErrList *const list)
 {
     assert(tokens);
     assert(list);
@@ -212,22 +209,25 @@ void get_op(char *const text, size_t *const pointer, Token *const tokens, ErrLis
     size_t len = 0;
     char* start_address = text + *pointer;
     
-    while (isalpha(*(start_address + len)))
+    while (isgraph(*(start_address + len)))  //если операция самодельная - она ведь может и цифры содержать или @
         len++;
 
-    char op_mark = text[*pointer];
+    char op_start = text[*pointer];
 
-    if (len == 0)
+    /*if (len == 0)
     {
-        if (op_mark == END_MARK)//вот такой вот костыль, но что уж
+        if (op_start == END_MARK)
             len = 5;
         else 
             len = 1;
-    }
+    }*/
 
-    size_t op_ind = find_match(start_address, len);
+    int op_ind = find_match(start_address, len);
     if (op_ind == ERROR_VALUE_SIZE_T)
-        return;
+    {
+        if (op_start == END_MARK || isdigit(op_start) ) 
+            return;
+    }
     
     make_token(tokens, OP, op_ind, list);
     RETURN_VOID
@@ -269,7 +269,7 @@ void get_id(char *const text, Id *const ids, size_t *const pointer, Token *const
     while (isalpha(*(start_address + len)))
         len++;
     
-    size_t id_ind = make_id(ids, len, start_address, list);
+    int id_ind = make_id(ids, len, start_address, list);
     RETURN_VOID
 
     make_token(tokens, ID, id_ind, list);

@@ -169,7 +169,7 @@ struct ErrList
                             if (list.head != 0)                                                                                         \
                             {                                                                                                           \
                                 printf("you have problem number %d\n", list.list[0].err_num);                                           \
-                                for (int i = 0; i < list.head; i++)                                                                     \
+                                for (size_t i = 0; i < list.head; i++)                                                                     \
                                     printf("in file %s, func %s, line %d\n", list.list[i].file, list.list[i].func, list.list[i].line);  \
                                 return 1;                                                                                               \
                             }                                                                                                           \

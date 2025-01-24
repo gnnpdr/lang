@@ -4,7 +4,7 @@
 #include "input.h"
 
 typedef int stack_element_t;
-static const stack_element_t POISON = -13;
+static const stack_element_t POISON = -993;
 
 static const size_t DELTA          = 2;
 static const size_t DOUBLE_DELTA   = 4;

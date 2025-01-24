@@ -1,7 +1,7 @@
 #ifndef _DATA_H_
 #define _DATA_H_
 
-//static const char   START_CHAR  = 'a';
+//static const int    ERROR_VALUE    = -8;
 
 //-----------------------COMMANDS---------------------------------------------------------------------------
 
@@ -55,7 +55,6 @@ static const char* RET_STR = "ret";
 static const char* HLT_STR = "hlt";
 
 static const char* CALL_STR = "call";
-static const char* RET_STR  = "ret";
 
 struct CommandParameters 
 {
@@ -130,6 +129,8 @@ struct FuncParameters
     char* start_word;
     size_t len;
 
+    size_t var_amt; //чтобы сдвигаться на положенное количество ячеек, если функция будет вызвана не один раз
+    size_t* vars;  //массив новеров ячеек оперативной памяти, которые используются функцией. Последняя - возвращаемое значение
     int* ret_array;   //int на случай, если код слишком большой и error_value_size_t не будет неправильным
     size_t call_target;  //чтобы потом поменять код, надо знать, где менять, для этого отмечаются здесь и в лэйблах, targetы
     size_t ret_target;  //заполняться это место будет числом из массива
@@ -138,7 +139,7 @@ struct FuncParameters
 };
 
 //--------------------------------REGISTERS---------------------------------------------------------------
-
+/*
 static const size_t REG_AMT = 4;
 
 enum Registers
@@ -161,16 +162,16 @@ static const char* BX_STR = "bx";
 static const char* CX_STR = "cx";
 static const char* DX_STR = "dx";
 
-static struct RegisterParameters ax = {ERROR_VALUE_INT, AX_STR, AX};
-static struct RegisterParameters bx = {ERROR_VALUE_INT, BX_STR, BX};
-static struct RegisterParameters cx = {ERROR_VALUE_INT, CX_STR, CX};
-static struct RegisterParameters dx = {ERROR_VALUE_INT, DX_STR, DX};
+static struct RegisterParameters ax = {ERROR_VALUE, AX_STR, AX};
+static struct RegisterParameters bx = {ERROR_VALUE, BX_STR, BX};
+static struct RegisterParameters cx = {ERROR_VALUE, CX_STR, CX};
+static struct RegisterParameters dx = {ERROR_VALUE, DX_STR, DX};
 
 static struct RegisterParameters* registers [REG_AMT] = {&ax,
                                                          &bx,
                                                          &cx,
                                                          &dx};
-
+*/
 //--------------------------------ARGS----------------------------------------------------------------
 
 static const size_t MK_ARGS_STRS  =  6;

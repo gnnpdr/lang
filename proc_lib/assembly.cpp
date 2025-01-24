@@ -6,15 +6,16 @@ static void get_labels(Word *const words, LabelParameters *const labels, ErrList
 static bool find_label_mark(char *const word, size_t len);
 static size_t find_label (LabelParameters *const labels, char *const word, size_t len);
 static size_t handle_cmds(Word *const words, LabelParameters *const labels, FuncParameters *const funcs, Stack *const stk_code, ErrList *const list);
-static void handle_args(Word word, LabelParameters *const labels, Stack *const stk_code, ErrList *const list);
+static void handle_args(size_t word_num, Word word, LabelParameters *const labels, Stack *const stk_code, ErrList *const list);
 static void fill_bin_file(const char* const  input_file_name, size_t size, const int* const input_file_data, ErrList *const list);
 static void fill_labels(Word *const words, LabelParameters *const labels, Stack *const stk_code, ErrList *const list);
 
-static FuncParameters* ctor_funcs(ErrList *const list);
-static void dtor_funcs(FuncParameters *const funcs);
 static size_t find_func (FuncParameters *const funcs, char *const word, size_t len);
-static void fill_func(size_t word_num, FuncParameters func, ErrList *const list);
+static void get_funcs(Word *const words, FuncParameters *const funcs, ErrList *const list);
+static void fill_func_ret(size_t word_num, FuncParameters func, ErrList *const list);
+static void fill_func_args(size_t *const word_num, Word *const words, FuncParameters func, ErrList *const list);
 static size_t find_func_by_ret_num(size_t word_num, FuncParameters* funcs, ErrList *const list);
+
 
 //-------------COMMON---------------------
 
@@ -22,11 +23,16 @@ void assembly(Word *const words, LabelParameters *const labels, FuncParameters *
 {
     ASM_ASSERT
 
+    printf("ASM\n");
+    printf("GET LABELS 1\n");
     get_labels(words, labels, list);
+    printf("GET FUNCKS\n");
     get_funcs(words, funcs, list);
+    printf("HANDLE CMDS\n");
     size_t dig_amt = handle_cmds(words, labels, funcs, stk_code, list);    
+    printf("FILL LABELS\n");
     fill_labels(words, labels, stk_code, list);
-
+    printf("BIN CODE\n");
     int* bin_code = (int*)calloc(dig_amt, sizeof(int));
     
     for (size_t i = 0; i < dig_amt; i++)
@@ -57,6 +63,7 @@ LabelParameters* ctor_labels(ErrList *const list)
     {
         labels[i].cmd_target = ERROR_VALUE_SIZE_T;
         labels[i].arg_target = ERROR_VALUE_SIZE_T;
+        //labels[i].len = ERROR_VALUE_SIZE_T;
     }
 
     return labels;
@@ -84,7 +91,7 @@ size_t find_label (LabelParameters *const labels, char *const word, size_t len)
 
     size_t lab_num = 0;
 
-    while(labels[lab_num].cmd_target != ERROR_VALUE_INT)
+    while(labels[lab_num].cmd_target != ERROR_VALUE_SIZE_T)
     {
         int cmp_res = strncmp(word, labels[lab_num].start_word, len);
 
@@ -110,12 +117,15 @@ void get_labels(Word *const words, LabelParameters *const labels, ErrList *const
 
     while (words[word].len != ERROR_VALUE_SIZE_T)
     {
+        printf("WORD\n", word);
+        printf("len %d\ndata %.5s\ntype %d\n------\n\n", words[word].len, words[word].word_start, words[word].type);
         is_label = find_label_mark(words[word].word_start, words[word].len);
 
         if(is_label)
         {
+            printf("IS LABEL\n");
             label = find_label(labels, words[word].word_start, words[word].len);  //с этой штукой стоит еще разобраться. Скорее всего и так работать будет, но можно проще сделать
-            
+            printf("LABEL %d\n", label);
             if (words[word].type == CMD)
             {
                 words[word].type = LABEL_CMD;
@@ -130,11 +140,11 @@ void get_labels(Word *const words, LabelParameters *const labels, ErrList *const
         word++;
     }
 
-    /*printf("LABELS\n");
+    printf("LABELS\n");
 
     for (int i  = 0; i < LABELS_AMT; i++)
-        printf("text %.5s, len %d, target %d\n", labels[i].start_word, labels[i].len, labels[i].target);
-    printf("LABELS END\n\n");*/
+        printf("text %.5s, len %d\n", labels[i].start_word, labels[i].len);
+    printf("LABELS END\n\n");
 }
 
 void fill_labels(Word *const words, LabelParameters *const labels, Stack *const stk_code, ErrList *const list)
@@ -148,8 +158,9 @@ void fill_labels(Word *const words, LabelParameters *const labels, Stack *const 
     size_t label = 0;
     stack_element_t* data = stk_code->data;
 
-    while (labels[label].len != ERROR_VALUE_SIZE_T)
+    while (labels[label].len != 0)
     {
+        printf("LABEL arg_target %d, cmd_target %d, text %.5s, len %d\n", labels[label].arg_target, labels[label].cmd_target, labels[label].start_word, labels[label].len);
         data[labels[label].arg_target] = labels[label].cmd_target;
         label++;
     }
@@ -231,11 +242,11 @@ void get_funcs(Word *const words, FuncParameters *const funcs, ErrList *const li
         word++;
     }
 
-    for (int func_num = 0; func_num < func_amt; func_num++)//сопоставил ret-ы
+    for (size_t num = 0; num < func_amt; num++)  //сопоставил ret-ы
     {
         while (words[word].len != ERROR_VALUE_SIZE_T) 
         {
-            int cmp_res = strncmp(words[word].word_start, funcs[func_num].start_word, strlen(CALL_STR));
+            int cmp_res = strncmp(words[word].word_start, funcs[num].start_word, funcs[num].len);
 
             if(cmp_res == 0 && words[word].type == CMD)
             {
@@ -247,7 +258,7 @@ void get_funcs(Word *const words, FuncParameters *const funcs, ErrList *const li
                     cmp_res = strncmp(words[word].word_start, RET_STR, strlen(RET_STR));
                 }
 
-                funcs[func_num].ret_word = word;
+                funcs[num].ret_word = word;  //указывает, какое слово по счету в коде какой функции соответствует
             }
             word++;
         }
@@ -255,11 +266,11 @@ void get_funcs(Word *const words, FuncParameters *const funcs, ErrList *const li
     
 }
 
-void fill_func(size_t word_num, FuncParameters func, ErrList *const list)
+void fill_func_ret(size_t word_num, FuncParameters func, ErrList *const list)
 {
     assert(list);
 
-    for (int i = 0; i < RET_AMT; i++)
+    for (size_t i = 0; i < RET_AMT; i++)
     {
         if (func.ret_array[i] == ERROR_VALUE_INT);
         {
@@ -267,6 +278,26 @@ void fill_func(size_t word_num, FuncParameters func, ErrList *const list)
             break;
         }
     }
+}
+
+void fill_func_args(size_t *const word_num, Word *const words, FuncParameters func, ErrList *const list)
+{
+    //заполняет массив аргументов и количество аргументов
+    assert(words);
+    assert(word_num);
+    assert(list);
+
+    size_t var_num = 0;
+    
+    do 
+    {
+        func.vars[var_num] = atoi(words[*word_num].word_start);
+        var_num++;
+        (*word_num)++;
+    }while (words[*word_num].str_num == words[(*word_num) + 1].str_num);
+    //то есть остановится тогда, когда будет на последнем аргументе
+
+    func.var_amt = var_num;
 }
 
 size_t find_func_by_ret_num(size_t word_num, FuncParameters* funcs, ErrList *const list)
@@ -287,10 +318,8 @@ size_t handle_cmds(Word *const words, LabelParameters *const labels, FuncParamet
     ASM_ASSERT
 
     size_t word = 0;
-    bool is_label = false;
     size_t label = 0;
     size_t dig_amt = 0;
-    size_t label = 0;
 
     //int a = 0;
     //scanf("%d", &a);
@@ -303,7 +332,7 @@ size_t handle_cmds(Word *const words, LabelParameters *const labels, FuncParamet
         if (words[word].type == LABEL_CMD)
         {
             label = find_label(labels, words[word].word_start, words[word].len);
-            labels[label].cmd_target = word;
+            labels[label].cmd_target = dig_amt - 1; //учет того, что начинается с 0
             word++;
             continue;
         }
@@ -347,7 +376,9 @@ size_t handle_cmds(Word *const words, LabelParameters *const labels, FuncParamet
             word++;
             size_t func_num = find_func(funcs, words[word].word_start, words[word].len);
             stk_push(stk_code, func_num, list);
-            fill_func(dig_amt, funcs[func_num], list);
+            fill_func_ret(dig_amt, funcs[func_num], list); //заполняет массив ретов
+            fill_func_args(&word, words, funcs[func_num], list);
+
             word++;
             continue;
         }
@@ -356,6 +387,7 @@ size_t handle_cmds(Word *const words, LabelParameters *const labels, FuncParamet
             stk_push(stk_code, RET_A, list);
             size_t func = find_func_by_ret_num(word, funcs, list);
             stk_push(stk_code, func, list);
+
             word++;
             continue;
         }
@@ -377,7 +409,7 @@ size_t handle_cmds(Word *const words, LabelParameters *const labels, FuncParamet
 
 //-----------ARGS------------------------
 
-void handle_args(size_t word_num, Word word, LabelParameters *const labels, Stack *const stk_code, ErrList *const list)
+void handle_args(size_t dig_num, Word word, LabelParameters *const labels, Stack *const stk_code, ErrList *const list)
 {
     assert(labels);
     assert(stk_code);
@@ -404,7 +436,7 @@ void handle_args(size_t word_num, Word word, LabelParameters *const labels, Stac
         stk_push(stk_code, ARG_LAB, list);
         stk_push(stk_code, ERROR_VALUE_INT, list);
         size_t label = find_label(labels, word.word_start, word.len);
-        labels[label].arg_target = word_num;
+        labels[label].arg_target = dig_num - 1;  //учет того, что счет начинается с 0
     }
     //регистр
     /*else

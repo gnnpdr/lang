@@ -24,6 +24,9 @@ void proc_ctor(Proc *const proc, ErrList *const list)
     int* RAM = (int*)calloc(RAM_AMT, sizeof(int));
     ALLOCATION_CHECK_VOID(RAM)
 
+    for (size_t i = 0; i < RAM_AMT; i++)
+        RAM[i] = POISON;
+
     proc->code = code;
     proc->RAM = RAM;
 }
@@ -134,7 +137,13 @@ void proc_code(Proc *const proc, Stack *const prog, ErrList *const list)
                 break;
         }   
         ip++;
+        
+        printf("RAM\n");
+        for (size_t i = 0; i < 10; i++)
+            printf("%d ", proc->RAM[i]);
+        printf("\nRAM END\n\n");
     }
+    
 }
 
 int get_arg(Proc *const proc, size_t *const ip)
@@ -378,10 +387,10 @@ void give_arg(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *co
         printf("PLACE %d\n\n", code[*ip]);
         RAM[code[*ip]] = arg;
 
-        printf("RAM\n\n");
-        for (int i = 0; i < 10; i++)
-            printf("%d ", RAM[i]);
-        printf("RAM END\n\n");
+        //printf("RAM\n\n");
+        //for (int i = 0; i < 10; i++)
+        //    printf("%d ", RAM[i]);
+        //printf("RAM END\n\n");
     }
     /*else if (code[ip] == ARG_REG)
     {

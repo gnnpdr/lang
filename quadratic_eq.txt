@@ -1,0 +1,44 @@
+*a ravenstvo 2.
+*b ravenstvo 2.
+*c ravenstvo 2.
+*discr ravenstvo 0.
+*root_amt ravenstvo 0.
+
+discr (*a, *b, *c, *discr).
+
+revolution !*discr RSDRPB 0! 
+!
+    *root1 ravenstvo 0.
+    *root2 ravenstvo 0.
+    root1 (*b, *c, *discr, *root1).
+    root2 (*b, *c, *discr, *root2).
+    *root_amt ravenstvo 2.
+    slovo *root_amt.
+    slovo *root1.
+    slovo *root2.
+!
+inache revolution !*discr ravenstvo 0!
+!
+    *root1 ravenstvo 0.
+    root1 (*b, *c, *discr, *root1).
+    *root_amt ravenstvo 1.
+    slovo *root_amt.
+    slovo *root1.
+!
+inache slovo *root_amt.
+
+discr
+!
+    *discr ravenstvo *b kniga *b grabim 4 kniga *a kniga *c
+!
+
+root1
+!
+    *root1 ravenstvo & -1 kniga *b darim *discr & religia 2 kniga *a
+!
+
+root2
+!
+    *root1 ravenstvo & -1 kniga *b grabim *discr & religia 2 kniga *a
+!
+@1991

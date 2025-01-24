@@ -4,6 +4,8 @@
 #include "assembly.h"
 #include "proc_struct.h"
 
+//static const int POISON = -993;
+
 void proc_ctor(Proc *const proc, ErrList *const list);
 void proc_dtor(Proc *const proc);
 

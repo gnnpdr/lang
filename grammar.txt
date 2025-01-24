@@ -12,18 +12,18 @@
 // F ::= 'molot' 'serp'
 // N ::= [0 - 9] +
 
-// i mean:
 // revolution if
 // darim +
 // grabim - 
 // kniga *
 // religia /
-// molot - cos
-// serp - sin
 // ravenstvo =
-// all variables starts with *
-// symbols '$' '#' '%' stop compilation
-// ₽1991 ends program
+// all variables start with *
+// RSDRPB >
+// RSDRPM <
+// @1991 ends program
+// do_teh_por while
+// v_techenie for
 //
 //---------------------------------------------------------------
 
@@ -51,3 +51,26 @@ revolution !*superstar darim 2! *superstar ravenstvo 1991.
 
 // дело в том, что в этом случае, когда скрепление в самом конце, немного меняется порядок обработки дерева
 // надо делать это не сверху направо, а справа налево по точкам наверху 
+
+//-----------------
+// ver 3
+
+// G ::= PART + [FUNC_DEF]* @1991
+
+// PART ::= {OP  '.' OP }* | OP
+// FUNC_DEF ::= ID ! PART !
+
+// A ::= ID 'ravenstvo' E | ID 'RSDRPB' E | ID 'RSDRPM' E
+// IF ::= 'revolution' '!' E '!' OP | 'inache revolution' '!' E '!' OP | 'inache' OP | 'revolution' '!' E '!' ! PART ! ...
+// WHILE ::= 'do_teh_por' ( A ) ! PART !
+// FOR ::= 'v_techenie' ( A ) ! PART ! 
+// FUNC_USE ::= ID (vars)
+
+// OP ::= {IF | A | FUNC_USE | '!' [OP]+ '!'}
+
+// E ::= T {['darim' 'grabim'] T}*
+// T ::= P {['kniga' 'religia'] P}*
+// P ::= '!' E '!' | N 
+
+// ID ::= '*'[a - z] +
+// N ::= [0 - 9] +

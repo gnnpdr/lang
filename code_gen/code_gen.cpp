@@ -67,7 +67,7 @@ void get_part(Node *const node, char* asm_code, ErrList *const list)
 
 void code_if(Node* node, char *const str, ErrList *const list)
 {  
-    //здесь будет обрабатываться равенство нулю (пока тока это, но это легко исправить легкой рукой в грамматиеи)
+    //здесь будет обрабатываться равенство нулю (пока тока это, но это легко исправить легкой рукой в грамматике)
     assert(node);
     assert(str);
     assert(list);
@@ -135,10 +135,8 @@ void node_push(Node* node, char *const str, ErrList *const list)
         sprintf_res = sprintf_s(str, MAX_FILE_SIZE, "%s%s %d\n", str, PUSH_STR, node->value);
     }
     else if(node->type == ID)
-    {
-        //или надо сделать в процессоре типа переменные как бы отвечающие за ячейки оп памяти?
         sprintf_res = sprintf_s(str, MAX_FILE_SIZE, "%s%s [%d]\n", str, PUSH_STR, node->value); 
-    }
+    
     SPRINTF_CHECK_VOID
 }
 

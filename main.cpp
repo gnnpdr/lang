@@ -10,37 +10,31 @@
 
 int main(int argc, char** argv)
 {
-	// лист ошибок
     ErrList list = {};
 	error_list_ctor(&list);
 	MAIN
 
-	// получение текста с кодом
 	Input base_text = {};
     input_ctor(&base_text, &list);
 	MAIN
     get_text(&base_text, argv, &list);
 	MAIN
 
-	// создание узла для дерева
 	Node* root = node_ctor(&list);
 	MAIN
 	
-	//создание массива слов и айди
 	Token* tokens = tokens_ctor(&list);
 	MAIN
     Id* ids = id_ctor(&list);
 	MAIN
 
-	//создание дерева на основе текста
 	root = analyse_text(tokens, ids, &base_text, &list);
 	MAIN
 	
 	Tree the_tree = {};
-	// связь созданного дерева со структурой дерева и графический вывод
 	tree_ctor (&the_tree, root);
 	graph_dump(root, ids, root, &list);
-
+//-------------------------------------------
 	// генерация ассемблерного кода
 	code_gen(&the_tree, &list);
 	MAIN
@@ -50,6 +44,7 @@ int main(int argc, char** argv)
 	ids_dtor(ids);
 	tree_dtor(the_tree.root);
 ///-----------------------
+
 	Input asm_text = {};
     input_ctor(&asm_text, &list);
 	MAIN
@@ -62,15 +57,14 @@ int main(int argc, char** argv)
 	get_code(&asm_text, words, &list);
 
 	LabelParameters* labels = ctor_labels(&list);
+	FuncParameters* funcs = ctor_funcs(&list);
 	
     Stack stk_code = {};
     stk_ctor(&stk_code, &list);
-	MAIN 
-
-	FuncParameters* funcs = ctor_funcs(&list);
+	MAIN
 
 	// переход от ассемблерного кода к цифровому
-    assembly(words, labels, stk_ret, &stk_code, &list);
+    assembly(words, labels, funcs, &stk_code, &list);
 	MAIN
 	
 	dtor_labels(labels);
@@ -94,7 +88,6 @@ int main(int argc, char** argv)
 	MAIN
 	
 	proc_code(&proc, &prog, &list);  // надо добавить регистры, некоторые функции типа вывод аргумента
-									 //надо сделать все необходимые штуки для написания функций - ret и тд
 
 	proc_dtor(&proc);
 	stk_dtor(&prog);
