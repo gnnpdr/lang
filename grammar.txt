@@ -24,7 +24,7 @@
 // @1991 ends program
 // do_teh_por while
 // v_techenie for
-//
+// slovo printf
 //---------------------------------------------------------------
 
 text:
@@ -61,7 +61,7 @@ revolution !*superstar darim 2! *superstar ravenstvo 1991.
 // FUNC_DEF ::= ID ! PART !
 
 // A ::= ID 'ravenstvo' E | ID 'RSDRPB' E | ID 'RSDRPM' E
-// IF ::= 'revolution' '!' E '!' OP | 'inache revolution' '!' E '!' OP | 'inache' OP | 'revolution' '!' E '!' ! PART ! ...
+// IF ::= 'revolution' '!' E '!' OP | 'inache_revolution' '!' E '!' OP | 'inache' OP | 'revolution' '!' E '!' ! PART ! ...
 // WHILE ::= 'do_teh_por' ( A ) ! PART !
 // FOR ::= 'v_techenie' ( A ) ! PART ! 
 // FUNC_USE ::= ID (vars)

@@ -26,14 +26,15 @@ Node* analyse_text(Token *const tokens, Id *const ids, Input *const base_text, E
     assert(ids);
     assert(list);
     assert(base_text);
-
+    printf("LEX AN\n");
     lex_analysis(tokens, ids, base_text, list);
 	RETURN_PTR
-	Node* root = syn_analysis(tokens, ids, list);
+	//Node* root = syn_analysis(tokens, ids, list);
     
-	RETURN_PTR
+	//RETURN_PTR
 
-    return root;
+    //return root;
+    return nullptr;
 }
 
 Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list)

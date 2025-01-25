@@ -27,10 +27,11 @@ int main(int argc, char** argv)
 	MAIN
     Id* ids = id_ctor(&list);
 	MAIN
-
+//обработа текста - разбивание на токены
+	printf("TEXT AN\n");
 	root = analyse_text(tokens, ids, &base_text, &list);
-	MAIN
-	
+	/*MAIN
+//-----------------------------------
 	Tree the_tree = {};
 	tree_ctor (&the_tree, root);
 	graph_dump(root, ids, root, &list);
@@ -39,9 +40,9 @@ int main(int argc, char** argv)
 	code_gen(&the_tree, &list);
 	MAIN
 
-	input_dtor(&base_text);
+	*/input_dtor(&base_text);
 	tokens_dtor(tokens);
-	ids_dtor(ids);
+	ids_dtor(ids);/*
 	tree_dtor(the_tree.root);
 ///-----------------------
 
@@ -94,7 +95,7 @@ int main(int argc, char** argv)
 
 	input_dtor(&asm_text);
 	word_list_dtor(words);
-    stk_dtor(&stk_code);
+    stk_dtor(&stk_code);*/
 
 	error_list_dtor(&list);
 }

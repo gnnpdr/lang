@@ -5,7 +5,7 @@
 //------------------------CONST-----------------------------------
 
 static const size_t VAR_AMT =  1;
-static const size_t OP_AMT  =  14;
+static const size_t OP_AMT  =  19;
 
 static const double START_VALUE =  -1;
 static const char ID_MARK = '*';
@@ -20,11 +20,16 @@ static const char* COS_STR   = "molot";
 static const char* END_STR   = "@1991";
 static const char* BR_STR    = "!";
 static const char* IF_STR    = "revolution";
+static const char* ELSE_IF_STR    = "inache_revolution";
+static const char* ELSE_STR    = "inache";
 static const char* EQUAL_STR = "ravenstvo";
 static const char* SEP_STR  = ".";
 static const char* STOP1_STR = "#";
 static const char* STOP2_STR = "$";
 static const char* STOP3_STR = "%";
+static const char* GREATER_STR = "RSDRPB";
+static const char* LESS_STR = "PSDRPM";
+static const char* PRINTF_STR = "slovo";
 
 //-----------------------ENUM-------------------------------------
 
@@ -50,7 +55,12 @@ enum Operation
 	SEP   = 10,
 	STOP1 = 11,
 	STOP2 = 12,
-	STOP3 = 13
+	STOP3 = 13,
+	ELSE_IF = 14,
+	ELSE = 15,
+	GREATER = 16,
+	LESS = 17,
+	PRINTF = 18
 };
 
 //----------------------STRUCT-----------------------------------
@@ -89,6 +99,11 @@ static const struct OperationParameters ST1_STRUCT   = {STOP1_STR, STOP1};
 static const struct OperationParameters ST2_STRUCT   = {STOP2_STR, STOP2};
 static const struct OperationParameters ST3_STRUCT   = {STOP3_STR, STOP3};
 static const struct OperationParameters IF_STRUCT    = {IF_STR   ,  IF  };
+static const struct OperationParameters ELSE_IF_STRUCT    = {ELSE_IF_STR   ,  ELSE_IF  };
+static const struct OperationParameters ELSE_STRUCT    = {ELSE_STR   ,  ELSE  };
+static const struct OperationParameters GREATER_STRUCT    = {GREATER_STR   ,  GREATER  };
+static const struct OperationParameters LESS_STRUCT    = {LESS_STR   ,  LESS  };
+static const struct OperationParameters PRINTF_STRUCT    = {PRINTF_STR   ,  PRINTF  };
 
 static const struct OperationParameters* operations [OP_AMT] = {&ADD_STRUCT,
 																&MUL_STRUCT,
@@ -103,6 +118,11 @@ static const struct OperationParameters* operations [OP_AMT] = {&ADD_STRUCT,
 																&SEP_STRUCT,
 																&ST1_STRUCT,
 																&ST2_STRUCT,
-																&ST3_STRUCT};
+																&ST3_STRUCT,
+																&ELSE_IF_STRUCT,
+																&ELSE_STRUCT,
+																&GREATER_STRUCT,
+																&LESS_STRUCT,
+																&PRINTF_STRUCT};
 
 #endif //_STRUCTURE_H_
