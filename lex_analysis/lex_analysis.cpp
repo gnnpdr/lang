@@ -34,11 +34,11 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
     size_t size = base_text->size;
     char symb = text[pointer];
 
-    printf("SIZE %d\n", size);
+    //printf("SIZE %d\n", size);
 
-    while (pointer != size)
+    while (pointer <= size)
     {
-        printf("POINTER %d\n", pointer); 
+        //printf("POINTER %d\n", pointer); 
 
         symb = text[pointer];
         while (isspace(symb))
@@ -47,21 +47,21 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
             symb = text[pointer];
         }
 
-        printf("TEXT %.7s\n", text + pointer);
+        //printf("TEXT %.7s\n", text + pointer);
 
-        if (symb >= '0' && symb <= '9')
+        if (symb >= '0' && symb <= '9' || symb == '-')
         {
-            printf("NUM\n");
+            //printf("NUM\n");
             get_num(text, &pointer, tokens, list);
         }
         else if (symb == ID_MARK)
         {
-            printf("ID\n");
+            //printf("ID\n");
             get_var(text, ids, &pointer, tokens, list);
         }
         else
         {
-            printf("OP\n");
+            //printf("OP\n");
             get_op(text, ids, &pointer, tokens, list);
 
             //printf("pointer %d\n", pointer);
@@ -69,8 +69,8 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
         printf("-------------\n");
         RETURN_VOID
 
-        printf("IDS\n");
-        for (int i = 0; i < ID_AMT; i++)
+        //printf("IDS\n");
+        /*for (int i = 0; i < ID_AMT; i++)
         {
             printf("num %d, str %.10s, len %d, type %d\n", i, ids[i].start_address, ids[i].len, ids[i].type);
             if (ids[i].type == FUNC_ID)
@@ -81,7 +81,7 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
                 printf("\n");
             }
 
-        }
+        }*/
         /*int a = 0;
         scanf ("%d", &a);*/
     }
@@ -99,7 +99,7 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
         printf("num %d, str %.10s, len %d, type %d\n", i, ids[i].start_address, ids[i].len, ids[i].type);
         if (ids[i].type == FUNC_ID)
         {
-            for (int j = 0; j < ids[i].var_amt; j++)
+            for (int j = 0; j < ARGS_AMT; j++)
                 printf("%d ", ids[i].args[j]);
 
             printf("\n");
@@ -121,12 +121,23 @@ void get_num(char *const text, size_t *const pointer, Token *const tokens, ErrLi
     int val = 0;  //на интах
 
     size_t start_pointer = *pointer;
+    bool is_negative = false;
 
+    if (text[*pointer] == '-')
+    {
+        //printf("IS NEG\n");
+        is_negative = true;
+        (*pointer)++;
+    }
+        
     while (text[*pointer] >= '0' && text[*pointer] <= '9')
     {
         val = val * 10 + text[*pointer] - '0';
         (*pointer)++;
     }
+
+    if (is_negative)
+        val = val * (-1);
 
     if (*pointer == start_pointer)  //макросом эту ошибку надо
     {
@@ -200,7 +211,7 @@ void get_var(char *const text, Id *const ids, size_t *const pointer, Token *cons
     //printf("HERE!\n");
     RETURN_VOID
 
-    printf("ID IND %d\n", id_ind);
+    //printf("ID IND %d\n", id_ind);
 
     make_token(tokens, ID, id_ind, list);
     RETURN_VOID
@@ -268,11 +279,11 @@ size_t make_id_func(Id *const ids, size_t len, char *const text, size_t* pointer
     assert(list);
     assert(pointer);
 
-    printf("CURRENT PARAMETERS %d, !%.7s!\n", len, text + *pointer);
+    //printf("CURRENT PARAMETERS %d, !%.7s!\n", len, text + *pointer);
     size_t ind = find_id(ids, len, text + *pointer, list);  //из-за этого не могут совпадать названия функции и переменной
     RETURN_SIZE_T
 
-    printf("IND %d\n", ind);
+    //printf("IND %d\n", ind);
 
     if (ids[ind].len == ERROR_VALUE_SIZE_T)
     {
@@ -297,14 +308,16 @@ void fill_func_args (size_t func_ind, Id *const ids, char* text, size_t* pointer
     //printf("FILL VARS\n");
     //printf("pointer %d\n", *pointer);
 
-    char* use_start = strchr(text + *pointer, '!');
+    //char* use_start = strchr(text + *pointer, '!');
     char* arg_start = strchr(text + *pointer, '(');
     char* arg_end = strchr(text + *pointer, ')');
+
+    //printf("! %d, ( %d\n", use_start, arg_start);
 
     size_t len = 0;
     size_t var_num = 0;
 
-    if (use_start < arg_start)
+    if (/*use_start < arg_start || */arg_start == nullptr)
         return;
         
     size_t free = find_free_arg (ids[func_ind]);
@@ -452,7 +465,7 @@ int find_free_token(Token *const tokens, ErrList *const list)
     if (free_ind == ERROR_VALUE_SIZE_T)
         ERROR(ALLOCATION_ERROR)
 
-    printf("FREE TOKEN PLACE %d\n", free_ind);
+    //printf("FREE TOKEN PLACE %d\n", free_ind);
 
     return free_ind;
 }

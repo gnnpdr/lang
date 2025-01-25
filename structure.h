@@ -5,7 +5,7 @@
 //------------------------CONST-----------------------------------
 
 static const size_t VAR_AMT =  1;
-static const size_t OP_AMT  =  19;
+static const size_t OP_AMT  =  20;
 
 static const double START_VALUE =  -1;
 static const char ID_MARK = '*';
@@ -21,7 +21,7 @@ static const char* END_STR   = "@1991";
 static const char* BR_STR    = "!";
 static const char* IF_STR    = "revolution";
 static const char* ELSE_IF_STR    = "inache_revolution";
-static const char* ELSE_STR    = "inache";
+static const char* ELSE_STR    = "sovsem_inache";
 static const char* EQUAL_STR = "ravenstvo";
 static const char* SEP_STR  = ".";
 static const char* STOP1_STR = "#";
@@ -30,6 +30,7 @@ static const char* STOP3_STR = "%";
 static const char* GREATER_STR = "RSDRPB";
 static const char* LESS_STR = "PSDRPM";
 static const char* PRINTF_STR = "slovo";
+static const char* CALC_BR_STR = "&";
 
 //-----------------------ENUM-------------------------------------
 
@@ -56,16 +57,16 @@ enum Operation
 	STOP1 = 11,
 	STOP2 = 12,
 	STOP3 = 13,
-	ELSE_IF = 14,
-	ELSE = 15,
+	ELSE = 14,
+	ELSE_IF = 15,
 	GREATER = 16,
 	LESS = 17,
-	PRINTF = 18
+	PRINTF = 18,
+	CALC_BR = 19
 };
 
 //----------------------STRUCT-----------------------------------
 
-//правда нужен юнион? мне же нужно все это
 struct Node
 {
 	Type type;
@@ -104,6 +105,7 @@ static const struct OperationParameters ELSE_STRUCT    = {ELSE_STR   ,  ELSE  };
 static const struct OperationParameters GREATER_STRUCT    = {GREATER_STR   ,  GREATER  };
 static const struct OperationParameters LESS_STRUCT    = {LESS_STR   ,  LESS  };
 static const struct OperationParameters PRINTF_STRUCT    = {PRINTF_STR   ,  PRINTF  };
+static const struct OperationParameters CALC_BR_STRUCT    = {CALC_BR_STR   ,  CALC_BR  };
 
 static const struct OperationParameters* operations [OP_AMT] = {&ADD_STRUCT,
 																&MUL_STRUCT,
@@ -123,6 +125,7 @@ static const struct OperationParameters* operations [OP_AMT] = {&ADD_STRUCT,
 																&ELSE_STRUCT,
 																&GREATER_STRUCT,
 																&LESS_STRUCT,
-																&PRINTF_STRUCT};
+																&PRINTF_STRUCT,
+																&CALC_BR_STRUCT};
 
 #endif //_STRUCTURE_H_
