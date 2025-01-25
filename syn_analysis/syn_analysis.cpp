@@ -2,23 +2,27 @@
 
 #include "syn_analysis.h"
 
-static bool op_match(Token token, const OperationParameters *const arr, size_t arr_size);
-
-static Node* get_operation(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
-static Node* get_if(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
-static Node* get_equality(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
-
-static Node* get_together(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
-static Node* get_expression(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
-static Node* get_t (Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
-static Node* get_brace (Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
-static Node* get_unary(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
-
-static Node* get_num(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
-static Node* get_id(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
-
 static Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list);
 
+static Node* get_together(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+
+static Node* get_operation(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+static Node* get_binary_op(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+static Node* get_else(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+static Node* get_printf(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+static Node* get_func(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+static Node* get_func_def (Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+
+static Node* get_act(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+static Node* get_part(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+static Node* get_expr(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+
+static Node* get_sec_pr(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+static Node* get_first_pr(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+
+static Node* get_brace(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+static Node* get_num(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+static Node* get_id(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
 
 Node* analyse_text(Token *const tokens, Id *const ids, Input *const base_text, ErrList *const list)
 {
@@ -26,17 +30,17 @@ Node* analyse_text(Token *const tokens, Id *const ids, Input *const base_text, E
     assert(ids);
     assert(list);
     assert(base_text);
-    printf("LEX AN\n");
+
     lex_analysis(tokens, ids, base_text, list);
 	RETURN_PTR
-	//Node* root = syn_analysis(tokens, ids, list);
-    
-	//RETURN_PTR
 
-    //return root;
-    return nullptr;
+	Node* root = syn_analysis(tokens, ids, list);
+	RETURN_PTR
+
+    return root;
 }
 
+//выводит итоговый узел
 Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list)
 {
     assert(tokens);
@@ -48,9 +52,9 @@ Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list)
     Node* root = get_together(tokens, ids, &pointer, list);
     RETURN_PTR
 
-    if (tokens[pointer].type != OP && tokens[pointer].value != END)
+    if (tokens[pointer].type != OP && tokens[pointer].value != END && pointer >= TOKEN_AMT)  //все токены исчерпаны, а конец не достигнут
     {
-        printf("you didnt add end mark!\n");  //стоит так по всем ошибкам расписать
+        printf("you didnt add end mark!\n");
         ERROR(SYN_ERROR)
         return nullptr;
     }
@@ -60,36 +64,52 @@ Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list)
     return root;
 }
 
+//объединяет выражения точками
+//прерывается на end токене или тогда, когда все токены исчерпаны
 Node* get_together(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
 {
     REC_ASSERT
-
-    Node* val = get_operation(tokens, ids, pointer, list);
-    RETURN_PTR
     
+    Node* val = nullptr;
+
     bool is_end = false;
+    
     if (tokens[*pointer].type == OP && tokens[*pointer].value == END)
         is_end = true;
 
-    while (!is_end)
+    printf("GET OP\n");
+    val = get_operation(tokens, ids, pointer, list);
+    RETURN_PTR
+
+    while (!is_end && *pointer <= TOKEN_AMT)
     {
+        
         if (tokens[*pointer].type == OP && tokens[*pointer].value == SEP)
         {
+            //graph_dump(val, ids, val, list);
+            printf("TRY TO MAKE TOGETHER\n");
             (*pointer)++;
+
             Node* val2 = get_operation(tokens, ids, pointer, list);
             RETURN_PTR
+            //graph_dump(val2, ids, val2, list);
 
             val = make_node(OP, SEP, val, val2, list);
             RETURN_PTR
+
+            //graph_dump(val, ids, val, list);
         }
 
         if (tokens[*pointer].type == OP && tokens[*pointer].value == END)
             is_end = true;
+
     }
 
     return val;
 }
 
+//берет операцию - равенство, while, for, if
+//если достигнут end или сепаратор, то прерывается
 Node* get_operation(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
 {
     REC_ASSERT
@@ -97,200 +117,394 @@ Node* get_operation(Token *const tokens, Id *const ids, size_t *const pointer, E
     Node* val = nullptr;
     
     bool is_end = false;
-    if (tokens[*pointer].type == OP && tokens[*pointer].value == SEP || tokens[*pointer].value == END)
+    if (tokens[*pointer].type == OP && (tokens[*pointer].value == SEP || tokens[*pointer].value == END))
         is_end = true;
 
-    while (!is_end)
+    while (!is_end && *pointer <= TOKEN_AMT)
     {
         if (tokens[*pointer].type == OP)
         {
-            if (tokens[*pointer].value == BR)
+            printf("OP\n");
+            (*pointer)++; // пропуск операции
+
+            bool is_binary = false;
+            for (size_t op = 0; op < BINARY_OP_AMT; op++)
             {
-                (*pointer)++;
-
-                size_t start_pointer = *pointer;
-
-                val = get_operation(tokens, ids, pointer, list);
-                RETURN_PTR
-
-                if (tokens[*pointer].type != OP && tokens[*pointer].value != BR)
+                if (tokens[(*pointer) - 1].value == binary_op[op].num)
                 {
-                    printf("you dont have a brace at char number %d\n", *pointer); //надо строчки тоже считать
-                    ERROR(SYN_ERROR)
-                    return nullptr;
+                    is_binary = true;
                 }
-                (*pointer)++;
             }
-            else if (tokens[*pointer].value == IF)
+
+            if (is_binary)
+            
             {
-                (*pointer)++;
-                val = get_if(tokens, ids, pointer, list);
-                RETURN_PTR
+                printf("binary op\ntoken %d %d\n", tokens[(*pointer) - 1].type, tokens[(*pointer) - 1].value);
+
+                val = get_binary_op(tokens, ids, pointer, list);
+            }
+            // ELSE
+            else if (tokens[(*pointer) - 1].value == ELSE)
+            {
+                val = get_else(tokens, ids, pointer, list);
+            }
+            // PRINTF
+            else if (tokens[(*pointer) - 1].value == PRINTF)
+            {
+                printf("PRINTF\n");
+                val = get_printf(tokens, ids, pointer, list);
+            }   
+            else 
+            {
+                printf ("-2 %d %d\n-1 %d %d\n0 %d %d\n1 %d %d\n2 %d %d\n", tokens[(*pointer) - 2].type, tokens[(*pointer) - 2].value, tokens[(*pointer) - 1].type, tokens[(*pointer) - 1].value, tokens[(*pointer) - 0].type, tokens[(*pointer) - 0].value, tokens[(*pointer) + 1].type, tokens[(*pointer) + 1].value, tokens[(*pointer) + 2].type, tokens[(*pointer) + 2].value);
+                printf("no operations starting with this operation\n");
+                ERROR(SYN_ERROR)
+                return nullptr;
             }
         }
         else if (tokens[*pointer].type == ID)
         {
-            val = get_equality(tokens, ids, pointer, list);
+            printf("ID\n");
+            // EXPR
+            if (ids[tokens[*pointer].value].type == VAR_ID)
+            {
+                printf("VAR ID\n");
+                val = get_expr(tokens, ids, pointer, list);
+            }
+            else 
+            {
+                printf("FUNC ID\n");
+                val = get_func(tokens, ids, pointer, list);
+            }
+        }
+        RETURN_PTR
+
+        printf("CURRENT TOKEN IN OPERATIONS %d %d\n", tokens[*pointer].type, tokens[*pointer].value);
+
+        if (tokens[*pointer].type == OP && (tokens[*pointer].value == SEP || tokens[*pointer].value == END))
+            is_end = true;
+    }
+
+    printf("RET OPERATIONS\n");
+    return val;
+}
+
+Node* get_binary_op(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+{
+    REC_ASSERT
+
+    size_t current_op = tokens[(*pointer) - 1].value;
+
+    BR_CHECK
+    Node* left = get_expr(tokens, ids, pointer, list);
+    BR_CHECK
+
+    //graph_dump(left, ids, left, list);
+
+    printf("GET ACT\n");
+    Node* right = get_act(tokens, ids, pointer, list);
+    RETURN_PTR
+
+    Node* val = make_node(OP, current_op, left, right, list);
+    RETURN_PTR
+
+    graph_dump(val, ids, val, list);
+
+    return val;
+}
+
+Node* get_act(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+{
+    REC_ASSERT
+
+    Node* right = nullptr;
+
+    if (tokens[*pointer].type == OP && tokens[*pointer].value == BR)
+    {
+        printf("BRACE ACT\n");
+        (*pointer)++;
+
+        right = get_part(tokens, ids, pointer, list);
+
+        BR_CHECK
+    }
+    else
+    {
+        if (tokens[*pointer].type == OP)
+        {
+            if (tokens[*pointer].value == PRINTF)
+                right = get_printf(tokens, ids, pointer, list);
+            else
+            {
+                printf("you cant start here with this operation\n");
+                ERROR(SYN_ERROR)
+                return nullptr;
+            }
+        }
+        else if (tokens[*pointer].type == ID)
+        {
+            if (ids[tokens[*pointer].value].type == VAR_ID)
+            {
+                right = get_expr(tokens, ids, pointer, list);
+            }
+            else 
+            {
+                right = make_node(ID, tokens[(*pointer) - 1].value, nullptr, nullptr, list);
+            }
+        }
+    }
+    RETURN_PTR
+
+    return right;
+}
+
+//скобки в основных выражениях
+Node* get_part(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+{
+    REC_ASSERT
+    
+    Node* val = nullptr;
+
+    bool is_end = false;
+
+    printf("GET FIRST OP\n");
+    val = get_operation(tokens, ids, pointer, list);
+        RETURN_PTR
+    
+    if (tokens[*pointer].type == OP && tokens[*pointer].value == BR)
+        is_end = true;
+
+    while (!is_end && *pointer <= TOKEN_AMT)
+    {
+        if (tokens[*pointer].type == OP && tokens[*pointer].value == SEP)
+        {
+            (*pointer)++;
+
+            printf("GET OP\n");
+            Node* val2 = get_operation(tokens, ids, pointer, list);    //!!!!!!!!!!!
+            RETURN_PTR
+
+            val = make_node(OP, SEP, val, val2, list);
             RETURN_PTR
         }
 
-        if (tokens[*pointer].type == OP && tokens[*pointer].value == SEP || tokens[*pointer].value == END)
+        if (tokens[(*pointer) + 1].type == OP && tokens[(*pointer) + 1].value == BR)
             is_end = true;
+
     }
 
     return val;
 }
 
-Node* get_if(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+Node* get_else(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
 {
     REC_ASSERT
 
-    BR_CHECK
-
-    Node* left = get_expression(tokens, ids, pointer, list);
+    Node* act = get_act(tokens, ids, pointer, list);
     RETURN_PTR
 
-    BR_CHECK
-    
-    Node* right = get_operation(tokens, ids, pointer, list);
-    RETURN_PTR
-
-    Node* val = make_node(OP, IF, left, right, list);
+    Node* val = make_node(OP, ELSE, nullptr, act, list);  //по аналогии с предыдущими - действие в правой части
     RETURN_PTR
 
     return val;
 }
 
-Node* get_equality(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+
+Node* get_printf(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+{
+    REC_ASSERT
+
+    Node* id = get_id(tokens, ids, pointer, list);
+    RETURN_PTR
+
+    Node* val = make_node(OP, PRINTF, id, nullptr, list);  //по аналогии с предыдущими - действие в правой части
+    RETURN_PTR
+
+    (*pointer)++;  //пошел дальше на сепаратор 
+
+    return val;
+}
+
+Node* get_expr(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
 {
     REC_ASSERT
 
     Node* left = get_id(tokens, ids, pointer, list);
     RETURN_PTR
 
-    if (tokens[*pointer].type != OP && tokens[*pointer].value != EQUAL)
+    printf("GOT ID\n");
+
+    (*pointer)++;
+
+    bool is_expr_op = false;
+
+    if (tokens[*pointer].type != OP)   //эту большую проверку можно вложить в макрос
     {
-        printf("you dont have an equal mark ia equality...\n");
+        printf("you cant use this in expression, there should be an operation\n");
         ERROR(SYN_ERROR)
         return nullptr;
     }
-    (*pointer)++;
 
-    Node* right = get_expression(tokens, ids, pointer, list);
+    for (size_t op = 0; op < EXPR_OP_AMT; op++)
+    {
+        if (tokens[*pointer].value == expr_op[op].num)
+            is_expr_op = true;
+    }
+    
+    if (!is_expr_op)
+    {
+        printf ("-2 %d %d\n-1 %d %d\n0 %d %d\n1 %d %d\n2 %d %d\n", tokens[(*pointer) - 2].type, tokens[(*pointer) - 2].value, tokens[(*pointer) - 1].type, tokens[(*pointer) - 1].value, tokens[(*pointer) - 0].type, tokens[(*pointer) - 0].value, tokens[(*pointer) + 1].type, tokens[(*pointer) + 1].value, tokens[(*pointer) + 2].type, tokens[(*pointer) + 2].value);
+        printf("you cant use this operation in expression\n");
+        ERROR(SYN_ERROR)
+        return nullptr;
+    }
+
+    int operation = tokens[*pointer].value;
+    (*pointer)++;  // пропустили операцию = > < 
+
+    printf("GET SEC PR\n");
+    Node* right = get_sec_pr(tokens, ids, pointer, list);
     RETURN_PTR
 
-    Node* val = make_node(OP, EQUAL, left, right, list);
-    RETURN_PTR
+    printf("GOT SEC PR OP\n");
 
+    Node* val = make_node(OP, operation, left, right, list);
+
+    //graph_dump(val, ids, val, list);
+    //printf("CURRENT TOKEN %d %d\n", tokens[*pointer].type, tokens[*pointer].value);
     return val;
 }
 
-bool op_match(Token token, const OperationParameters *const arr, size_t arr_size)
-{
-    assert(arr);
 
-    for (size_t ind = 0; ind < arr_size; ind++)
-    {
-        if (token.type == OP && token.value == arr[ind].num)
-            return true;
-    }
-
-    return false;
-}
-
-Node* get_expression(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
-{
-    REC_ASSERT
-
-    Node* val = get_t(tokens, ids, pointer, list);
-    RETURN_PTR
-
-    bool need_here = op_match(tokens[*pointer], first_pr, FIRST_PR_AMT);
-
-    while (need_here)
-    {
-        size_t op = tokens[*pointer].value;
-        (*pointer)++;
-
-        Node* val2 = get_t(tokens, ids, pointer, list);
-        RETURN_PTR
-        val = make_node(OP, op, val, val2, list);
-        RETURN_PTR
-
-        need_here = op_match(tokens[*pointer], first_pr, FIRST_PR_AMT);
-    }
-
-    return val;
-}
-
-Node* get_t (Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+Node* get_id(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
 {
     REC_ASSERT
 
-    Node* val = get_brace(tokens, ids, pointer, list);
+    Node* val = make_node(ID, tokens[*pointer].value, nullptr, nullptr, list);
     RETURN_PTR
-
-    bool need_here = op_match(tokens[*pointer], sec_pr, SEC_PR_AMT);
-
-    while (need_here)
-    {
-        size_t op = tokens[*pointer].value;
-        (*pointer)++;
-
-        Node* val2 = get_brace(tokens, ids, pointer, list);
-        RETURN_PTR
-        val = make_node(OP, op, val, val2, list);
-        RETURN_PTR
-        need_here = op_match(tokens[*pointer], first_pr, FIRST_PR_AMT);
-    }
 
     return val;
 }
 
-Node* get_brace (Token *const tokens, Id *const ids, size_t* pointer, ErrList *const list)
+
+Node* get_sec_pr(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
 {
     REC_ASSERT
     
-    bool is_var = false;
-
     Node* val = nullptr;
 
-    if (tokens[*pointer].type == OP)
+    bool is_end = false;
+    
+    if (tokens[*pointer].type == OP && (tokens[*pointer].value == END || tokens[*pointer].value == SEP || tokens[*pointer].value == BR))
+        is_end = true;
+
+    while (!is_end && *pointer <= TOKEN_AMT)
     {
-        if (tokens[*pointer].value == BR)
+        printf("GET FIRST PR\n");
+        val = get_first_pr(tokens, ids, pointer, list);
+        RETURN_PTR
+
+        bool is_sec_pr = false;
+
+        for (size_t op = 0; op < SEC_PR_AMT; op++)
         {
+            if (tokens[*pointer].value == sec_pr[op].num && tokens[*pointer].value == OP)
+                is_sec_pr = true;
+        }
+
+        if (is_sec_pr)
+        {
+            size_t the_op = tokens[*pointer].value;
             (*pointer)++;
 
-            val = get_expression(tokens, ids, pointer, list);
+            Node* val2 = get_first_pr(tokens, ids, pointer, list);
             RETURN_PTR
 
-            BR_CHECK
+            val = make_node(OP, the_op, val, val2, list);
+            RETURN_PTR
         }
-        else
-            val = get_unary(tokens, ids, pointer, list);
-    }
-    else if (tokens[*pointer].type == NUM)
-        val = get_num(tokens, ids, pointer, list);
-    
-    else 
-        val = get_id(tokens, ids, pointer, list);
 
-    RETURN_PTR  
+        if (tokens[*pointer].type == OP && (tokens[*pointer].value == END || tokens[*pointer].value == SEP || tokens[*pointer].value == BR))
+            is_end = true;
+    }
+
     return val;
 }
 
-Node* get_unary(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+Node* get_first_pr(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
 {
     REC_ASSERT
+    
+    Node* val = nullptr;
 
-    size_t op = tokens[*pointer].value;
-    (*pointer)++;
+    bool is_end = false;
+    
+    if (tokens[*pointer].type == OP && (tokens[*pointer].value == END || tokens[*pointer].value == SEP || tokens[*pointer].value == BR))
+        is_end = true;
 
-    Node* val = get_expression(tokens, ids, pointer, list);
-    RETURN_PTR
+    while (!is_end && *pointer <= TOKEN_AMT)
+    {
+        printf("GET BRACE\n");
+        val = get_brace(tokens, ids, pointer, list);
+        RETURN_PTR
 
-    val = make_node(OP, op, nullptr, val, list);
-    RETURN_PTR
+        bool is_first_pr = false;
+
+        for (size_t op = 0; op < FIRST_PR_AMT; op++)
+        {
+            if (tokens[*pointer].value == first_pr[op].num && tokens[*pointer].value == OP)
+                is_first_pr = true;
+        }
+
+        if (is_first_pr)
+        {
+            size_t the_op = tokens[*pointer].value;
+            (*pointer)++;
+
+            Node* val2 = get_brace(tokens, ids, pointer, list);
+            RETURN_PTR
+
+            val = make_node(OP, the_op, val, val2, list);
+            RETURN_PTR
+        }
+
+        if (tokens[*pointer].type == OP && (tokens[*pointer].value == END || tokens[*pointer].value == SEP || tokens[*pointer].value == BR))
+            is_end = true;
+    }
+
+    return val;
+}
+
+Node* get_brace(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+{
+    REC_ASSERT
+    
+    Node* val = nullptr;
+
+    if (tokens[*pointer].type == OP && tokens[*pointer].value == CALC_BR)
+    {
+        printf("REALLY BRACES\n");
+        (*pointer)++;
+
+        val = get_sec_pr(tokens, ids, pointer, list);
+        RETURN_PTR
+
+        CALC_BR_CHECK
+    }
+    else if (tokens[*pointer].type == NUM)
+    {
+        printf("GET NUM\n");
+        val = get_num(tokens, ids, pointer, list);
+        RETURN_PTR
+    }
+    else
+    {
+        printf("CURRENT TOKEN %d %d\n", tokens[*pointer].type, tokens[*pointer].value);
+
+        printf("you cant use it in brace expressions\n");
+        ERROR(SYN_ERROR)
+        return nullptr;
+    }
 
     return val;
 }
@@ -299,7 +513,7 @@ Node* get_num(Token *const tokens, Id *const ids, size_t *const pointer, ErrList
 {
     REC_ASSERT
 
-    double value = tokens[*pointer].value;
+    int value = tokens[*pointer].value;
     (*pointer)++;
 
     Node* val = make_node(NUM, value, nullptr, nullptr, list);
@@ -308,16 +522,57 @@ Node* get_num(Token *const tokens, Id *const ids, size_t *const pointer, ErrList
     return val;
 }
 
-Node* get_id(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+Node* get_func(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
 {
     REC_ASSERT
 
-    int id_num = tokens[*pointer].value;
-    (*pointer)++;
+    Node* val = nullptr;
 
-
-    Node* val = make_node(ID, id_num, nullptr, nullptr, list);
-    RETURN_PTR
+    if (tokens[(*pointer) + 1].type == OP)
+    {
+        // FUNC_USE
+        if (tokens[(*pointer) + 1].value == SEP)
+        {
+            val = get_id(tokens, ids, pointer, list);
+            (*pointer)++;
+        }
+        // FUC_DEF
+        else if (tokens[(*pointer) + 1].value == BR)
+        {
+            val = get_func_def(tokens, ids, pointer, list);
+        }
+        else
+        {
+            printf("you cant use this operation here\n");
+            ERROR(SYN_ERROR)
+            return nullptr;
+        }
+        RETURN_PTR
+    }
+    else
+    {
+        printf("you cant use this here\n");
+        ERROR(SYN_ERROR)
+        return nullptr;
+    }
 
     return val;
+}
+
+Node* get_func_def (Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+{
+    REC_ASSERT
+
+    Node* val = nullptr;
+
+    size_t the_id = tokens[*pointer].value;
+
+    (*pointer)++;  //пропуск скобки
+
+    Node* def = get_part(tokens, ids, pointer, list);
+    RETURN_PTR
+
+    (*pointer)++;  //пропуск скобки
+
+    val = make_node(ID, the_id, def, nullptr, list);
 }

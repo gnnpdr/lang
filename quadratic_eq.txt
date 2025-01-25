@@ -17,6 +17,7 @@ revolution ! *discr RSDRPB 0 !
     slovo *root1.
     slovo *root2.
 !
+.
 inache_revolution ! *discr ravenstvo 0 !
 !
     *root1 ravenstvo 0.
@@ -25,20 +26,21 @@ inache_revolution ! *discr ravenstvo 0 !
     slovo *root_amt.
     slovo *root1.
 !
+.
 sovsem_inache slovo *root_amt.
 
 cnt_discr
 !
-    *discr ravenstvo *b kniga *b grabim 4 kniga *a kniga *c
+    *discr ravenstvo *b kniga *b grabim 4 kniga *a kniga *c.
 !
-
+.
 cnt_root1
 !
-    *root1 ravenstvo & -1 kniga *b darim *discr & religia 2 kniga *a
+    *root1 ravenstvo & -1 kniga *b darim *discr & religia 2 kniga *a.
 !
-
+.
 cnt_root2
 !
-    *root2 ravenstvo & -1 kniga *b grabim *discr & religia 2 kniga *a
+    *root2 ravenstvo & -1 kniga *b grabim *discr & religia 2 kniga *a.
 !
 @1991

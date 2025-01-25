@@ -5,7 +5,7 @@
 //------------------------CONST-----------------------------------
 
 static const size_t VAR_AMT =  1;
-static const size_t OP_AMT  =  20;
+static const size_t OP_AMT  =  22;
 
 static const double START_VALUE =  -1;
 static const char ID_MARK = '*';
@@ -31,6 +31,8 @@ static const char* GREATER_STR = "RSDRPB";
 static const char* LESS_STR = "PSDRPM";
 static const char* PRINTF_STR = "slovo";
 static const char* CALC_BR_STR = "&";
+static const char* WHILE_STR = "do_teh_por";
+static const char* FOR_STR = "v_techenie";
 
 //-----------------------ENUM-------------------------------------
 
@@ -62,7 +64,9 @@ enum Operation
 	GREATER = 16,
 	LESS = 17,
 	PRINTF = 18,
-	CALC_BR = 19
+	CALC_BR = 19,
+	WHILE = 20,
+	FOR = 21
 };
 
 //----------------------STRUCT-----------------------------------
@@ -106,6 +110,8 @@ static const struct OperationParameters GREATER_STRUCT    = {GREATER_STR   ,  GR
 static const struct OperationParameters LESS_STRUCT    = {LESS_STR   ,  LESS  };
 static const struct OperationParameters PRINTF_STRUCT    = {PRINTF_STR   ,  PRINTF  };
 static const struct OperationParameters CALC_BR_STRUCT    = {CALC_BR_STR   ,  CALC_BR  };
+static const struct OperationParameters WHILE_STRUCT    = {WHILE_STR   ,  WHILE  };
+static const struct OperationParameters FOR_STRUCT    = {FOR_STR   ,  FOR  };
 
 static const struct OperationParameters* operations [OP_AMT] = {&ADD_STRUCT,
 																&MUL_STRUCT,
@@ -126,6 +132,8 @@ static const struct OperationParameters* operations [OP_AMT] = {&ADD_STRUCT,
 																&GREATER_STRUCT,
 																&LESS_STRUCT,
 																&PRINTF_STRUCT,
-																&CALC_BR_STRUCT};
+																&CALC_BR_STRUCT,
+																&WHILE_STRUCT,
+																&FOR_STRUCT};
 
 #endif //_STRUCTURE_H_

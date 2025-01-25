@@ -55,22 +55,28 @@ revolution !*superstar darim 2! *superstar ravenstvo 1991.
 //-----------------
 // ver 3
 
-// G ::= PART + [FUNC_DEF]* @1991
+// G ::= PART + @1991
 
-// PART ::= {OP  '.' OP }* | OP
-// FUNC_DEF ::= ID ! PART !
+// PART ::= {OP  '.' OP }* | OP 
+// FUNC_DEF ::= ID '!' PART '!'
 
-// A ::= ID 'ravenstvo' E | ID 'RSDRPB' E | ID 'RSDRPM' E
-// IF ::= 'revolution' '!' E '!' OP | 'inache_revolution' '!' E '!' OP | 'inache' OP | 'revolution' '!' E '!' ! PART ! ...
-// WHILE ::= 'do_teh_por' ( A ) ! PART !
-// FOR ::= 'v_techenie' ( A ) ! PART ! 
-// FUNC_USE ::= ID (vars)
+// EXPR ::= ID 'ravenstvo' SUM | ID 'RSDRPB' SUM | ID 'RSDRPM' SUM
+// IF ::= 'revolution' '!' EXPR '!' [EXPR | PRINTF] |  'revolution' '!' EXPR '!' '!' PART '!'
+// ELSE IF ::= 'inache_revolution' '!' EXPR '!' [EXPR | PRINTF] | 'inache_revolution' '!' EXPR '!' '!' PART '!'
+// ELSE ::= 'voobshe_inache' [EXPR | PRINTF] | 'voobshe_inache' '!' PART '!'
 
-// OP ::= {IF | A | FUNC_USE | '!' [OP]+ '!'}
+// WHILE ::= 'do_teh_por' '!' EXPR '!' '!' PART '!' | 'do_teh_por' '!' A '!' [EXPR | PRINTF]
+// FOR ::= 'v_techenie' '!' EXPR '!' '!' PART '!' | 'v_techenie' '!' A '!' [EXPR | PRINTF]
 
-// E ::= T {['darim' 'grabim'] T}*
-// T ::= P {['kniga' 'religia'] P}*
-// P ::= '!' E '!' | N 
+// PRINTF ::= 'slovo' ID
 
-// ID ::= '*'[a - z] +
-// N ::= [0 - 9] +
+// FUNC_USE ::= ID
+
+// OP ::= {IF | ELSE IF | ELSE | EXPR | FUNC_USE | WFILE | FOR | FUNC_DEF | PRINTF}
+
+// SUM ::= MUL {['darim' 'grabim'] MUL}*
+// MUL ::= CALC_BR {['kniga' 'religia'] CALC_BR}*
+// CALC_BR ::= '!' SUM '!' | NUM 
+
+// ID ::= '*'[a - z | 0 - 9 ] +
+// NUM ::= [0 - 9] +

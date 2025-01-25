@@ -28,7 +28,6 @@ struct Id
 {
     char* start_address;
     size_t len;
-    //доп инфа
     
     IdType type;
     size_t var_amt; //в случае функции, считаем, что последняя переменная - возвращаемое значение
