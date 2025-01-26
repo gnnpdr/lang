@@ -41,6 +41,6 @@ cnt_root1
 .
 cnt_root2
 !
-    *root2 ravenstvo & -1 kniga *b grabim *discr & religia 2 kniga *a.
+    *root2 ravenstvo & -1 kniga *b grabim *discr & religia 2 kniga *a
 !
 @1991
