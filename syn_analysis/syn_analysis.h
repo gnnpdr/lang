@@ -52,15 +52,15 @@ static const struct OperationParameters unary_op [UNARY_OP_AMT]  = {SIN_STRUCT,
 						(*pointer)++;														\
 					}while(0);
 
-#define CALC_BR_CHECK  	do 																		\
-					{																			\
-						if (tokens[*pointer].type != OP && tokens[*pointer].value != CALC_BR) 	\
-					    {																		\
-					        printf("you dont have a brace at char number %d\n", *pointer);		\
-					        ERROR(SYN_ERROR)													\
-					        return nullptr;														\
-					    }																		\
-						(*pointer)++;															\
+#define CALC_BR_CHECK  	do 																			\
+					{																				\
+						if (tokens[*pointer].type != OP && tokens[*pointer].value != CALC_BR) 		\
+					    {																			\
+					        printf("you dont have a calc brace at char number %d\n", *pointer);		\
+					        ERROR(SYN_ERROR)														\
+					        return nullptr;															\
+					    }																			\
+						(*pointer)++;																\
 					}while(0);
 
 Node* analyse_text(Token *const tokens, Id *const ids, Input *const base_text, ErrList *const list);
