@@ -8,7 +8,19 @@
 
 #define IS_IF node->type == OP && node->value == IF
 
+#define IS_ELSE_IF node->type == OP && node->value == ELSE_IF
+
+#define IS_ELSE node->type == OP && node->value == ELSE
+
 #define IS_EQUAL node->type == OP && node->value == EQUAL
+
+#define IS_GREATER node->type == OP && node->value == GREATER
+
+#define IS_LESS node->type == OP && node->value == LESS
+
+#define IS_WHILE node->type == OP && node->value == WHILE
+
+#define IS_FOR node->type == OP && node->value == FOR
 
 static const size_t APPR_CMD = 7;
 static const char* ASM_NAME = "asm_file.txt";
@@ -35,6 +47,6 @@ static const CodeOp appropriate_cmds[APPR_CMD] = {ADD_CMD,
                                                   COS_CMD,
                                                   END_CMD};
 
-void code_gen(Tree *const the_tree, ErrList *const list);
+void code_gen(Tree *const the_tree, Id *const ids, ErrList *const list);
 
 #endif //_GEN_H_

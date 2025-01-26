@@ -86,7 +86,7 @@ Node* get_together(Token *const tokens, Id *const ids, size_t *const pointer, Er
 
             Node* val2 = get_operation(tokens, ids, pointer, list);
             RETURN_PTR
-            graph_dump(val2, ids, val2, list);
+            //graph_dump(val2, ids, val2, list);
 
             val = make_node(OP, SEP, val, val2, list);
             RETURN_PTR
@@ -97,7 +97,7 @@ Node* get_together(Token *const tokens, Id *const ids, size_t *const pointer, Er
 
     }
 
-    graph_dump(val, ids, val, list);
+    //graph_dump(val, ids, val, list);
     return val;
 }
 

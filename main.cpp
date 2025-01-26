@@ -27,26 +27,26 @@ int main(int argc, char** argv)
 	MAIN
     Id* ids = id_ctor(&list);
 	MAIN
-//обработа текста - разбивание на токены
+	
 	printf("TEXT AN\n");
 	root = analyse_text(tokens, ids, &base_text, &list);
-	/*MAIN
-//-----------------------------------
+	MAIN
+	
 	Tree the_tree = {};
 	tree_ctor (&the_tree, root);
-	graph_dump(root, ids, root, &list);
-//-------------------------------------------
+	//graph_dump(root, ids, root, &list);
+	
 	// генерация ассемблерного кода
-	code_gen(&the_tree, &list);
+	code_gen(&the_tree, ids, &list);
 	MAIN
 
-	*/input_dtor(&base_text);
+	input_dtor(&base_text);
 	tokens_dtor(tokens);
-	ids_dtor(ids);/*
+	ids_dtor(ids);
 	tree_dtor(the_tree.root);
 ///-----------------------
 
-	Input asm_text = {};
+	/*Input asm_text = {};
     input_ctor(&asm_text, &list);
 	MAIN
 
