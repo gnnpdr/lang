@@ -32,6 +32,7 @@ struct Id
     IdType type;
     size_t var_amt; //в случае функции, считаем, что последняя переменная - возвращаемое значение
     size_t* args;
+    size_t use_num;
 };
 
 Token* tokens_ctor(ErrList *const list);

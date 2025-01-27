@@ -139,6 +139,7 @@ Id* id_ctor(ErrList *const list)
             args[i] = ERROR_VALUE_SIZE_T;
 
         ids[i].args = args;
+        ids[i].use_num = 0;
     }
         
     return ids;

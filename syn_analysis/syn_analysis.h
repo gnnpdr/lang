@@ -3,20 +3,20 @@
 
 #include "..\draw\draw_tree.h"
 
-static const size_t FIRST_PR_AMT = 4;
-static const size_t SEC_PR_AMT = 3;
+static const size_t FIRST_PR_AMT = 2;
+static const size_t SEC_PR_AMT = 4;
 static const size_t UNARY_OP_AMT = 3;
 static const size_t BINARY_OP_AMT = 4;
 static const size_t EXPR_OP_AMT = 3;
 static const double EXP = 2.72;
 
-static const struct OperationParameters first_pr [FIRST_PR_AMT]  = {ADD_STRUCT,
-															        SUB_STRUCT,
-																	GREATER_STRUCT,
-																	LESS_STRUCT};
+static const struct OperationParameters sec_pr [SEC_PR_AMT] = {ADD_STRUCT,
+															    SUB_STRUCT,
+																GREATER_STRUCT,
+																LESS_STRUCT};
 
-static const struct OperationParameters sec_pr [SEC_PR_AMT] = {MUL_STRUCT,
-															   DIV_STRUCT};
+static const struct OperationParameters first_pr [FIRST_PR_AMT] = {MUL_STRUCT,
+															   		DIV_STRUCT};
 
 static const struct OperationParameters binary_op [BINARY_OP_AMT] = {	IF_STRUCT,
 																		ELSE_IF_STRUCT,

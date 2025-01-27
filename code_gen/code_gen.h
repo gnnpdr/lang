@@ -24,6 +24,7 @@
 
 #define IS_PRINTF node->type == OP && node->value == PRINTF
 
+
 static const size_t APPR_CMD_AMT = 7;
 static const char* ASM_NAME = "asm_file.txt";
 

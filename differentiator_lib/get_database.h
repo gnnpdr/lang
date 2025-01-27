@@ -8,7 +8,8 @@
 
 static const size_t MAX_STRS_AMT  =  50;
 static const size_t MAX_FILE_SIZE = 3000;
-static const size_t MAX_STR_LEN   = 100;
+static const size_t MAX_STR_LEN   = 1000;
+static const size_t STR_LEN       = 100;
 static const size_t MAX_CMD_AMT   = 150;
 
 struct Input 

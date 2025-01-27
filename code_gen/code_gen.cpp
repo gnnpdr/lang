@@ -8,7 +8,6 @@ static void code_if(Node* node, size_t *const if_cnt, size_t *const start_if_cnt
 static void code_expr(Node* node, size_t *const if_cnt, Id *const ids, char *const asm_code, ErrList *const list);
 static void code_expr_part(Node *const node, Id *const ids, char *const asm_code, ErrList *const list);
 
-
 static void code_equal(Node* node, char *const asm_code, Id *const ids, ErrList *const list);
 static void code_op(Node* node, Id *const ids, char *const asm_code, ErrList *const list);
 static bool arithm_check(Node* node);
@@ -22,6 +21,7 @@ static void code_id_op(Node* node, size_t *const if_cnt, size_t *const start_if_
 static void node_push(Node* node, char *const str, ErrList *const list);
 static void node_pop(Node* node, char *const str, ErrList *const list);
 
+char* get_func_label (Id func_id, char *const func_label);
 //надо вложить все группы ассертов в макросы
 
 void code_gen(Tree *const the_tree, Id *const ids, ErrList *const list)
@@ -33,7 +33,7 @@ void code_gen(Tree *const the_tree, Id *const ids, ErrList *const list)
     char* asm_code = (char*)calloc(MAX_FILE_SIZE, sizeof(char));
     ALLOCATION_CHECK_VOID(asm_code)
 
-    size_t if_cnt = 0;
+    size_t if_cnt = 1;
     size_t start_if_cnt = 0;
 
     Node* root = the_tree->root;
@@ -45,7 +45,6 @@ void code_gen(Tree *const the_tree, Id *const ids, ErrList *const list)
 
     fill_input_file(ASM_NAME, asm_code, list);  //добавить возможность менять название
     free(asm_code);
-    
 }
 
 void get_part(Node *const node, size_t *const if_cnt, size_t *const start_if_cnt, Id *const ids, char* asm_code, ErrList *const list)
@@ -58,13 +57,43 @@ void get_part(Node *const node, size_t *const if_cnt, size_t *const start_if_cnt
 
     int sprintf_res = 0;
 
+    bool was_if = false;
+    bool if_op_end = false;
+    bool is_else_if = false;
+
+    size_t init_if_cnt = *if_cnt;
+    bool alt_cnt = false;
+
     if (IS_SEP)
     {
         get_part(node->Left, if_cnt, start_if_cnt, ids, asm_code, list);
         RETURN_VOID
+        if (node->Left != nullptr)
+        {
+            if (node->Left->Left != nullptr && node->Left->Right != nullptr)
+            {
+                if ((node->Left->Left->type == OP && (node->Left->Left->value == ELSE_IF || node->Left->Left->value == IF || node->Left->Left->value == ELSE)) ||
+                    (node->Left->Right->type == OP && (node->Left->Right->value == ELSE_IF || node->Left->Right->value == IF || node->Left->Right->value == ELSE)))
+                    was_if = true;
+            }
 
-        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n", asm_code);
-        SPRINTF_CHECK_VOID
+        }
+
+        if (was_if)
+        {
+            if (node->Right != nullptr)
+            {
+                if (node->Right->value != ELSE_IF && node->Right->value != ELSE)
+                    if_op_end = true;
+            }
+        }
+
+        if (was_if && if_op_end)
+        {
+            sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%sIF_RES%d:\n", asm_code, *start_if_cnt);
+            SPRINTF_CHECK_VOID
+            (*start_if_cnt)++;
+        }
 
         get_part(node->Right, if_cnt, start_if_cnt, ids, asm_code, list);
         RETURN_VOID
@@ -74,67 +103,28 @@ void get_part(Node *const node, size_t *const if_cnt, size_t *const start_if_cnt
     }
 
 //------------if and similar--------------
-
-    bool was_if = false;
-    bool is_else_if = false;
-
-    /*
-        закодировать метку начала прыжк
-        достижение этого фрагмета кода будет означать, что одно из условий прошло и надо прыгать на коне
-        закрыть начальный иф (элс иф)
-        закрывающая цель будет одна и та же, так что кодировать этот джамп можно одной меткой, 
-        относящейся к этому конкретному иф
-        номер стартового ифа (а именно он будет влиять на то, с каким номером будет сбрасывающая метка)
-        будет пополняться, если достигнут стандартный иф, а не элз или элз и
-        закодировать условие элс ифа отдельным ифом
-        повторить с метками и закрытиями то, что было с иформ
-        когда будет достигнут элс или последний элс иф, поставить метку конца ифа с элзами
-    */
-
-    if ((node->Right->type == OP && (node->Right->value == ELSE_IF || node->Right->value == IF || node->Right->value == ELSE)) ||
-        (node->Left->Left->type == OP && (node->Left->Left->value == ELSE_IF || node->Left->Left->value == IF || node->Left->Left->value == ELSE)) ||
-        (node->Left->Right->type == OP && (node->Left->Right->value == ELSE_IF || node->Left->Right->value == IF || node->Left->Right->value == ELSE)))
-        was_if = true;
-
-    size_t init_if_cnt = *if_cnt;
-    bool alt_cnt = false;
-
     if (IS_IF)  
     {
         if (was_if)
         {
             alt_cnt = true;
-            *if_cnt *= 10; //вводдится альтернативный счетчит
+            *if_cnt *= 10;
         }
 
         code_if(node, if_cnt, start_if_cnt, ids, asm_code, list); 
 
         if (alt_cnt)
-            *if_cnt = init_if_cnt;  //считчик будет восстановлен после ретерна из функции
+            *if_cnt = init_if_cnt;
     }
 
     if (IS_ELSE_IF || IS_ELSE)
         is_else_if = true;
 
-    if (was_if && !is_else_if)
-    {
-        //концевой
-        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%sIF_RES%d:\n", asm_code, *start_if_cnt);
-        SPRINTF_CHECK_VOID
-        (*start_if_cnt)++;
-    }
-
-    //после этого должна просто закодироваться следующая операция - следующая часть кода.
-    //в любом случае эта метка должна быть поставлена, может, смещение с сепарирующего узла не дает посмотреть 
-
     if (is_else_if)
     {
-        //начальный
-        //условие для финального прыжка
-        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%sIF_RES%d:\n", asm_code, JMP_STR, *start_if_cnt);
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_RES%d:\n", asm_code, JMP_STR, *start_if_cnt);
         SPRINTF_CHECK_VOID
 
-        //закрытие условия
         sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\nIF_COND%d:\n", asm_code, *if_cnt);
         SPRINTF_CHECK_VOID
         (*if_cnt)++; 
@@ -144,14 +134,14 @@ void get_part(Node *const node, size_t *const if_cnt, size_t *const start_if_cnt
         
         else if (IS_ELSE)
             get_part(node->Right, if_cnt, start_if_cnt, ids, asm_code, list);
-    
+        
         RETURN_VOID
     }
 
 //-------equal-------------
 
     if (IS_EQUAL)
-        code_equal(node, asm_code, ids, list);  
+        code_equal(node, asm_code, ids, list); 
 
 //-----cycles----
 
@@ -160,7 +150,7 @@ void get_part(Node *const node, size_t *const if_cnt, size_t *const start_if_cnt
         if (was_if)
         {
             alt_cnt = true;
-            *if_cnt *= 10; //вводдится альтернативный счетчит
+            *if_cnt *= 10;
         }
 
         code_cycle(node, if_cnt, start_if_cnt, ids, asm_code, list); 
@@ -176,7 +166,7 @@ void get_part(Node *const node, size_t *const if_cnt, size_t *const start_if_cnt
 
     if (node->type == ID)
         code_id_op(node, if_cnt, start_if_cnt, ids, asm_code, list);
-    
+        
     return;
 }
 
@@ -194,9 +184,7 @@ void code_if(Node* node, size_t *const if_cnt, size_t *const start_if_cnt, Id *c
     code_expr(node->Left, if_cnt, ids, asm_code, list);
     RETURN_VOID
     
-    (*if_cnt)++;
-
-    get_part(node->Right, if_cnt, start_if_cnt, ids, asm_code, list);  //предполагается возможность дальнейшего разветвления
+    get_part(node->Right, if_cnt, start_if_cnt, ids, asm_code, list);
     RETURN_VOID
 }
 
@@ -211,24 +199,24 @@ void code_expr(Node* node, size_t *const if_cnt, Id *const ids, char *const asm_
     int sprintf_res = 0;
 
     bool less = false;
-    if (IS_LESS || IS_GREATER)
-    {
-        if (IS_LESS)
-            less = true;
+    bool greater = false;
 
-        code_expr_part(node->Right, ids, asm_code, list);
-        code_expr_part(node->Left, ids, asm_code, list);
+    if (IS_LESS)
+        less = true;
+    if (IS_GREATER)
+        greater = true;
 
-        if (less)
-            sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_COND%d:\n", asm_code, JA_STR, *if_cnt);
-        else
-            sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_COND%d:\n", asm_code, JB_STR, *if_cnt);
-    }
-    else 
-    {
-        code_expr_part(node, ids, asm_code, list);
-        int sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s%s 0\n%s IF_COND%d:\n", asm_code, PUSH_STR, JNE_STR, *if_cnt); 
-    }
+    code_expr_part(node->Right, ids, asm_code, list);
+    RETURN_VOID
+    code_expr_part(node->Left, ids, asm_code, list);
+    RETURN_VOID
+
+    if (less)
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_COND%d:\n", asm_code, JA_STR, *if_cnt);
+    else if (greater)
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_COND%d:\n", asm_code, JB_STR, *if_cnt);
+    else
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_COND%d:\n", asm_code, JNE_STR, *if_cnt);
     SPRINTF_CHECK_VOID
 }
 
@@ -271,17 +259,22 @@ void code_op(Node* node, Id *const ids, char *const asm_code, ErrList *const lis
     assert(asm_code);
     assert(list);
 
+    if (node->Left == nullptr || node->Right == nullptr)
+        return;
+
     bool is_left_arithm = arithm_check(node->Left);
+    bool is_right_arithm = arithm_check(node->Right);
      
     if (is_left_arithm)
         code_op(node->Left, ids, asm_code, list);
-    
     else
         node_push(node->Left, asm_code, list);
-
     RETURN_VOID
 
-    node_push(node->Right, asm_code, list);
+    if (is_right_arithm)
+        code_op(node->Right, ids, asm_code, list);
+    else
+        node_push(node->Right, asm_code, list);
     RETURN_VOID
     
     for (int i = 0; i < ARITHM_CMD_AMT; i++)
@@ -298,18 +291,19 @@ void code_op(Node* node, Id *const ids, char *const asm_code, ErrList *const lis
 bool arithm_check(Node* node)
 {
     assert(node);
-
-    bool is_arithm = false;
     
-    for (size_t cmd = 0; cmd < ARITHM_CMD_AMT; cmd++)
+    if (node->type == OP)
     {
-        if (node->type == OP && node->value == ArithmCmds[cmd].num);
+        for (size_t cmd = 0; cmd < ARITHM_CMD_AMT; cmd++)
         {
-            is_arithm = true;
+            if (node->value == ArithmCmds[cmd].num);
+            {
+                return true;
+            }
         }
     }
 
-    return is_arithm;
+    return false;
 }
 
 //----------PRINTF--------------
@@ -325,6 +319,7 @@ void code_printf (Node* node, char *const asm_code, ErrList *const list)
 
     int sprintf_res = sprintf_s(asm_code, MAX_STR_LEN, "%s%s\n", asm_code, OutStr.cmd_str);
     SPRINTF_CHECK_VOID
+
 }
 
 //----------CYCLES------------------
@@ -338,7 +333,6 @@ void code_cycle(Node* node, size_t *const if_cnt, size_t *const start_if_cnt, Id
     assert(asm_code);
     assert(list);
 
-    //next cnt может идти в ногу с if cnt
     int sprintf_res = sprintf_s(asm_code, MAX_STR_LEN, "%sNEXT%d:\n", asm_code, *if_cnt);
     SPRINTF_CHECK_VOID
 
@@ -372,24 +366,34 @@ void code_id_op(Node* node, size_t *const if_cnt, size_t *const start_if_cnt, Id
     strncpy(cmd_name, ids[node->value].start_address, ids[node->value].len);
     CPY_CHECK(cmd_name);
 
-    //USE
     if (node->Left == nullptr && node->Right == nullptr)
     {
-        //ссылка на функцию, соответствующую данному айди 
-        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\ncall %s\n", asm_code, cmd_name);
-        //с переменными все в порядке, во время всего проигрывания программы по каждой функции будет вестись
-        //счетчик, который и будет пояснять, сколько переменных всего и какую часть массива перемнных надо брать
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\ncall %s", asm_code, cmd_name);
+        size_t* args = ids[node->value].args;
+        size_t start_arg = ids[node->value].var_amt * ids[node->value].use_num;
+
+        for (size_t arg = start_arg; arg < start_arg + ids[node->value].var_amt; arg++)
+        {
+            sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s %d", asm_code, args[arg]);
+        }
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n", asm_code);
+
+        (ids[node->value].use_num)++;
     }
-    //DEFINE
     else
     {
-        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s\n", asm_code, cmd_name);
+        char* func_label = (char*)calloc(STR_LEN, sizeof(char));
+        func_label = get_func_label (ids[node->value], func_label);
+
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s %s\n%s\n", asm_code,JMP_STR, func_label, cmd_name);
         SPRINTF_CHECK_VOID
 
         get_part(node->Left, if_cnt, start_if_cnt, ids, asm_code, list);
         RETURN_VOID
 
-        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\nret\n", asm_code);
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\nret\n%s\n", asm_code, func_label);
+
+        free(func_label);
     }
     SPRINTF_CHECK_VOID
 }
@@ -430,4 +434,26 @@ void node_pop(Node* node, char *const str, ErrList *const list)
         sprintf_res = sprintf_s(str, MAX_FILE_SIZE, "%s%s [%d]\n", str, POP_STR, node->value);
     }
     SPRINTF_CHECK_VOID
+}
+
+char* get_func_label (Id func_id, char *const func_label)
+{
+    char* name = func_id.start_address;
+    size_t len = func_id.len;
+
+    for (size_t ch = 0; ch < len; ch++)
+    {
+        if (isalpha(name[ch]))
+        {
+            func_label[ch] = toupper(name[ch]);
+        }
+        else
+        {
+            func_label[ch] = name[ch];
+        }
+    }
+
+    int sprintf_res = sprintf_s(func_label, STR_LEN, "%s_DEF:", func_label);
+
+    return func_label;
 }
