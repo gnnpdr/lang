@@ -50,6 +50,7 @@ static const char* JB_STR = "jb";
 static const char* JAE_STR = "jae";
 static const char* JNE_STR = "jne";
 static const char* JBE_STR = "jbe";
+static const char* JMP_STR = "jmp";
 
 static const char* RET_STR = "ret";
 static const char* HLT_STR = "hlt";

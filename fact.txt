@@ -2,7 +2,7 @@
 *res ravenstvo 1.
 *cnt ravenstvo 1.
 
-v_techenie (*cnt RSDRPM *num)
+do_teh_por (*cnt RSDRPM *num)
 !
     *res ravenstvo *res darim *cnt
 !

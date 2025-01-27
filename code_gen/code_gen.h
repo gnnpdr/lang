@@ -22,8 +22,12 @@
 
 #define IS_FOR node->type == OP && node->value == FOR
 
-static const size_t APPR_CMD = 7;
+#define IS_PRINTF node->type == OP && node->value == PRINTF
+
+static const size_t APPR_CMD_AMT = 7;
 static const char* ASM_NAME = "asm_file.txt";
+
+static const size_t ARITHM_CMD_AMT = 4;
 
 struct CodeOp
 {
@@ -39,13 +43,18 @@ const struct CodeOp SIN_CMD  =  {SinStr, SIN};
 const struct CodeOp COS_CMD  =  {CosStr, COS};
 const struct CodeOp END_CMD  =  {HltStr, END};
 
-static const CodeOp appropriate_cmds[APPR_CMD] = {ADD_CMD,
+static const CodeOp appropriate_cmds[APPR_CMD_AMT] = {ADD_CMD,
                                                   SUB_CMD,
                                                   MUL_CMD,
                                                   DIV_CMD,
                                                   SIN_CMD,
                                                   COS_CMD,
                                                   END_CMD};
+
+static const CodeOp ArithmCmds[ARITHM_CMD_AMT]    =    {ADD_CMD,
+                                                        SUB_CMD,
+                                                        MUL_CMD,
+                                                        DIV_CMD};
 
 void code_gen(Tree *const the_tree, Id *const ids, ErrList *const list);
 
