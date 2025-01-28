@@ -81,7 +81,7 @@ const struct CommandParameters JbeStr   =  {"jbe"  , JBE_A  , 1};
 const struct CommandParameters JeStr    =  {"je"   , JE_A   , 1};
 const struct CommandParameters JneStr   =  {"jne"  , JNE_A  , 1};
 const struct CommandParameters JmpStr   =  {"jmp"  , JMP_A  , 1};
-const struct CommandParameters CallStr  =  {"call" , CALL_A , 1};
+const struct CommandParameters CallStr  =  {"call" , CALL_A , 0};
 const struct CommandParameters RetStr   =  {"ret"  , RET_A  , 0};
 
 static const CommandParameters bunch_of_commands [CMD_AMT]  =   {PushStr,
@@ -131,12 +131,15 @@ struct FuncParameters
     size_t len;
 
     size_t var_amt; //чтобы сдвигаться на положенное количество ячеек, если функция будет вызвана не один раз
-    size_t* vars;  //массив новеров ячеек оперативной памяти, которые используются функцией. Последняя - возвращаемое значение
+    //size_t* vars;  //массив новеров ячеек оперативной памяти, которые используются функцией. Последняя - возвращаемое значение
     int* ret_array;   //int на случай, если код слишком большой и error_value_size_t не будет неправильным
     size_t call_target;  //чтобы потом поменять код, надо знать, где менять, для этого отмечаются здесь и в лэйблах, targetы
     size_t ret_target;  //заполняться это место будет числом из массива
 
     size_t ret_word;
+
+    //word - сам номер слова - чтобы понять, какой для какой функции
+    //target - соответствующий dig_amt, чтобы подставить число в итоговый код
 };
 
 //--------------------------------REGISTERS---------------------------------------------------------------

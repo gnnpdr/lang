@@ -35,14 +35,15 @@ void tree_ctor (Tree *const the_tree, Node *const start_node)
     the_tree->root = start_node;
 }
 
+
+
 Node* tree_dtor(Node* node)
 {
 	assert(node);
 	
 	if (!node->Left && !node->Right)
 	{
-		free(node);
-		node = nullptr;
+        node_dtor(node);
 		return node;
 	}	
 
@@ -50,18 +51,16 @@ Node* tree_dtor(Node* node)
 	{
 		tree_dtor(node->Left);
 
-		if (!node->Right)
+		if (node->Right == nullptr)
 		{
-			free(node);
-			node = nullptr;
+            node_dtor(node);
 		}
 	}
 
 	if (node->Right)
 	{
 		tree_dtor(node->Right);
-		free(node);
-		node = nullptr;
+        node_dtor(node);
 	}
 
 	return node;

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 //----------------CONSTS--ENUMS----------------
-static const size_t MAX_FILES_AMT      = 15;
+static const size_t ERRORS_AMT      = 15;
 static const size_t ERROR_VALUE_SIZE_T = 993;
 static const int    ERROR_VALUE_INT    = -8;
 

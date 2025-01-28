@@ -46,8 +46,12 @@ void get_code(Input *const asm_text, Word *const words, ErrList *const list)
     size_t len = 1;
     size_t word_num = 0;
 
+    printf("START\n");
+    printf("size %d\n", size);
+
     for (size_t pointer = 0; pointer < size; pointer++)
     {
+        //printf("pointer %d\ntext %.10s\n", pointer, text + pointer);
         if (!isspace(text[pointer]))
         {
             if (text[pointer] == '\0')
@@ -91,10 +95,11 @@ void get_code(Input *const asm_text, Word *const words, ErrList *const list)
             continue;
         }
     }
-    printf("WORDS!\n");
+
+    /*printf("WORDS!\n");
     for (int i = 0; i < word_num; i++)
         printf("text %.5s\nlen %d\nstr %d\ntype %d\n----------\n", words[i].word_start, words[i].len, words[i].str_num, words[i].type);
-    printf("WORD END\n\n");
+    printf("WORD END\n\n");*/
 }
 
 void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)

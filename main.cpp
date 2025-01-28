@@ -34,27 +34,29 @@ int main(int argc, char** argv)
 	
 	Tree the_tree = {};
 	tree_ctor (&the_tree, root);
-	//graph_dump(root, ids, root, &list);
 	
 	// генерация ассемблерного кода
 	code_gen(&the_tree, ids, &list);
 	MAIN
+//- - - - -удаляю потому что ориентируюсь на эту часть кода, потом пересмотореть - - - - 
+	tree_dtor(root);
+
+	ids_dtor(ids);
+
+	tokens_dtor(tokens);
 
 	input_dtor(&base_text);
-	tokens_dtor(tokens);
-	ids_dtor(ids);
-	tree_dtor(the_tree.root);
-///-----------------------
 
-	/*Input asm_text = {};
+//-----------------------
+
+	Input asm_text = {};
     input_ctor(&asm_text, &list);
 	MAIN
-
     handle_text_wname (&asm_text, ASM_NAME, &list);
 	MAIN
-	
+
 	Word* words = word_list_ctor(&list);
-	// заполнение массива слов
+
 	get_code(&asm_text, words, &list);
 
 	LabelParameters* labels = ctor_labels(&list);
@@ -69,9 +71,16 @@ int main(int argc, char** argv)
 	MAIN
 	
 	dtor_labels(labels);
+	
+	//добавление как кусок выполняемого кода, после завершения следует удалить
+	dtor_funcs(funcs);
+	input_dtor(&asm_text);
+	word_list_dtor(words);
+	stk_dtor(&stk_code);
 
+//-------------------
 	// обработка цифрового кода
-	Input bin_code = {};
+	/*Input bin_code = {};
     input_ctor(&bin_code, &list);
 	MAIN
 

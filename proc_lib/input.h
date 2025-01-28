@@ -20,7 +20,7 @@ struct Word
     WordType type;
 };
 
-static const size_t FILE_CMD_AMT = 100;
+static const size_t FILE_CMD_AMT = 300;
 
 Word* word_list_ctor(ErrList *const list);
 void word_list_dtor(Word *const words);

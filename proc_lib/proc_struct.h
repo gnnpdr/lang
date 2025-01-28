@@ -1,7 +1,7 @@
 #ifndef _PROC_STRUCT_H_
 #define _PROC_STRUCT_H_
 
-static const size_t RAM_SIZE = 100;
+//static const size_t RAM_SIZE = 100;
 
 struct Proc
 {

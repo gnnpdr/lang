@@ -52,7 +52,7 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
         RETURN_VOID
     }
 
-    printf("TOKENS\n");
+    /*printf("TOKENS\n");
     for (int i = 0; i < TOKEN_AMT; i++)
     {
         printf("num %d, type %d, value %d\n", i, tokens[i].type, tokens[i].value);
@@ -72,7 +72,7 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
         }
             
     }
-    printf("----IDS END-----------\n");
+    printf("----IDS END-----------\n");*/
 }
 
 //-----------NUM------------------------
@@ -406,3 +406,4 @@ void make_token(Token *const tokens, Type type, int val, ErrList *const list)
     tokens[ind].type = type;
     tokens[ind].value = val;
 }
+

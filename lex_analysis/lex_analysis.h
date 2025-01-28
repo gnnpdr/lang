@@ -43,4 +43,6 @@ void ids_dtor(Id *const ids);
 
 void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, ErrList *const list);
 
+//Node* tree_dtor(Node* node);
+
 #endif //_LEX_H_
