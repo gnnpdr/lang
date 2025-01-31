@@ -8,6 +8,7 @@ static Node* get_together(Token *const tokens, Id *const ids, size_t *const poin
 
 static Node* get_operation(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
 static Node* get_binary_op(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
+static Node* get_unary_op(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
 static Node* op_case(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
 static Node* get_else(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
 static Node* get_printf(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
@@ -86,7 +87,6 @@ Node* get_together(Token *const tokens, Id *const ids, size_t *const pointer, Er
 
             Node* val2 = get_operation(tokens, ids, pointer, list);
             RETURN_PTR
-            //graph_dump(val2, ids, val2, list);
 
             val = make_node(OP, SEP, val, val2, list);
             RETURN_PTR
@@ -97,7 +97,6 @@ Node* get_together(Token *const tokens, Id *const ids, size_t *const pointer, Er
 
     }
 
-    //graph_dump(val, ids, val, list);
     return val;
 }
 
@@ -152,15 +151,23 @@ Node* op_case(Token *const tokens, Id *const ids, size_t *const pointer, ErrList
         }
     }
 
+    bool is_unary = false;
+    for (size_t op = 0; op < UNARY_OP_AMT; op++)
+    {
+        if (tokens[(*pointer) - 1].value == unary_op[op].num)
+        {
+            is_unary = true;
+            break;
+        }
+    }
+
     if (is_binary)
         val = get_binary_op(tokens, ids, pointer, list);
+    else if (is_unary)
+        val = get_unary_op(tokens, ids, pointer, list);
     
     else if (tokens[(*pointer) - 1].value == ELSE)
         val = get_else(tokens, ids, pointer, list);
-    
-    else if (tokens[(*pointer) - 1].value == PRINTF)
-        val = get_printf(tokens, ids, pointer, list);
-    
     else 
     {
         ERROR(SYN_ERROR)
@@ -184,6 +191,21 @@ Node* get_binary_op(Token *const tokens, Id *const ids, size_t *const pointer, E
     RETURN_PTR
 
     Node* val = make_node(OP, current_op, left, right, list);
+    RETURN_PTR
+
+    return val;
+}
+
+Node* get_unary_op(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list)
+{
+    REC_ASSERT
+
+    size_t current_op = tokens[(*pointer) - 1].value;
+
+    Node* id = get_id(tokens, ids, pointer, list);
+    RETURN_PTR
+
+    Node* val = make_node(OP, current_op, id, nullptr, list);
     RETURN_PTR
 
     return val;
@@ -338,7 +360,32 @@ Node* get_expr(Token *const tokens, Id *const ids, size_t *const pointer, ErrLis
     int operation = tokens[*pointer].value;
     (*pointer)++;
 
-    Node* right = get_sec_pr(tokens, ids, pointer, list);
+    Node* right = nullptr;
+
+    if (tokens[*pointer].type == OP)
+    {
+        if (tokens[*pointer].value == SQRT)
+        {
+            (*pointer)++;
+            Node* arg = get_id(tokens, ids, pointer, list);
+
+            right = make_node(OP, SQRT, arg, nullptr, list);
+        }
+        else if (tokens[*pointer].value == CALC_BR)
+        {
+            right = get_sec_pr(tokens, ids, pointer, list);
+        }
+        else
+        {
+            printf("!%d %d!\n", tokens[*pointer].type, tokens[*pointer].value);
+            printf("you cant use it here\n");
+            ERROR(SYN_ERROR)
+        }
+    }
+    else
+    {
+        right = get_sec_pr(tokens, ids, pointer, list);
+    }
     RETURN_PTR
 
     Node* val = make_node(OP, operation, left, right, list);

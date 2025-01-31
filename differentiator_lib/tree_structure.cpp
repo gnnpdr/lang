@@ -9,7 +9,7 @@ Node* node_ctor (ErrList *const list)
 	Node* node = (Node*)calloc(1, sizeof(Node));
 	ALLOCATION_CHECK_PTR(node)
 
-	return node;  //проверка осуществляется вне функции
+	return node;
 }
 
 Node* make_node(Type type, double value, Node* Left, Node* Right, ErrList *const list)

@@ -1,11 +1,9 @@
 #ifndef _DATA_H_
 #define _DATA_H_
 
-//static const int    ERROR_VALUE    = -8;
-
 //-----------------------COMMANDS---------------------------------------------------------------------------
 
-static const size_t CMD_AMT  =  19;
+static const size_t CMD_AMT  =  20;
 
 
 enum ArgType
@@ -37,7 +35,8 @@ enum CommandsNums
     JNE_A   = 16,
     JMP_A   = 17,
     CALL_A  = 18,
-    RET_A   = 19
+    RET_A   = 19,
+    SQRT_A  = 20
 };
 
 static const char* POP_STR  =  "pop";
@@ -56,6 +55,8 @@ static const char* RET_STR = "ret";
 static const char* HLT_STR = "hlt";
 
 static const char* CALL_STR = "call";
+
+static const char* SQRT_STR = "sqrt";
 
 struct CommandParameters 
 {
@@ -83,6 +84,7 @@ const struct CommandParameters JneStr   =  {"jne"  , JNE_A  , 1};
 const struct CommandParameters JmpStr   =  {"jmp"  , JMP_A  , 1};
 const struct CommandParameters CallStr  =  {"call" , CALL_A , 0};
 const struct CommandParameters RetStr   =  {"ret"  , RET_A  , 0};
+const struct CommandParameters SqrtStr   =  {"sqrt"  , SQRT_A  , 0};
 
 static const CommandParameters bunch_of_commands [CMD_AMT]  =   {PushStr,
                                                                 AddStr   ,
@@ -102,9 +104,8 @@ static const CommandParameters bunch_of_commands [CMD_AMT]  =   {PushStr,
                                                                 JneStr   ,
                                                                 JmpStr   ,
                                                                 CallStr  ,
-                                                                RetStr   };
-
-
+                                                                RetStr   ,
+                                                                SqrtStr};
 
 //----------------------------------LABELS---------------------------------------------------------------------
 
@@ -112,10 +113,11 @@ static const size_t LABELS_AMT = 10;
 static const size_t RET_AMT    = 10;
 
 static const char LABEL_MARK = ':';
+static const size_t LABEL_ARG_AMT = 5;
 
 struct LabelParameters
 {
-    size_t arg_target;
+    size_t* arg_target;
     size_t cmd_target;
     char* start_word;
     size_t len;
@@ -133,7 +135,8 @@ struct FuncParameters
     size_t var_amt; //чтобы сдвигаться на положенное количество ячеек, если функция будет вызвана не один раз
     //size_t* vars;  //массив новеров ячеек оперативной памяти, которые используются функцией. Последняя - возвращаемое значение
     int* ret_array;   //int на случай, если код слишком большой и error_value_size_t не будет неправильным
-    size_t call_target;  //чтобы потом поменять код, надо знать, где менять, для этого отмечаются здесь и в лэйблах, targetы
+    size_t ret_cnt;
+    size_t call_target;  //то, куда прыгать от call
     size_t ret_target;  //заполняться это место будет числом из массива
 
     size_t ret_word;
@@ -184,18 +187,10 @@ static const size_t RAM_AMT       = 50;
 
 static const char* PLUS  = "+";
 static const char RAM_MARK = '[';
-//static const char RAM_MARK_C = ']';
 
 static const int BITS_IN_BYTES = 8;
 static const int INT_BYTE_SIZE = sizeof(int)*BITS_IN_BYTES;
 
-/*enum ArgType
-{
-    INT  =   1 << (sizeof(int)*BITS_IN_BYTES - 1) ,
-    REG  =   1 << (sizeof(int)*BITS_IN_BYTES - 2) ,
-    RAM  =   1 << (sizeof(int)*BITS_IN_BYTES - 3) ,
-    FREE = ~(7 << (sizeof(int)*BITS_IN_BYTES - 3)),
-};*/
 
 static const char* MK_ARGS[6] = {
                                  JA_STR,

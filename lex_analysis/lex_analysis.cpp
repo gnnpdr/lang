@@ -57,7 +57,7 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
     {
         printf("num %d, type %d, value %d\n", i, tokens[i].type, tokens[i].value);
     }
-    printf("------TOKENS END---------\n");
+    printf("------TOKENS END---------\n");*/
 
     printf("IDS\n");
     for (int i = 0; i < ID_AMT; i++)
@@ -72,7 +72,10 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
         }
             
     }
-    printf("----IDS END-----------\n");*/
+    printf("----IDS END-----------\n");
+
+    //int a = 0;
+    //scanf("%d", &a);
 }
 
 //-----------NUM------------------------
@@ -128,17 +131,9 @@ Id* id_ctor(ErrList *const list)
     for (int i = 0; i < ID_AMT; i++)
     {
         ids[i].len = ERROR_VALUE_SIZE_T;
-    
-        size_t* args = (size_t*)calloc(ARGS_AMT, sizeof(size_t));
 
         ids[i].var_amt = ERROR_VALUE_SIZE_T;
 
-        ALLOCATION_CHECK_PTR(args)
-
-        for (size_t i = 0; i < ARGS_AMT; i++)
-            args[i] = ERROR_VALUE_SIZE_T;
-
-        ids[i].args = args;
         ids[i].use_num = 0;
     }
         

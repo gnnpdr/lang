@@ -15,7 +15,6 @@ enum IdType
     FUNC_ID
 };
 
-
 struct Token
 {
     Type type;
@@ -30,7 +29,7 @@ struct Id
     size_t len;
     
     IdType type;
-    size_t var_amt; //в случае функции, считаем, что последняя переменная - возвращаемое значение
+    size_t var_amt;
     size_t* args;
     size_t use_num;
 };
@@ -42,7 +41,5 @@ void tokens_dtor(Token *const tokens);
 void ids_dtor(Id *const ids);
 
 void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, ErrList *const list);
-
-//Node* tree_dtor(Node* node);
 
 #endif //_LEX_H_

@@ -25,7 +25,7 @@ static const size_t FILE_CMD_AMT = 300;
 Word* word_list_ctor(ErrList *const list);
 void word_list_dtor(Word *const words);
 
-void handle_text_wname (Input *const text, const char *const name, ErrList *const list);
+
 void get_code(Input *const asm_text, Word *const words, ErrList *const list);
 
 void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list);

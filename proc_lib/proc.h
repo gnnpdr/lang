@@ -9,7 +9,7 @@
 void proc_ctor(Proc *const proc, ErrList *const list);
 void proc_dtor(Proc *const proc);
 
-void proc_code(Proc *const proc, Stack *const prog, ErrList *const list);
+void proc_code(FuncParameters *const funcs, Proc *const proc, Stack *const prog, ErrList *const list);
 
 #define GET_TWO_ARGS    do                                  \
                         {                                   \

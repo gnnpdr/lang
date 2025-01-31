@@ -22,13 +22,14 @@ enum Errors
     STAT_ERROR,
     SPRINTF_ERROR,
     SYN_ERROR,
-    MATH_ERROR,
-    TOKEN_ERROR,
+    /*MATH_ERROR,*/
+    /*TOKEN_ERROR,*/
     RET_ERROR,
     SSCANF_ERROR
 };
 
 //------------STRUCTS------------------------
+
 struct Err_param
 {
     Errors err_num;
@@ -152,13 +153,13 @@ struct ErrList
                                 }                                               \
                             }while(0);
 
-#define SSCANF_CHECK    do                                 \
-                        {                                  \
-                            if (sscanf_res == -1)        \
-                            {                              \
-                                ERROR(SSCANF_ERROR)       \
+#define SSCANF_CHECK    do                                  \
+                        {                                   \
+                            if (sscanf_res == -1)           \
+                            {                               \
+                                ERROR(SSCANF_ERROR)         \
                                 return;                     \
-                            }                              \
+                            }                               \
                         }while(0);
 
 //=================RET================================

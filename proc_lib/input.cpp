@@ -22,17 +22,6 @@ void word_list_dtor(Word *const words)
     free(words);
 }
 
-void handle_text_wname (Input *const text, const char *const name, ErrList *const list)
-{
-    assert(text);
-    assert(list);
-
-    strncpy(text->name, name, MAX_STR_LEN);
-    CPY_CHECK(text->name)
-    get_database_text(text, list);
-    RETURN_VOID
-}
-
 void get_code(Input *const asm_text, Word *const words, ErrList *const list)
 {
     assert(asm_text);
@@ -95,11 +84,6 @@ void get_code(Input *const asm_text, Word *const words, ErrList *const list)
             continue;
         }
     }
-
-    /*printf("WORDS!\n");
-    for (int i = 0; i < word_num; i++)
-        printf("text %.5s\nlen %d\nstr %d\ntype %d\n----------\n", words[i].word_start, words[i].len, words[i].str_num, words[i].type);
-    printf("WORD END\n\n");*/
 }
 
 void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)
@@ -128,8 +112,16 @@ void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)
 
     for (int ind = 0; ind < size; ind++)
     {
+        bool is_negative = false;
+
         if (isspace(text[ind]) || text[ind] == '\0')
             continue;
+
+        if (text[ind] == '-')
+        {
+            is_negative = true;
+            ind++;
+        }
             
         while (isdigit(text[ind]))
         {
@@ -137,6 +129,9 @@ void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)
             num_len++;
             ind++;
         }
+
+        if (is_negative)
+            num = num * -1;
 
         code[dig] = num;
         num_len = 0;
