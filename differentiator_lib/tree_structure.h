@@ -3,7 +3,7 @@
 
 //-----------------------LIBS-------------------------------------
 #include "..\errors\errors.h"
-#include "..\structure.h"
+#include "..\lang_structure.h"
 
 #include <assert.h>
 #include <stdlib.h>

@@ -6,9 +6,14 @@
 
 #include "..\differentiator_lib\get_database.h"
 
-static const size_t TOKEN_AMT = 30;
-static const size_t ID_AMT = 5;
+static const size_t TOKEN_AMT = 150;
+static const size_t ID_AMT = 15;
 
+enum IdType
+{
+    VAR_ID,
+    FUNC_ID
+};
 
 struct Token
 {
@@ -16,11 +21,17 @@ struct Token
     int value;
 };
 
+static const size_t ARGS_AMT = 10;
+
 struct Id
 {
     char* start_address;
     size_t len;
-    //доп инфа
+    
+    IdType type;
+    size_t var_amt;
+    size_t* args;
+    size_t use_num;
 };
 
 Token* tokens_ctor(ErrList *const list);

@@ -4,81 +4,216 @@
 
 #include "input.h"
 
-static void remove_carriage(Input *const text, ErrList *const list);
-
-void handle_text_argv (Input *const text, char **const argv, ErrList *const list)
+Word* word_list_ctor(ErrList *const list)
 {
-    assert(text);
-    assert(argv);
     assert(list);
 
-    get_database_name(text, argv, list);  
-    RETURN_VOID
-    get_database_text(text, list);
-    RETURN_VOID
-    remove_carriage(text, list);
-    RETURN_VOID
+    Word* words = (Word*)calloc(FILE_CMD_AMT, sizeof(Word));
+    ALLOCATION_CHECK_PTR(words)
+
+    for (size_t i = 0; i < FILE_CMD_AMT; i++)
+        words[i].len = ERROR_VALUE_SIZE_T;
+
+    return words;
 }
 
-void handle_text_wname (Input *const text, const char *const name, ErrList *const list)
+void word_list_dtor(Word *const words)
 {
-    assert(text);
-    assert(list);
-
-    strncpy(text->name, name, MAX_STR_LEN);
-    CPY_CHECK(text->name)
-    get_database_text(text, list);
-    RETURN_VOID
-    remove_carriage(text, list);
-    RETURN_VOID
+    free(words);
 }
 
-void remove_carriage(Input *const text, ErrList *const list)
+void get_code(Input *const asm_text, Word *const words, ErrList *const list)
 {
-    assert(text);
+    assert(asm_text);
+    assert(words);
     assert(list);
 
-    size_t symb_num = 0;
-    size_t word_cnt = 0;
+    char* text = asm_text->text;
 
-    size_t size = text->size;
-    char* buf = text->text;
-    char** addresses = text->addresses;
+    size_t size = asm_text->size;
+    size_t str_num = 0;
+    size_t len = 1;
+    size_t word_num = 0;
 
-    addresses[word_cnt] = buf + symb_num;
+    printf("START\n");
+    printf("size %d\n", size);
 
-    while (symb_num < size)
+    for (size_t pointer = 0; pointer < size; pointer++)
     {
-        char* ch = buf + symb_num;
+        //printf("pointer %d\ntext %.10s\n", pointer, text + pointer);
+        if (!isspace(text[pointer]))
+        {
+            if (text[pointer] == '\0')
+                continue;
 
-        if (*ch == SPACE)
-        {
-            *ch = '\0';
-            word_cnt++;
-            addresses[word_cnt] = buf + symb_num + 1;  //было +1. Можно поменять на +2 чтобы не было проблем в нахождении : в лэйблах
-        }
-        else if (*ch == '\r')
-        {
-            *ch = '\0';
-        }
-        else if (*ch == COMMENT_MARK)
-        {
-            do
+            words[word_num].word_start = text + pointer;
+            pointer++;
+
+            while(!isspace(text[pointer]))
             {
-                symb_num++;
-                ch = buf + symb_num;
+                len++;
+                pointer++;
             }
-            while (*ch != '\n');
+            words[word_num].len = len;
+            words[word_num].str_num = str_num;
+            if (str_num != 0)
+            {
+                if (words[word_num - 1].str_num < str_num)
+                    words[word_num].type = CMD;
+                else
+                    words[word_num].type = ARG;
+            }
+            else
+            {
+                if (word_num == 0)
+                    words[word_num].type = CMD;
+                else
+                    words[word_num].type = ARG;
+            }
+
+            if (text[pointer] == '\n')
+                str_num++;
+
+            len = 1;
+            word_num++;
         }
-        else if (*ch == '\n')
+        else
         {
-            *ch = '\0';
-            word_cnt++;
-            addresses[word_cnt] = buf + symb_num + 1;
+            if (text[pointer] == '\n' )
+                str_num++;
+            continue;
+        }
+    }
+}
+
+void get_bin_code(Input *const base_text, int *const code, size_t *const dig_amt, ErrList *const list)
+{
+    assert(base_text);
+    assert(code);
+    assert(dig_amt);
+    assert(list);
+
+    char* base_file_name = base_text->name;
+    FILE* input_file;
+
+    input_file = fopen(base_file_name, "r");
+    FILE_CHECK(input_file)
+
+    char* text = base_text->text;
+    //int* code = proc->code;
+
+    size_t size = 0;
+
+    count_file_size(base_text->name, &size, list);
+    RETURN_VOID
+
+    size_t dig = 0;
+    size_t num_len = 0;
+
+    int num = 0;
+
+    for (int ind = 0; ind < size; ind++)
+    {
+        bool is_negative = false;
+
+        if (isspace(text[ind]) || text[ind] == '\0')
+            continue;
+
+        if (text[ind] == '-')
+        {
+            is_negative = true;
+            ind++;
+        }
+            
+        while (isdigit(text[ind]))
+        {
+            num = num * 10 + text[ind] - '0';
+            num_len++;
+            ind++;
         }
 
-        symb_num++;
+        if (is_negative)
+            num = num * -1;
+
+        code[dig] = num;
+        num_len = 0;
+        num = 0;
+
+        dig++;
     }
 
-    text->cmd_amt = word_cnt;
+    int close_res = fclose(input_file);
+    CLOSE_CHECK
+
+    /*for (int i = 0; i < dig; i++)
+        printf("%d ", code[i]);*/
+
+    //printf("few\n");
+    
+    size = dig;
 }
+
+/*void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)
+{
+    assert(base_text);
+    assert(list);
+
+    char* base_file_name = base_text->name;
+    FILE* input_file;
+
+    input_file = fopen(base_file_name, "r");
+    FILE_CHECK(input_file)
+
+    char* text = base_text->text;
+    int* code = proc->code;
+
+    size_t size = 0;
+
+    count_file_size(base_text->name, &size, list);
+    RETURN_VOID
+
+    size_t dig = 0;
+    size_t num_len = 0;
+
+    int num = 0;
+
+    for (int ind = 0; ind < size; ind++)
+    {
+        bool is_negative = false;
+
+        if (isspace(text[ind]) || text[ind] == '\0')
+            continue;
+
+        if (text[ind] == '-')
+        {
+            is_negative = true;
+            ind++;
+        }
+            
+        while (isdigit(text[ind]))
+        {
+            num = num * 10 + text[ind] - '0';
+            num_len++;
+            ind++;
+        }
+
+        if (is_negative)
+            num = num * -1;
+
+        code[dig] = num;
+        num_len = 0;
+        num = 0;
+
+        dig++;
+    }
+
+    int close_res = fclose(input_file);
+    CLOSE_CHECK
+
+    /*for (int i = 0; i < dig; i++)
+        printf("%d ", code[i]);*//*
+
+    //printf("few\n");
+    
+    proc->size = dig;
+}*/

@@ -2,30 +2,62 @@
 
 #include "proc.h"
 
-static int get_arg (Processor* proc);
-static int* get_arg_addr (Processor* proc);
+static int get_arg(Proc *const proc, size_t *const ip);
+static void give_arg(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list);
 
-static void ja (Processor* proc, Stack* stk, ErrList *const list);
-static void jae (Processor* proc, Stack* stk, ErrList *const list);
-static void je (Processor* proc, Stack* stk, ErrList *const list);
-static void jne (Processor* proc, Stack* stk, ErrList *const list);
-static void jb(Processor* proc, Stack* stk, ErrList *const list);
-static void jbe(Processor* proc, Stack* stk, ErrList *const list);
 static ResultOfComparing comparing(int first_el, int sec_el);
+static void ja(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
+static void jae(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
+static void jb(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
+static void jbe(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
+static void je(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
+static void jne(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
 
-void proc_file (Stack* const stk, Processor* const proc, Stack* functions, ErrList *const list)
+static void get_call(FuncParameters *const funcs, Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list);
+static void proc_code_part(FuncParameters *const funcs, Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list);
+static void get_ret (FuncParameters *const funcs, Proc *const proc, size_t *const ip, ErrList *const list);
+
+void proc_ctor(Proc *const proc, ErrList *const list)
 {
-    assert(stk);
     assert(proc);
-    assert(functions);
     assert(list);
 
-    size_t size = proc->ncmd;
+    int* code = (int*)calloc(MAX_FILE_SIZE, sizeof(int));
+    ALLOCATION_CHECK_VOID(code)
 
-    size_t ret_cnt = 0;
+    int* RAM = (int*)calloc(RAM_AMT, sizeof(int));
+    ALLOCATION_CHECK_VOID(RAM)
+
+    Stack stk = {};
+    stk_ctor(&stk, list);
+
+    for (size_t i = 0; i < RAM_AMT; i++)
+        RAM[i] = POISON;
+
+    proc->stk = &stk;
+    proc->code = code;
+    proc->RAM = RAM;
+}
+
+void proc_dtor(Proc *const proc)
+{
+    stk_dtor(proc->stk);
+    free(proc->code);
+    free(proc->RAM);
+}
+
+
+
+void proc_code(Proc *const proc, Stack *const prog, ErrList *const list)
+{
+    assert(proc);
+    assert(list);
+
+    size_t ip = 0;
     
-    size_t ip = proc->ip;
-    int* program = proc->new_file_buf;
+    size_t size = proc->size;
+
+    int* code = proc->code;
 
     int first_el = 0;
     int sec_el   = 0;
@@ -33,398 +65,493 @@ void proc_file (Stack* const stk, Processor* const proc, Stack* functions, ErrLi
 
     while(ip < size)
     {
-        switch(program[ip])
+        printf("ip %d\n", ip);
+        printf("CODE %d %d %d\n", code[ip], code[ip + 1], code[ip + 2]);
+
+        switch(code[ip])
         {
             case PUSH_A:
-                proc->ip = ip;
-                arg = get_arg(proc);
-                stk_push (stk, arg, list);
-                RETURN_VOID
-                ip = proc->ip;
+                printf("push\n");
+                arg = get_arg(proc, &ip);
+                printf("ARG %d\n\n", arg);
+                stk_push(prog, arg, list);
                 break;
 
             case ADD_A:
-                TWO_ARGS
-                stk_push (stk, first_el + sec_el, list);
-                RETURN_VOID
+                printf("add\n");
+                GET_TWO_ARGS
+                stk_push(prog, first_el + sec_el, list);
                 break;
 
             case SUB_A:
-                TWO_ARGS
-                stk_push (stk, first_el - sec_el, list);
-                RETURN_VOID
+                printf("sub\n");
+                GET_TWO_ARGS
+                stk_push(prog, first_el - sec_el, list);
                 break;
 
             case MUL_A:
-                TWO_ARGS
-                stk_push (stk, first_el * sec_el, list);
-                RETURN_VOID
+                printf("mul\n");
+                GET_TWO_ARGS
+                stk_push(prog, first_el * sec_el, list);
                 break;
 
             case DIV_A:
-                TWO_ARGS
-                stk_push (stk, first_el / sec_el, list);
-                RETURN_VOID
-                break;
-
-            case SQRT_A:
-                ONE_ARG
-                stk_push (stk, pow(arg, 0.5), list);
-                RETURN_VOID
-                break;
-                
-            case SIN_A:
-                ONE_ARG
-                stk_push (stk, sin(arg), list);
-                RETURN_VOID
-                break;
-
-            case COS_A:
-                ONE_ARG
-                stk_push (stk, cos(arg), list);
-                RETURN_VOID
+                printf("div\n");
+                GET_TWO_ARGS
+                stk_push(prog, first_el / sec_el, list);
                 break;
             
             case JA_A:
-                ip++;
-                proc->ip = ip;
-                ja(proc, stk, list);
-                RETURN_VOID
-                ip = proc->ip;
-                ip--;
+                printf("JA\n");
+                ja(proc, prog, &ip, list);
                 break;
 
             case JAE_A:
-                ip++;
-                proc->ip = ip;
-                jae(proc, stk, list);
-                RETURN_VOID
-                ip = proc->ip;
-                ip--;
+                jae(proc, prog, &ip, list);
                 break;
 
             case JB_A:
-                ip++;
-                proc->ip = ip;
-                jb(proc, stk, list);
-                RETURN_VOID
-                ip = proc->ip;
-                ip--;
+                jb(proc, prog, &ip, list);
                 break;
 
             case JBE_A:
-                ip++;
-                proc->ip = ip;
-                jbe(proc, stk, list);
-                RETURN_VOID
-                ip = proc->ip;
-                ip--;
+                jbe(proc, prog, &ip, list);
                 break;
 
             case JE_A:
-                ip++;
-                proc->ip = ip;
-                je(proc, stk, list);
-                RETURN_VOID
-                ip = proc->ip;
-                ip--;
+                je(proc, prog, &ip, list);
                 break;
 
             case JNE_A:
-                ip++;
-                proc->ip = ip;
-                jne(proc, stk, list);
-                RETURN_VOID
-                ip = proc->ip;
-                ip--;
+                printf("JNE\n");
+                jne(proc, prog, &ip, list);
                 break;
 
             case JMP_A:
-                ip++;
-                ip = proc->new_file_buf[ip];
+                printf("JMP\n");
+                arg = get_arg(proc, &ip);
+                ip = arg;
+                printf("NEW IP %d\n", ip);
                 break;
 
             case POP_A:
-                proc->ip = ip;
-                stk_pop (stk, get_arg_addr(proc), list);
-                RETURN_VOID
-                ip = proc->ip;
+                printf("pop\n");
+                give_arg(proc, prog, &ip, list);
+                break;
+
+            case SQRT_A:
+                printf("SQRT\n");
+                stk_pop(prog, &arg, list);
+                stk_push(prog, sqrt(arg), list);
+                break;
+
+            case CALL_A:
+                printf("CALL\n");
+                get_call(proc, prog, &ip, list);
+                printf("CALL RETURN\n");
                 break;
 
             case HLT_A:
-                ip = size + 1;
+                printf("hlt\n");
+                return;
                 break;
 
-            case RET_A:
-                ip = functions->data[ret_cnt];
-                ret_cnt;
+            case OUT_A:
+                printf("OUT\n");
+                stk_pop(prog, &arg, list);
+                printf("!! %d !!\n", arg);
                 break;
+            //    break;
 
             default:
-                //printf("something went wrong :(\n");
+                printf("problem\n");
                 break;
         }   
         ip++;
+        
+        printf("RAM\n");
+        for (size_t i = 0; i < 10; i++)
+            printf("%d ", proc->RAM[i]);
+        printf("\nRAM END\n\n");
     }
 }
 
-int get_arg (Processor* proc)
+void proc_code_part(FuncParameters *const funcs, Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list)
 {
-    size_t ip = proc->ip;
-    int* program = proc->new_file_buf;
+    assert(proc);
+    assert(list);
 
-    ip++;
-    int arg = program[ip];
-    int res_arg = 0;
+    printf("GET PART\n");
 
-    bool is_ram = false;
+    size_t size = proc->size;
 
-    if ((arg & RAM) == RAM)
-        is_ram = true;
+    int* code = proc->code;
 
-    if ((arg & INT) == INT)
+    int first_el = 0;
+    int sec_el   = 0;
+    int arg      = 0;
+
+    while(*ip < size)
     {
-        res_arg += arg & FREE;
-        ip++;
-        arg = program[ip];
-    }
-
-    if ((arg & REG) == REG)
-    {
-        res_arg += registers[arg & FREE]->value;
-    }
-    else 
-        ip--;
-
-    if (is_ram == true)
-        res_arg = proc->RAM[res_arg];
-
-    proc->ip = ip;
-    
-    return res_arg;
-}
-
-int* get_arg_addr (Processor* proc)
-{
-    size_t ip = proc->ip;
-    int* program = proc->new_file_buf;
-
-    ip++;
-    int* arg = &program[ip];
-
-    int* res_addr = 0;
-    int  res_arg  = 0;
-
-    int for_stk_pop = 0;
-
-    bool is_reg = false;
-    bool is_ram = false;
-
-    if (((*arg) & RAM) == RAM)
-        is_ram = true;
-
-    if (((*arg) & INT) == INT)
-    {
-        res_arg += (*arg) & FREE;
-        ip++;
-        *arg = program[ip];
-    }
-
-    if (((*arg) & REG) == REG)
-    {
-        is_reg = true;
-
-        if (is_ram == true)
+        printf("ip %d\n", *ip);
+        switch(code[*ip])
         {
-            res_arg += registers[(*arg) & FREE]->value;
-        }
-        else
-        {
-            res_addr = &registers[(*arg) & FREE]->value;
-        }
+            case PUSH_A:
+                printf("push\n");
+                arg = get_arg(proc, ip);
+                printf("ARG %d\n\n", arg);
+                stk_push(prog, arg, list);
+                break;
+
+            case ADD_A:
+                printf("add\n");
+                GET_TWO_ARGS
+                stk_push(prog, first_el + sec_el, list);
+                break;
+
+            case SUB_A:
+                printf("sub\n");
+                GET_TWO_ARGS
+                stk_push(prog, first_el - sec_el, list);
+                break;
+
+            case MUL_A:
+                printf("mul\n");
+                GET_TWO_ARGS
+                stk_push(prog, first_el * sec_el, list);
+                break;
+
+            case DIV_A:
+                printf("div\n");
+                GET_TWO_ARGS
+                stk_push(prog, first_el / sec_el, list);
+                break;
             
-    }
+            case JA_A:
+                printf("ja\n");
+                ja(proc, prog, ip, list);
+                break;
 
-    if (!is_reg && !is_ram)
+            case JAE_A:
+                jae(proc, prog, ip, list);
+                break;
+
+            case JB_A:
+                jb(proc, prog, ip, list);
+                break;
+
+            case JBE_A:
+                jbe(proc, prog, ip, list);
+                break;
+
+            case JE_A:
+                je(proc, prog, ip, list);
+                break;
+
+            case JNE_A:
+                printf("jne\n");
+                jne(proc, prog, ip, list);
+                break;
+
+            case JMP_A:
+                arg = get_arg(proc, ip);
+                *ip = arg;
+                break;
+
+            case POP_A:
+                printf("pop\n");
+                give_arg(proc, prog, ip, list);
+                break;
+
+            case CALL_A:
+                printf("CALL\n");
+                get_call(funcs, proc, prog, ip, list);
+                break;
+
+            case HLT_A:
+                printf("hlt\n");
+                return;
+                break;
+
+            case RET_A:
+                printf("RET\n");
+                get_ret (funcs, proc, ip, list);
+                return; //обязательно! именно эта часть и вернет из функции get call
+                break;
+
+            default:
+                printf("problem\n");
+                break;
+        }   
+        (*ip)++;
+        
+        printf("RAM\n");
+        for (size_t i = 0; i < 10; i++)
+            printf("%d ", proc->RAM[i]);
+        printf("\nRAM END\n\n");
+    }
+}
+
+void get_call(FuncParameters *const funcs, Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list)
+{
+    assert(funcs);
+    assert(proc);
+    assert(prog);
+    assert(list);
+    assert(ip);
+
+    int* code = proc->code;
+    stk_push(proc->stk, *ip, list);
+    (*ip)++;
+    //FuncParameters the_func = funcs[code[*ip]];
+    //printf("THE FUNC NUM %d, CALL TARGET %d\n", code[*ip], the_func.call_target);
+
+    //size_t jmp_target = the_func.call_target;
+
+    //*ip = jmp_target;
+    (*ip) = code[*ip];
+
+    proc_code_part(funcs, proc, prog, ip, list);
+
+    //int a = 0; 
+    //scanf("%d", &a);
+}
+
+void get_ret (FuncParameters *const funcs, Proc *const proc, size_t *const ip, ErrList *const list)
+{
+    assert(funcs);
+    assert(proc);
+    assert(ip);
+    assert(list);
+
+    int* code = proc->code;
+
+    //(*ip)++;
+    //size_t ret_ip = funcs[code[*ip]].ret_array[funcs[code[*ip]].ret_cnt];
+    int ret_ip = 0;
+    stk_pop(proc->stk, &ret_ip, list);
+
+
+    //printf("new ip %d, ret_cnt %d\n", ret_ip, funcs[code[*ip]].ret_cnt);
+    //(funcs[code[*ip]].ret_cnt)++;
+    *ip = ret_ip;
+    //(*ip)++;
+}
+
+int get_arg(Proc *const proc, size_t *const ip)
+{
+    assert(proc);
+    assert(ip);
+
+    (*ip)++;
+    int arg = 0;
+    int* prog = proc->code;
+    int* RAM = proc->RAM;
+
+    /*ARG_NUM, 
+    ARG_LAB,
+    ARG_RAM,
+    ARG_REG*/
+    printf("TYPE %d\n\n", prog[*ip]);
+
+    if (prog[*ip] == ARG_NUM || prog[*ip] == ARG_LAB)
     {
-        ip--;
-        res_addr = &for_stk_pop;
+        printf("NUM\n");
+        (*ip)++;
+        return prog[*ip];
+    }
+    else if (prog[*ip] == ARG_RAM)
+    {
+        printf("RAM\n");
+        (*ip)++;
+        printf("PLACE %d\n\n", prog[*ip]);
+        arg = RAM[prog[*ip]];
+        //printf("ARG %d\n\n", arg);
+    }
+    /*else if (prog[ip] == ARG_REG)
+    {
+
+    }*/
+
+   return arg;
+}
+
+void ja(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list)
+{
+    assert(proc);
+    assert(prog);
+    assert(ip);
+    assert(list);
+
+    int* code = proc->code;
+    *ip += 2;
+    size_t new_ip = (size_t)code[*ip];
+    
+
+    stack_element_t first_el = 0;
+    stack_element_t sec_el = 0;
+
+    stk_pop(prog, &sec_el, list);
+    stk_pop(prog, &first_el, list);
+
+    bool do_jump = false;
+
+    ResultOfComparing res = comparing(first_el, sec_el);
+    if (res == GREATER_RES)
+    {
+        printf("0 IS GREATER THAN DISCR\n");
+        do_jump = true;
     }
         
-    if (is_ram)
-        res_addr = &proc->RAM[res_arg];
-
-    proc->ip = ip;
-    
-    return res_addr;
+    if(do_jump)
+    {
+        printf("NEW IP %d\n", new_ip);
+        *ip = new_ip;
+    }
+        
 }
 
-void ja(Processor* proc, Stack* stk, ErrList *const list)
+void jae(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list)
 {
-    size_t ip = proc->ip;
-    int* program = proc->new_file_buf;
-    int arg = program[ip];
+    assert(proc);
+    assert(prog);
+    assert(ip);
+    assert(list);
+
+    int* code = proc->code;
+    *ip += 2;
+    size_t new_ip = (size_t)code[*ip];
 
     stack_element_t first_el = 0;
     stack_element_t sec_el = 0;
 
-    stk_pop(stk, &sec_el, list);
-    RETURN_VOID
-    stk_pop(stk, &first_el, list);
-    RETURN_VOID
+    stk_pop(prog, &sec_el, list);
+    stk_pop(prog, &first_el, list);
 
-    DoJump do_jump = NO_JUMP;
-    
-    ResultOfComparing res = comparing(first_el, sec_el);  //условная функция с кучей компараторов
-    if (res == GREATER_RES)
-        do_jump = DO_JUMP;
-
-    if(do_jump == DO_JUMP)
-        ip = arg;
-    else 
-        ip++;
-
-    proc->ip = ip;
-}
-
-void jae (Processor* proc, Stack* stk, ErrList *const list)
-{
-    size_t ip = proc->ip;
-    int* program = proc->new_file_buf;
-    int arg = program[ip];
-    
-    stack_element_t first_el = 0;
-    stack_element_t sec_el = 0;
-
-    stk_pop(stk, &sec_el, list);
-    RETURN_VOID
-    stk_pop(stk, &first_el, list);
-    RETURN_VOID
-
-    DoJump do_jump = NO_JUMP;
+    bool do_jump = false;
 
     ResultOfComparing res = comparing(first_el, sec_el);
     if (res == GREATER_RES || res == EQUAL_RES)
-        do_jump = DO_JUMP;
+        do_jump = true;
 
-    if(do_jump == DO_JUMP)
-        ip = arg;
-    else 
-        ip++;
-
-    proc->ip = ip;
+    if(do_jump)
+        *ip = new_ip;
 }
 
-void jb(Processor* proc, Stack* stk, ErrList *const list)
+void jb(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list)
 {
-    size_t ip = proc->ip;
-    int* program = proc->new_file_buf;
-    int arg = program[ip];
+    assert(proc);
+    assert(prog);
+    assert(ip);
+    assert(list);
+
+    int* code = proc->code;
+    *ip += 2;
+    size_t new_ip = (size_t)code[*ip];
 
     stack_element_t first_el = 0;
-    stack_element_t sec_el   = 0;
+    stack_element_t sec_el = 0;
 
-    stk_pop(stk, &sec_el, list);
-    RETURN_VOID
-    stk_pop(stk, &first_el, list);
-    RETURN_VOID
+    stk_pop(prog, &sec_el, list);
+    stk_pop(prog, &first_el, list);
 
-    DoJump do_jump = NO_JUMP;
+    bool do_jump = false;
 
-    ResultOfComparing res = comparing(first_el, sec_el);  //условная функция с кучей компараторов
+    ResultOfComparing res = comparing(first_el, sec_el);
     if (res == LESS_RES)
-        do_jump = DO_JUMP;
+        do_jump = true;
 
-    if(do_jump == DO_JUMP)
-        ip = arg;
-    else 
-        ip++;
-
-    proc->ip = ip;
+    if(do_jump)
+        *ip = new_ip;
 }
 
-void jbe (Processor* proc, Stack* stk, ErrList *const list)
+void jbe(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list)
 {
-    size_t ip = proc->ip;
-    int* program = proc->new_file_buf;
-    int arg = program[ip];
-    
+    assert(proc);
+    assert(prog);
+    assert(ip);
+    assert(list);
+
+    int* code = proc->code;
+    *ip += 2;
+    size_t new_ip = (size_t)code[*ip];
+
     stack_element_t first_el = 0;
-    stack_element_t sec_el   = 0;
+    stack_element_t sec_el = 0;
 
-    stk_pop(stk, &sec_el, list);
-    RETURN_VOID
-    stk_pop(stk, &first_el, list);
-    RETURN_VOID;
+    stk_pop(prog, &sec_el, list);
+    stk_pop(prog, &first_el, list);
 
-    DoJump do_jump = NO_JUMP;
+    bool do_jump = false;
 
     ResultOfComparing res = comparing(first_el, sec_el);
     if (res == LESS_RES || res == EQUAL_RES)
-        do_jump = DO_JUMP;
+        do_jump = true;
 
-    if(do_jump == DO_JUMP)
-        ip = arg;
-    else 
-        ip++;
-
-    proc->ip = ip;
+    if(do_jump)
+        *ip = new_ip;
 }
 
-void je (Processor* proc, Stack* stk, ErrList *const list)
+void je(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list)
 {
-    size_t ip = proc->ip;
-    int* program = proc->new_file_buf;
-    int arg = program[ip];
-    
+    assert(proc);
+    assert(prog);
+    assert(ip);
+    assert(list);
+
+    int* code = proc->code;
+    *ip += 2;
+    size_t new_ip = (size_t)code[*ip];
+
     stack_element_t first_el = 0;
     stack_element_t sec_el = 0;
 
-    stk_pop(stk, &sec_el, list);
-    RETURN_VOID
-    stk_pop(stk, &first_el, list);
-    RETURN_VOID
+    stk_pop(prog, &sec_el, list);
+    stk_pop(prog, &first_el, list);
 
-    DoJump do_jump = NO_JUMP;
+    bool do_jump = false;
 
-    ResultOfComparing res = comparing(first_el, sec_el);
-    if (res == EQUAL)
-        do_jump = DO_JUMP;
+    ResultOfComparing res = comparing(first_el, sec_el);  //условная функция с кучей компараторов
+    if (res == EQUAL_RES)
+        do_jump = true;
 
-    if(do_jump == DO_JUMP)
-        ip = arg;
-    else 
-        ip++;
-
-    proc->ip = ip;
+    if(do_jump)
+        *ip = new_ip;
 }
 
-void jne (Processor* proc, Stack* stk, ErrList *const list)
+void jne(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list)
 {
-    size_t ip = proc->ip;
-    int* program = proc->new_file_buf;
-    int arg = program[ip];
-    
+    assert(proc);
+    assert(prog);
+    assert(ip);
+    assert(list);
+
+    int* code = proc->code;
+    *ip += 2;
+    size_t new_ip = (size_t)code[*ip];
+
     stack_element_t first_el = 0;
     stack_element_t sec_el = 0;
 
-    stk_pop(stk, &sec_el, list);
-    RETURN_VOID
-    stk_pop(stk, &first_el, list);
-    RETURN_VOID
+    stk_pop(prog, &sec_el, list);
+    stk_pop(prog, &first_el, list);
 
-    DoJump do_jump = NO_JUMP;
+    bool do_jump = false;
 
     ResultOfComparing res = comparing(first_el, sec_el);
-    if (res == GREATER_RES || res == LESS_RES)
-        do_jump = DO_JUMP;
+    if (res != EQUAL_RES)
+    {
+        printf ("THEY ARE NOT EQUAL\n");
+        do_jump = true;
+    }
+        
 
-    if(do_jump == DO_JUMP)
-        ip = arg;
-    else 
-        ip++;
-
-    proc->ip = ip;
+    if(do_jump)
+    {
+        printf("NEW IP %d\n", new_ip);
+        *ip = new_ip;
+    }
+        
 }
 
 ResultOfComparing comparing(int first_el, int sec_el)
@@ -437,4 +564,44 @@ ResultOfComparing comparing(int first_el, int sec_el)
 
     else 
         return LESS_RES;
+}
+
+void give_arg(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list)
+{
+    assert(proc);
+    assert(prog);
+    assert(ip);
+    assert(list);
+
+    (*ip)++;
+    int arg = 0;
+    int* code = proc->code;
+    int* RAM = proc->RAM;
+
+    /*ARG_NUM, 
+    ARG_LAB,
+    ARG_RAM,
+    ARG_REG*/
+
+    if (code[*ip] == ARG_NUM)  //при ассемблировании тут будет фиктивное значение
+        (*ip)++;
+
+    else if (code[*ip] == ARG_RAM)
+    {
+        printf("RAM case\n\n");
+        stk_pop(prog, &arg, list);
+        printf("ARG RAM %d\n\n", arg);
+        (*ip)++;
+        printf("PLACE %d\n\n", code[*ip]);
+        RAM[code[*ip]] = arg;
+
+        //printf("RAM\n\n");
+        //for (int i = 0; i < 10; i++)
+        //    printf("%d ", RAM[i]);
+        //printf("RAM END\n\n");
+    }
+    /*else if (code[ip] == ARG_REG)
+    {
+
+    }*/
 }

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 //----------------CONSTS--ENUMS----------------
-static const size_t MAX_FILES_AMT      = 15;
+static const size_t ERRORS_AMT      = 15;
 static const size_t ERROR_VALUE_SIZE_T = 993;
 static const int    ERROR_VALUE_INT    = -8;
 
@@ -22,13 +22,14 @@ enum Errors
     STAT_ERROR,
     SPRINTF_ERROR,
     SYN_ERROR,
-    MATH_ERROR,
-    TOKEN_ERROR,
+    /*MATH_ERROR,*/
+    /*TOKEN_ERROR,*/
     RET_ERROR,
     SSCANF_ERROR
 };
 
 //------------STRUCTS------------------------
+
 struct Err_param
 {
     Errors err_num;
@@ -54,6 +55,15 @@ struct ErrList
 #define ERROR(err_num)  list_push(list, LOCATION, err_num);
 
 #define FILE_CHECK(file)    do                                                  \
+                            {                                                   \
+                                if (file == nullptr)                            \
+                                {                                               \
+                                    ERROR(FILE_ERROR)                           \
+                                    return;                                     \
+                                }                                               \
+                            }while(0);
+
+#define FILE_CHECK_SIZE_T(file)    do                                                  \
                             {                                                   \
                                 if (file == nullptr)                            \
                                 {                                               \
@@ -152,13 +162,13 @@ struct ErrList
                                 }                                               \
                             }while(0);
 
-#define SSCANF_CHECK    do                                 \
-                        {                                  \
-                            if (sscanf_res == -1)        \
-                            {                              \
-                                ERROR(SSCANF_ERROR)       \
+#define SSCANF_CHECK    do                                  \
+                        {                                   \
+                            if (sscanf_res == -1)           \
+                            {                               \
+                                ERROR(SSCANF_ERROR)         \
                                 return;                     \
-                            }                              \
+                            }                               \
                         }while(0);
 
 //=================RET================================
@@ -169,7 +179,7 @@ struct ErrList
                             if (list.head != 0)                                                                                         \
                             {                                                                                                           \
                                 printf("you have problem number %d\n", list.list[0].err_num);                                           \
-                                for (int i = 0; i < list.head; i++)                                                                     \
+                                for (size_t i = 0; i < list.head; i++)                                                                     \
                                     printf("in file %s, func %s, line %d\n", list.list[i].file, list.list[i].func, list.list[i].line);  \
                                 return 1;                                                                                               \
                             }                                                                                                           \

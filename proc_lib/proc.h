@@ -3,50 +3,37 @@
 
 #include "assembly.h"
 
-struct Processor
-{
-    int* new_file_buf;
-
-    size_t ncmd;
-    
-    size_t ip;
-
-    int RAM[RAM_AMT];
-};
-
-static const size_t JUMP_AMT = 6;
+//static const int POISON = -993;
+#include "stk.h"
 
 enum ResultOfComparing
 {
     LESS_RES = 0,
     EQUAL_RES = 1,
     GREATER_RES = 2,
-    NOT_EQUAL = 3,
-    LESS_AND_EQUAL = 4,
-    GREATER_AND_EQUAL = 5
 };
 
-enum DoJump
+struct Proc
 {
-    DO_JUMP,
-    NO_JUMP
+    Stack* stk;
+
+    size_t size;
+
+    int* code;
+
+    int* RAM;
 };
 
-#define TWO_ARGS        do                                          \
-                        {                                           \
-                           stk_pop(stk, &sec_el, list);             \
-                           RETURN_VOID                              \
-                           stk_pop(stk, &first_el, list);           \
-                           RETURN_VOID                              \
-                        } while (0);
+void proc_ctor(Proc *const proc, ErrList *const list);
+void proc_dtor(Proc *const proc);
 
+void proc_code(Proc *const proc, Stack *const prog, ErrList *const list);
 
-#define ONE_ARG         do                                          \
-                        {                                           \
-                            ip++;                                   \
-                            stk_pop(stk, &arg, list);               \
-                            RETURN_VOID                             \
-                        } while (0);
+#define GET_TWO_ARGS    do                                  \
+                        {                                   \
+                            /*sec_el = */stk_pop(prog, &sec_el, list);    \
+                            /*first_el = */stk_pop(prog, &first_el, list);  \
+                        } while(0);
 
 #define JUMP_INFO       assert(stk != nullptr);                     \
                         assert(processor != nullptr);               \
@@ -60,15 +47,5 @@ enum DoJump
                         stk_pop(stk, &sec_el);                      \
                         stk_pop(stk, &first_el);   
 
-typedef DoJump (*comparator_t) (int first_el, int sec_el);
-
-struct JumpParameters 
-{
-    ResultOfComparing res;
-    comparator_t comparator;
-};
-
-
-void proc_file (Stack* const stk, Processor* const proc, Stack* functions, ErrList *const list);
-
+                        
 #endif //_PROC_H_

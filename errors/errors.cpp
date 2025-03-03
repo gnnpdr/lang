@@ -18,14 +18,21 @@ void fill_error(Err_param *const error, LOCATION_DEF, Errors err)
 
 void error_list_ctor(ErrList *const list)
 {
-    Err_param* err_list = (Err_param*)calloc(MAX_FILES_AMT, sizeof(Err_param));
+    assert(list);
+
+    Err_param* err_list = (Err_param*)calloc(ERRORS_AMT, sizeof(Err_param));
     list->list = err_list;
     list->head = 0;
 }
 
 void list_push(ErrList *const list, LOCATION_DEF, Errors err)
 {
-    fill_error(list->list + list->head, LOCATION, err);
+    assert(list);
+    assert(file);
+    assert(func);
+    assert(err);
+
+    fill_error(list->list + list->head, file, func, line, err);
     list->head++;
 }
 
