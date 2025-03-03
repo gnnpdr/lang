@@ -195,7 +195,7 @@ void fill_input_file(const char* const  input_file_name, const char* const input
     input_file = fopen(input_file_name, "w");
     FILE_CHECK(input_file)
 
-    fwrite(input_file_data, sizeof(char), MAX_FILE_SIZE, input_file); 
+    fprintf(input_file, "%s", input_file_data);
     int close_res = fclose(input_file);
     CLOSE_CHECK
 }

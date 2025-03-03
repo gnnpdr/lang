@@ -150,7 +150,7 @@ void get_bin_code(Input *const base_text, int *const code, size_t *const dig_amt
 
     //printf("few\n");
     
-    size = dig;
+    *dig_amt = dig;
 }
 
 /*void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)

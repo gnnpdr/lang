@@ -10,7 +10,7 @@
 
 void text_to_asm(char** argv, ErrList *const list);
 void asm_to_dig(ErrList *const list);
-//void proc_dig_code(ErrList *const list);
+void proc_dig_code(ErrList *const list);
 
 int main(int argc, char** argv)
 {
@@ -24,8 +24,8 @@ int main(int argc, char** argv)
 	asm_to_dig(&list);
 	MAIN
 
-	//proc_dig_code(&list);
-	//MAIN
+	proc_dig_code(&list);
+	MAIN
 
 	error_list_dtor(&list);
 
@@ -48,8 +48,6 @@ void text_to_asm(char** argv, ErrList *const list)
 	RETURN_VOID
     Id* ids = id_ctor(list);
 	RETURN_VOID
-
-	//printf("CTORED\n");
 	
 	Node* root = node_ctor(list);
 	RETURN_VOID
@@ -62,8 +60,6 @@ void text_to_asm(char** argv, ErrList *const list)
 	
 	code_gen(&the_tree, ids, list);
 	RETURN_VOID
-
-	//printf("HEREE!\n");
 	
 	input_dtor(&base_text);
 	tree_dtor(root);
@@ -74,6 +70,7 @@ void text_to_asm(char** argv, ErrList *const list)
 void asm_to_dig(ErrList *const list)
 {
 	assert(list);
+	printf("ASM TO DIG\n");
 
 	Input asm_text = {};
     input_ctor(&asm_text, list);
@@ -81,24 +78,19 @@ void asm_to_dig(ErrList *const list)
 
 	char* asm_file_name = (char*)calloc(MAX_STR_LEN, sizeof(char));
 	printf("ENTER ASM FILE NAME!\n");
+
 	scanf("%s", asm_file_name);
-	printf("%s\n", asm_file_name);
 
-    get_text (&asm_text, asm_file_name, list);
+    get_text(&asm_text, asm_file_name, list);
 	RETURN_VOID
-
-	free(asm_file_name);
 
 	Word* words = word_list_ctor(list);
 	get_code(&asm_text, words, list);
 
-
 	LabelParameters* labels = ctor_labels(list);
 	FuncParameters* funcs = ctor_funcs(list);
-	printf("!!!!HEREEEEE!!!!!\n");
 
     Stack stk_code = {};
-	printf("STACK_CODE ADDRESS %p\n", stk_code);
     stk_ctor(&stk_code, list);
 	RETURN_VOID
 
@@ -107,9 +99,9 @@ void asm_to_dig(ErrList *const list)
 
 	dtor_funcs(funcs);
 	dtor_labels(labels);
-	input_dtor(&asm_text);
 	word_list_dtor(words);
     stk_dtor(&stk_code);
+	input_dtor(&asm_text);
 }
 
 void proc_dig_code(ErrList *const list)
@@ -124,13 +116,10 @@ void proc_dig_code(ErrList *const list)
 	printf("ENTER DIG FILE NAME!\n");
 	scanf("%s", dig_file_name);
 	printf("%s\n", dig_file_name);
-	get_text (&bin_code, dig_file_name, list);
+	get_text(&bin_code, dig_file_name, list);
 	RETURN_VOID
 
 	free(dig_file_name);
-	
-	//get_text_wname (&bin_code, BIN_FILE_NAME, list);
-	//RETURN_VOID
 
 	int* code = (int*)calloc(MAX_FILE_SIZE, sizeof(int));
 	size_t dig_amt = 0;
@@ -140,7 +129,7 @@ void proc_dig_code(ErrList *const list)
 	Proc proc = {};
 	proc_ctor(&proc, list);
 	RETURN_VOID
-
+	printf("DIG AMT %d\n", dig_amt);
 	proc.size = dig_amt;
 	for (int i = 0; i < dig_amt; i++)
 		proc.code[i] = code[i];
@@ -150,11 +139,10 @@ void proc_dig_code(ErrList *const list)
 	Stack prog = {};
     stk_ctor(&prog, list);
 	RETURN_VOID
+	printf("PROC CODE\n");
 	proc_code(&proc, &prog, list); // надо добавить регистры, некоторые функции типа вывод аргумента
-
 
 	stk_dtor(&prog);
 	proc_dtor(&proc);
 	input_dtor(&bin_code);
-	
 }

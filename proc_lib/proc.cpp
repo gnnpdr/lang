@@ -13,9 +13,9 @@ static void jbe(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
 static void je(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
 static void jne(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
 
-static void get_call(FuncParameters *const funcs, Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list);
-static void proc_code_part(FuncParameters *const funcs, Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list);
-static void get_ret (FuncParameters *const funcs, Proc *const proc, size_t *const ip, ErrList *const list);
+static void get_call(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list);
+static void proc_code_part(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list);
+static void get_ret (Proc *const proc, size_t *const ip, ErrList *const list);
 
 void proc_ctor(Proc *const proc, ErrList *const list)
 {
@@ -50,12 +50,14 @@ void proc_dtor(Proc *const proc)
 
 void proc_code(Proc *const proc, Stack *const prog, ErrList *const list)
 {
+    printf("HERE\n");
     assert(proc);
     assert(list);
 
     size_t ip = 0;
     
     size_t size = proc->size;
+    printf("SIZE %d\n", size);
 
     int* code = proc->code;
 
@@ -173,10 +175,13 @@ void proc_code(Proc *const proc, Stack *const prog, ErrList *const list)
         for (size_t i = 0; i < 10; i++)
             printf("%d ", proc->RAM[i]);
         printf("\nRAM END\n\n");
+
+        int a = 0;
+        scanf("%d", &a);
     }
 }
 
-void proc_code_part(FuncParameters *const funcs, Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list)
+void proc_code_part(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list)
 {
     assert(proc);
     assert(list);
@@ -265,7 +270,7 @@ void proc_code_part(FuncParameters *const funcs, Proc *const proc, Stack *const 
 
             case CALL_A:
                 printf("CALL\n");
-                get_call(funcs, proc, prog, ip, list);
+                get_call(proc, prog, ip, list);
                 break;
 
             case HLT_A:
@@ -275,7 +280,7 @@ void proc_code_part(FuncParameters *const funcs, Proc *const proc, Stack *const 
 
             case RET_A:
                 printf("RET\n");
-                get_ret (funcs, proc, ip, list);
+                get_ret (proc, ip, list);
                 return; //обязательно! именно эта часть и вернет из функции get call
                 break;
 
@@ -292,9 +297,8 @@ void proc_code_part(FuncParameters *const funcs, Proc *const proc, Stack *const 
     }
 }
 
-void get_call(FuncParameters *const funcs, Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list)
+void get_call(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list)
 {
-    assert(funcs);
     assert(proc);
     assert(prog);
     assert(list);
@@ -311,15 +315,14 @@ void get_call(FuncParameters *const funcs, Proc *const proc, Stack *const prog, 
     //*ip = jmp_target;
     (*ip) = code[*ip];
 
-    proc_code_part(funcs, proc, prog, ip, list);
+    proc_code_part(proc, prog, ip, list);
 
     //int a = 0; 
     //scanf("%d", &a);
 }
 
-void get_ret (FuncParameters *const funcs, Proc *const proc, size_t *const ip, ErrList *const list)
+void get_ret (Proc *const proc, size_t *const ip, ErrList *const list)
 {
-    assert(funcs);
     assert(proc);
     assert(ip);
     assert(list);

@@ -335,10 +335,6 @@ void get_funcs(Word *const words, FuncParameters *const funcs, ErrList *const li
         }
     }
 
-    /*printf("FUNCS\n");
-    for (int i  = 0; i < LABELS_AMT; i++)
-        printf("text %.10s, len %d, ret word %d, arg amt %d\n", funcs[i].start_word, funcs[i].len, funcs[i].ret_word, funcs[i].var_amt);
-    printf("FUNCS END\n\n");*/
 }
 
 /*void fill_func_ret(size_t dig_amt, FuncParameters func, ErrList *const list)
