@@ -18,8 +18,8 @@ int main(int argc, char** argv)
 	error_list_ctor(&list);
 	MAIN
 
-	//text_to_asm(argv, &list);
-	//MAIN
+	text_to_asm(argv, &list);
+	MAIN
 
 	asm_to_dig(&list);
 	MAIN

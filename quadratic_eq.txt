@@ -1,6 +1,6 @@
 *a ravenstvo 1.
-*b ravenstvo 2.
-*c ravenstvo 1.
+*b ravenstvo 1.
+*c ravenstvo 3.
 *discr ravenstvo 0.
 *root_amt ravenstvo 0.
 
