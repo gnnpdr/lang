@@ -8,7 +8,7 @@ static void change_capacity(Stack *const stk, ErrList *const list);
 
 void stk_ctor(Stack *const stk, ErrList *const list)
 {
-    printf("STACK CTOR\n");
+    //printf("STACK CTOR\n");
     STK_ASSERT
 
     stk->size = 0;
@@ -35,8 +35,8 @@ void stk_dtor(Stack *const stk)
 
 void stk_push(Stack *const stk, stack_element_t element, ErrList *const list)
 {
-    printf("STK PUSH\n");
-    printf("ELEM %d\n", element);
+    //printf("STK PUSH\n");
+    //printf("ELEM %d\n", element);
     STK_ASSERT
 
     size_t size     = stk->size;
@@ -54,11 +54,11 @@ void stk_push(Stack *const stk, stack_element_t element, ErrList *const list)
     size++;
     stk->size = size;
 
-    printf("--------------------------------\nSTACK PUSH\n");
+    /*printf("--------------------------------\nSTACK PUSH\n");
     printf("\n\n");
     for (size_t i = 0; i < stk->capacity; i++)
             printf("%d ", stk->data[i]);
-    printf("\n");
+    printf("\n");*/
 }
 
 

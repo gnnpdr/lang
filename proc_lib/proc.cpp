@@ -51,7 +51,6 @@ void proc_code(Proc *const proc, Stack *const prog, Stack *const stk, ErrList *c
     size_t ip = 0;
     
     size_t size = proc->size;
-    //printf("SIZE %d\n", size);
 
     int* code = proc->code;
 
@@ -61,44 +60,35 @@ void proc_code(Proc *const proc, Stack *const prog, Stack *const stk, ErrList *c
 
     while(ip < size)
     {
-        //printf("ip %d\n", ip);
-        //printf("CODE %d %d %d\n", code[ip], code[ip + 1], code[ip + 2]);
 
         switch(code[ip])
         {
             case PUSH_A:
-                printf("push\n");
                 arg = get_arg(proc, &ip);
-                printf("ARG %d\n\n", arg);
                 stk_push(prog, arg, list);
                 break;
 
             case ADD_A:
-                printf("add\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el + sec_el, list);
                 break;
 
             case SUB_A:
-                printf("sub\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el - sec_el, list);
                 break;
 
             case MUL_A:
-                printf("mul\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el * sec_el, list);
                 break;
 
             case DIV_A:
-                printf("div\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el / sec_el, list);
                 break;
             
             case JA_A:
-                printf("JA\n");
                 ja(proc, prog, &ip, list);
                 break;
 
@@ -119,41 +109,32 @@ void proc_code(Proc *const proc, Stack *const prog, Stack *const stk, ErrList *c
                 break;
 
             case JNE_A:
-                printf("JNE\n");
                 jne(proc, prog, &ip, list);
                 break;
 
             case JMP_A:
-                printf("JMP\n");
                 arg = get_arg(proc, &ip);
                 ip = arg;
-                printf("NEW IP %d\n", ip);
                 break;
 
             case POP_A:
-                printf("pop\n");
                 give_arg(proc, prog, &ip, list);
                 break;
 
             case SQRT_A:
-                printf("SQRT\n");
                 stk_pop(prog, &arg, list);
                 stk_push(prog, sqrt(arg), list);
                 break;
 
             case CALL_A:
-                printf("CALL\n");
                 get_call(proc, prog, stk, &ip, list);
-                printf("CALL RETURN\n");
                 break;
 
             case HLT_A:
-                printf("hlt\n");
                 return;
                 break;
 
             case OUT_A:
-                printf("OUT\n");
                 stk_pop(prog, &arg, list);
                 printf("!! %d !!\n", arg);
                 break;
@@ -165,13 +146,13 @@ void proc_code(Proc *const proc, Stack *const prog, Stack *const stk, ErrList *c
         }   
         ip++;
         
-        printf("RAM\n");
+        /*printf("RAM\n");
         for (size_t i = 0; i < 10; i++)
             printf("%d ", proc->RAM[i]);
-        printf("\nRAM END\n\n");
+        printf("\nRAM END\n\n");*/
 
-        int a = 0;
-        scanf("%d", &a);
+        //int a = 0;
+        //scanf("%d", &a);
     }
 }
 
@@ -180,7 +161,7 @@ void proc_code_part(Proc *const proc, Stack *const prog, Stack *const stk, size_
     assert(proc);
     assert(list);
 
-    printf("GET PART\n");
+    //printf("GET PART\n");
 
     size_t size = proc->size;
 
@@ -192,43 +173,43 @@ void proc_code_part(Proc *const proc, Stack *const prog, Stack *const stk, size_
 
     while(*ip < size)
     {
-        printf("ip %d\n", *ip);
-        printf("CODE %d %d %d\n", code[*ip], code[*ip + 1], code[*ip + 2]);
+        //printf("ip %d\n", *ip);
+        //printf("CODE %d %d %d\n", code[*ip], code[*ip + 1], code[*ip + 2]);
         switch(code[*ip])
         {
             case PUSH_A:
-                printf("push\n");
+                //printf("push\n");
                 arg = get_arg(proc, ip);
-                printf("ARG %d\n\n", arg);
+                //printf("ARG %d\n\n", arg);
                 stk_push(prog, arg, list);
                 break;
 
             case ADD_A:
-                printf("add\n");
+                //printf("add\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el + sec_el, list);
                 break;
 
             case SUB_A:
-                printf("sub\n");
+                //printf("sub\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el - sec_el, list);
                 break;
 
             case MUL_A:
-                printf("mul\n");
+                //printf("mul\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el * sec_el, list);
                 break;
 
             case DIV_A:
-                printf("div\n");
+                //printf("div\n");
                 GET_TWO_ARGS
                 stk_push(prog, first_el / sec_el, list);
                 break;
             
             case JA_A:
-                printf("ja\n");
+                //printf("ja\n");
                 ja(proc, prog, ip, list);
                 break;
 
@@ -249,7 +230,7 @@ void proc_code_part(Proc *const proc, Stack *const prog, Stack *const stk, size_
                 break;
 
             case JNE_A:
-                printf("jne\n");
+                //printf("jne\n");
                 jne(proc, prog, ip, list);
                 break;
 
@@ -259,22 +240,22 @@ void proc_code_part(Proc *const proc, Stack *const prog, Stack *const stk, size_
                 break;
 
             case POP_A:
-                printf("pop\n");
+                //printf("pop\n");
                 give_arg(proc, prog, ip, list);
                 break;
 
             case CALL_A:
-                printf("CALL\n");
+                //printf("CALL\n");
                 get_call(proc, prog, stk, ip, list);
                 break;
 
             case HLT_A:
-                printf("hlt\n");
+                //printf("hlt\n");
                 return;
                 break;
 
             case RET_A:
-                printf("RET\n");
+                //printf("RET\n");
                 get_ret (proc, stk, ip, list);
                 return; //обязательно! именно эта часть и вернет из функции get call
                 break;
@@ -285,12 +266,12 @@ void proc_code_part(Proc *const proc, Stack *const prog, Stack *const stk, size_
         }   
         (*ip)++;
         
-        printf("RAM\n");
+        /*printf("RAM\n");
         for (size_t i = 0; i < 10; i++)
             printf("%d ", proc->RAM[i]);
         printf("\nRAM END\n\n");
         int a = 0;
-        scanf("%d", &a);
+        scanf("%d", &a);*/
     }
 }
 
@@ -337,19 +318,19 @@ int get_arg(Proc *const proc, size_t *const ip)
     ARG_LAB,
     ARG_RAM,
     ARG_REG*/
-    printf("TYPE %d\n\n", prog[*ip]);
+    //printf("TYPE %d\n\n", prog[*ip]);
 
     if (prog[*ip] == ARG_NUM || prog[*ip] == ARG_LAB)
     {
-        printf("NUM\n");
+        //printf("NUM\n");
         (*ip)++;
         return prog[*ip];
     }
     else if (prog[*ip] == ARG_RAM)
     {
-        printf("RAM\n");
+        //printf("RAM\n");
         (*ip)++;
-        printf("PLACE %d\n\n", prog[*ip]);
+        //printf("PLACE %d\n\n", prog[*ip]);
         arg = RAM[prog[*ip]];
         //printf("ARG %d\n\n", arg);
     }
@@ -384,13 +365,13 @@ void ja(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list)
     ResultOfComparing res = comparing(first_el, sec_el);
     if (res == GREATER_RES)
     {
-        printf("0 IS GREATER THAN DISCR\n");
+        //printf("0 IS GREATER THAN DISCR\n");
         do_jump = true;
     }
         
     if(do_jump)
     {
-        printf("NEW IP %d\n", new_ip);
+        //printf("NEW IP %d\n", new_ip);
         *ip = new_ip;
     }
         
@@ -526,14 +507,14 @@ void jne(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list)
     ResultOfComparing res = comparing(first_el, sec_el);
     if (res != EQUAL_RES)
     {
-        printf ("THEY ARE NOT EQUAL\n");
+        //printf ("THEY ARE NOT EQUAL\n");
         do_jump = true;
     }
         
 
     if(do_jump)
     {
-        printf("NEW IP %d\n", new_ip);
+        //printf("NEW IP %d\n", new_ip);
         *ip = new_ip;
     }
         
@@ -573,11 +554,11 @@ void give_arg(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *co
 
     else if (code[*ip] == ARG_RAM)
     {
-        printf("RAM case\n\n");
+        //printf("RAM case\n\n");
         stk_pop(prog, &arg, list);
-        printf("ARG RAM %d\n\n", arg);
+        //printf("ARG RAM %d\n\n", arg);
         (*ip)++;
-        printf("PLACE %d\n\n", code[*ip]);
+        //printf("PLACE %d\n\n", code[*ip]);
         RAM[code[*ip]] = arg;
 
         //printf("RAM\n\n");

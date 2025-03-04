@@ -3,7 +3,7 @@
 
 #include "../lex_analysis/lex_analysis.h"
 
-static const char* OP_DEF = "operation";
+static const char* OP_DEF  = "operation";
 static const char* NUM_DEF = "number";
 static const char* VAR_DEF = "variable";
 

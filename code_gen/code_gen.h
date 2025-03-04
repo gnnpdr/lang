@@ -6,25 +6,21 @@
 
 #define IS_SEP node->type == OP && node->value == SEP
 
-#define IS_IF node->type == OP && node->value == IF
-
+#define IS_IF node->type == OP && node->value      == IF
 #define IS_ELSE_IF node->type == OP && node->value == ELSE_IF
+#define IS_ELSE node->type == OP && node->value    == ELSE
 
-#define IS_ELSE node->type == OP && node->value == ELSE
-
-#define IS_EQUAL node->type == OP && node->value == EQUAL
-
-#define IS_GREATER node->type == OP && node->value == GREATER
-
-#define IS_LESS node->type == OP && node->value == LESS
+#define IS_EQUAL node->type == OP && node->value         == EQUAL
+#define IS_GREATER node->type == OP && node->value       == GREATER
+#define IS_LESS node->type == OP && node->value          == LESS
+#define IS_GREATER_EQUAL node->type == OP && node->value == GREATER_EQUAL
+#define IS_LESS_EQUAL node->type == OP && node->value    == LESS_EQUAL
 
 #define IS_WHILE node->type == OP && node->value == WHILE
-
-#define IS_FOR node->type == OP && node->value == FOR
+#define IS_FOR node->type == OP && node->value   == FOR
 
 #define IS_PRINTF node->type == OP && node->value == PRINTF
-
-#define IS_SQRT node->type == OP && node->value == SQRT
+#define IS_SQRT node->type == OP && node->value   == SQRT
 
 static const size_t ARITHM_CMD_AMT = 4;
 

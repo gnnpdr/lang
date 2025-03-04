@@ -49,19 +49,6 @@ void lex_analysis(Token *const tokens, Id *const ids, Input *const base_text, Er
 
         RETURN_VOID
     }
-
-    printf("TOKENS\n");
-    for (int i = 0; i < TOKEN_AMT; i++)
-    {
-        printf("num %d, type %d, value %d\n", i, tokens[i].type, tokens[i].value);
-    }
-    printf("------TOKENS END---------\n");
-    printf("IDS\n");
-    for (int i = 0; i < ID_AMT; i++)
-    {
-        printf("num %d, str %.10s, len %d, type %d\n", i, ids[i].start_address, ids[i].len, ids[i].type);
-    }
-    printf("----IDS END-----------\n");
 }
 
 //-----------NUM------------------------
@@ -258,7 +245,7 @@ size_t find_match_op(char *const start_address, size_t len)
     for (size_t ind = 0; ind < OP_AMT; ind++)
     {
         int cmp_res = strncmp(start_address, operations[ind]->name, len);
-        printf("-------------\nCMB %s\nTEXT %.7s\nLEN %d\n", operations[ind]->name, start_address, len);
+        //printf("-------------\nCMB %s\nTEXT %.7s\nLEN %d\n", operations[ind]->name, start_address, len);
         if(cmp_res == 0)
         {
             match_ind = ind;

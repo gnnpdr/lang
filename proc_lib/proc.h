@@ -5,21 +5,19 @@
 
 #include "stk.h"
 
-static const size_t RAM_AMT       = 50;
+static const size_t RAM_AMT = 50;
 
 enum ResultOfComparing
 {
-    LESS_RES = 0,
-    EQUAL_RES = 1,
+    LESS_RES    = 0,
+    EQUAL_RES   = 1,
     GREATER_RES = 2,
 };
 
 struct Proc
 {
     size_t size;
-
     int* code;
-
     int* RAM;
 };
 
@@ -28,9 +26,9 @@ void proc_dtor(Proc *const proc);
 
 void proc_code(Proc *const proc, Stack *const prog, Stack *const stk, ErrList *const list);
 
-#define GET_TWO_ARGS    do                                  \
-                        {                                   \
-                            /*sec_el = */stk_pop(prog, &sec_el, list);    \
+#define GET_TWO_ARGS    do                                                  \
+                        {                                                   \
+                            /*sec_el = */stk_pop(prog, &sec_el, list);      \
                             /*first_el = */stk_pop(prog, &first_el, list);  \
                         } while(0);
 

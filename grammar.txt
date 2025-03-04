@@ -1,0 +1,82 @@
+// 1 ver
+//grammar
+
+// G ::= {OP}* + ₽1991
+// A ::= ID 'ravenstvo' E
+// IF ::= 'revolution' '!' E '!' OP
+// OP ::= {IF | A | '!' [OP]+ '!'} '.'
+// E ::= T {['darim' 'grabim'] T}*
+// T ::= P {['kniga' 'religia'] P}*
+// P ::= '!' E '!' | N | F'!'E'!'
+// ID ::= '*'[a - z] +
+// F ::= 'molot' 'serp'
+// N ::= [0 - 9] +
+
+// revolution if
+// darim +
+// grabim - 
+// kniga *
+// religia /
+// ravenstvo =
+// all variables start with *
+// RSDRPB >
+// RSDRPM <
+// @1991 ends program
+// do_teh_por while
+// v_techenie for
+// slovo printf
+//---------------------------------------------------------------
+
+text:
+*superstar ravenstvo 2.
+revolution !*superstar darim 2! *superstar ravenstvo 1991.
+*stalin ravenstvo *superstar religia 9.
+@1991
+
+//-----------------
+// 2 ver
+// изменения в том, как скрепляются строчки кода
+// и еще я убрала синус косинус, тк у нас все на интах, так что зачем
+
+// G ::= PART + ₽1991
+// PART ::= {OP '.' OP}* | OP
+// A ::= ID 'ravenstvo' E
+// IF ::= 'revolution' '!' E '!' OP
+// OP ::= {IF | A | '!' [OP]+ '!'}
+// E ::= T {['darim' 'grabim'] T}*
+// T ::= P {['kniga' 'religia'] P}*
+// P ::= '!' E '!' | N 
+// ID ::= '*'[a - z] +
+// N ::= [0 - 9] +
+
+// дело в том, что в этом случае, когда скрепление в самом конце, немного меняется порядок обработки дерева
+// надо делать это не сверху направо, а справа налево по точкам наверху 
+
+//-----------------
+// ver 3
+
+// G ::= PART + @1991
+
+// PART     ::= {OP  '.' OP }* | OP 
+// FUNC_DEF ::= ID '!' PART '!'
+
+// EXPR    ::= ID 'ravenstvo' SUM | ID 'RSDRPB' SUM | ID 'RSDRPM' SUM | ID 'polon' SUM | ID 'pust' SUM
+// IF      ::= 'revolution' '!' EXPR '!' [EXPR | PRINTF] |  'revolution' '!' EXPR '!' '!' PART '!'
+// ELSE IF ::= 'inache_revolution' '!' EXPR '!' [EXPR | PRINTF] | 'inache_revolution' '!' EXPR '!' '!' PART '!'
+// ELSE    ::= 'voobshe_inache' [EXPR | PRINTF] | 'voobshe_inache' '!' PART '!'
+
+// WHILE ::= 'do_teh_por' '!' EXPR '!' '!' [PART] '!' | 'do_teh_por' '!' EXPR '!' EXPR
+// FOR   ::= 'v_techenie' '!' NUM | ID '!' '!' [PART] '!' | 'v_techenie' '!' NUM | ID '!' '!' EXPR
+
+// PRINTF ::= 'slovo' ID
+
+// FUNC_USE ::= ID
+
+// OP ::= {IF | ELSE IF | ELSE | EXPR | FUNC_USE | WFILE | FOR | FUNC_DEF | PRINTF}
+
+// SUM     ::= MUL {['darim' 'grabim'] MUL}*
+// MUL     ::= CALC_BR {['kniga' 'religia'] CALC_BR}*
+// CALC_BR ::= '!' SUM '!' | NUM 
+
+// ID  ::= '*'[a - z | 0 - 9 ] +
+// NUM ::= [0 - 9] +

@@ -1,0 +1,8 @@
+*num ravenstvo 7.
+*res ravenstvo 1.
+
+v_techenie ! *num !
+    *res ravenstvo *res kniga *num.
+
+slovo *res
+@1991

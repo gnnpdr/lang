@@ -7,7 +7,7 @@
 #include "..\differentiator_lib\get_database.h"
 
 static const size_t TOKEN_AMT = 150;
-static const size_t ID_AMT = 15;
+static const size_t ID_AMT    = 15;
 
 enum IdType
 {

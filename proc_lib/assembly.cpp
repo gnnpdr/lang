@@ -9,7 +9,6 @@ static size_t handle_cmds(Word *const words, LabelParameters *const labels, Func
 static void handle_args(size_t word_num, Word word, LabelParameters *const labels, Stack *const stk_code, ErrList *const list);
 static void fill_bin_file(const char* const  input_file_name, size_t size, const int* const input_file_data, ErrList *const list);
 static void fill_labels(Word *const words, LabelParameters *const labels, Stack *const stk_code, ErrList *const list);
-static void fill_call_addresses(Word *const words, FuncParameters *const funcs, Stack *const stk_code, ErrList *const list);
 
 static size_t find_func (FuncParameters *const funcs, char *const word, size_t len);
 static void get_funcs(Word *const words, FuncParameters *const funcs, ErrList *const list);
@@ -158,11 +157,6 @@ void get_labels(Word *const words, LabelParameters *const labels, ErrList *const
         word++;
 
     }
-
-    /*printf("LABELS\n");
-    for (int i  = 0; i < LABELS_AMT; i++)
-        printf("text %.8s, len %d\n", labels[i].start_word, labels[i].len);
-    printf("LABELS END\n\n");*/
 }
 
 void fill_labels(Word *const words, LabelParameters *const labels, Stack *const stk_code, ErrList *const list)
@@ -203,6 +197,7 @@ FuncParameters* ctor_funcs(ErrList *const list)
     {
         funcs[i].len = ERROR_VALUE_SIZE_T;
         funcs[i].call_target = ERROR_VALUE_SIZE_T;
+        funcs[i].ret_word = ERROR_VALUE_SIZE_T;
     }
         
     return funcs;
@@ -347,8 +342,6 @@ size_t handle_cmds(Word *const words, LabelParameters *const labels, FuncParamet
             dig_amt++;
 
             word++;
-            int a = 0;
-            scanf ("%d", &a);
 
             continue;
         }
@@ -410,11 +403,6 @@ void handle_args(size_t dig_num, Word word, LabelParameters *const labels, Stack
 
         labels[label].arg_target[num] = dig_num - 1;
     }
-    //регистр
-    /*else
-    {
-        size_t reg_num = find_reg(word.word_start, word.len);
-    }*/
 }
 
 //-------------------------BIN_FILE--------------------

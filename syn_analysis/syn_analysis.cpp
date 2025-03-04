@@ -93,7 +93,7 @@ Node* get_together(Token *const tokens, Id *const ids, size_t *const pointer, Er
             val = make_node(OP, SEP, val, val2, list);
             RETURN_PTR
 
-            graph_dump(val, ids, val, list);
+            //graph_dump(val, ids, val, list);
         }
 
         if (tokens[*pointer].type == OP && tokens[*pointer].value == END)
@@ -131,6 +131,8 @@ Node* get_operation(Token *const tokens, Id *const ids, size_t *const pointer, E
         if (tokens[*pointer].type == OP && (tokens[*pointer].value == SEP || tokens[*pointer].value == END))
             is_end = true;
     }
+
+    //graph_dump(val, ids, val, list);
 
     return val;
 }
@@ -176,6 +178,9 @@ Node* op_case(Token *const tokens, Id *const ids, size_t *const pointer, ErrList
         return nullptr;
     }
 
+    //graph_dump(val, ids, val, list);
+    //printf("TYPE %d, VALUE %d\n", tokens[*pointer].type, tokens[*pointer].value);
+
     return val;
 }
 
@@ -200,8 +205,6 @@ Node* get_binary_op(Token *const tokens, Id *const ids, size_t *const pointer, E
 
     Node* right = get_act(tokens, ids, pointer, list);
     RETURN_PTR
-
-    //graph_dump(right, ids, right, list);
 
     Node* val = make_node(OP, current_op, left, right, list);
     RETURN_PTR
@@ -363,7 +366,7 @@ Node* get_expr(Token *const tokens, Id *const ids, size_t *const pointer, ErrLis
     {
         if (tokens[*pointer].value == expr_op[op].num)
         {
-            printf("USE OPERATION %d\n", expr_op[op].num);
+            //printf("USE OPERATION %d\n", expr_op[op].num);
             is_expr_op = true;
         }
     }

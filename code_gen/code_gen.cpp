@@ -204,21 +204,32 @@ void code_expr(Node* node, size_t *const if_cnt, Id *const ids, char *const asm_
 
     bool less = false;
     bool greater = false;
+    bool equal = false;
 
-    if (IS_LESS)
+    if (IS_LESS || IS_LESS_EQUAL)
         less = true;
-    if (IS_GREATER)
+    else if (IS_GREATER || IS_GREATER_EQUAL)
         greater = true;
+
+    if (IS_GREATER_EQUAL || IS_LESS_EQUAL)
+        equal = true;
+
+
+
 
     code_expr_part(node->Right, ids, asm_code, list);
     RETURN_VOID
     code_expr_part(node->Left, ids, asm_code, list);
     RETURN_VOID
 
-    if (less)
+    if (less && !equal)
         sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_COND%d:\n", asm_code, JBE_STR, *if_cnt);
-    else if (greater)
+    else if (greater && !equal)
         sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_COND%d:\n", asm_code, JAE_STR, *if_cnt);
+    else if (less && equal)
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_COND%d:\n", asm_code, JB_STR, *if_cnt);
+    else if (greater && equal)
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_COND%d:\n", asm_code, JA_STR, *if_cnt);
     else
         sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_COND%d:\n", asm_code, JNE_STR, *if_cnt);
     SPRINTF_CHECK_VOID

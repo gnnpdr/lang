@@ -79,7 +79,7 @@ const struct CommandParameters JneStr   =  {"jne"  , JNE_A  , 1};
 const struct CommandParameters JmpStr   =  {"jmp"  , JMP_A  , 1};
 const struct CommandParameters CallStr  =  {"call" , CALL_A , 0};
 const struct CommandParameters RetStr   =  {"ret"  , RET_A  , 0};
-const struct CommandParameters SqrtStr  =  {"sqrt"  , SQRT_A  , 0};
+const struct CommandParameters SqrtStr  =  {"sqrt" , SQRT_A , 0};
 
 static const CommandParameters bunch_of_commands [CMD_AMT]  =   {PushStr,
                                                                 AddStr   ,
@@ -133,27 +133,7 @@ struct FuncParameters
 
 //--------------------------------ARGS----------------------------------------------------------------
 
-static const size_t COMPL_ARG_AMT =  2;
-
 static const char* PLUS    = "+";
 static const char RAM_MARK = '[';
-
-static const int BITS_IN_BYTES = 8;
-static const int INT_BYTE_SIZE = sizeof(int)*BITS_IN_BYTES;
-
-
-static const char* MK_ARGS[6] = {
-                                 JA_STR,
-                                 JAE_STR,
-                                 JB_STR,
-                                 JBE_STR,
-                                 JE_STR,
-                                 JNE_STR
-                                };
-
-static const char* COMPL_ARG[COMPL_ARG_AMT] =  {
-                                                POP_STR,
-                                                PUSH_STR
-                                               };
 
 #endif //_DATA_H_

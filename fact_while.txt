@@ -1,0 +1,12 @@
+*num ravenstvo 5.
+*res ravenstvo 1.
+*cnt ravenstvo 1.
+
+do_teh_por ! *cnt pust *num !
+!
+    *res ravenstvo *res kniga *cnt.
+    *cnt ravenstvo *cnt darim 1.
+!
+.
+slovo *res
+@1991
