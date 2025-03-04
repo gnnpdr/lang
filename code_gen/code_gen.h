@@ -26,8 +26,6 @@
 
 #define IS_SQRT node->type == OP && node->value == SQRT
 
-static const char* ASM_NAME = "asm_file.txt";
-
 static const size_t ARITHM_CMD_AMT = 4;
 
 struct CodeOp

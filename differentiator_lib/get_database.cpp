@@ -6,6 +6,7 @@
 static void get_database_name(Input *const base_text, char *const input_name, ErrList *const list);
 static void get_database_text (Input *const base_text, ErrList *const list);
 
+//ok
 void input_ctor (Input *const base_text, ErrList *const list)
 {
     assert(base_text);
@@ -18,24 +19,16 @@ void input_ctor (Input *const base_text, ErrList *const list)
     ALLOCATION_CHECK_VOID(text)
 
     base_text->name = name;
-    printf("NAME ADDRESS %p\nTEXT ADDRESS %p\n", name, text);
     base_text->text = text;
-
-    printf("IN INPUT CTOR\n");
-    int a = 0;
-    scanf("%d", &a);
 }
 
 void input_dtor(Input* base_text)
 {
-    //printf("FREE NAME\n");
     free(base_text->name);
-    //printf("FREE TEXT\n");
     free(base_text->text);
-    
 }
 
-void get_text(Input *const base_text, char *const input_name, ErrList *const list)
+void fill_input(Input *const base_text, char *const input_name, ErrList *const list)
 {
     assert(base_text);
     assert(input_name);
@@ -46,22 +39,7 @@ void get_text(Input *const base_text, char *const input_name, ErrList *const lis
 
     get_database_text(base_text, list);
 	RETURN_VOID
-
-    //printf("----------\nNAME\n%s\n\nTEXT\n%s\n----------------\n", base_text->name, base_text->text);
 }
-
-/*void get_text_wname (Input *const text, const char *const name, ErrList *const list)
-{
-    assert(text);
-    assert(list);
-
-    strncpy(text->name, name, MAX_STR_LEN);
-    //printf("6791\n");
-    CPY_CHECK(text->name)
-    //printf("!!!ooo\n");
-    get_database_text(text, list);
-    RETURN_VOID
-}*/
 
 void get_database_name(Input *const base_text, char *const input_name, ErrList *const list)
 {
@@ -90,7 +68,6 @@ void get_database_text (Input *const base_text, ErrList *const list)
     size_t size = 0;
 
     count_file_size(base_text->name, &size, list);
-    printf("FILE SIZE %d\n", size);
     RETURN_VOID
     char* text = base_text->text;
 
@@ -102,10 +79,6 @@ void get_database_text (Input *const base_text, ErrList *const list)
     CLOSE_CHECK
     
     base_text->size = size;
-
-    printf("IN GET DATABASE TEXT\n");
-    int a = 0;
-    scanf("%d", &a); 
 }
 
 void count_file_size(const char *const name, size_t* size, ErrList *const list)

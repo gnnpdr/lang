@@ -3,8 +3,9 @@
 
 #include "assembly.h"
 
-//static const int POISON = -993;
 #include "stk.h"
+
+static const size_t RAM_AMT       = 50;
 
 enum ResultOfComparing
 {

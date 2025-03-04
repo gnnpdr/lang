@@ -4,7 +4,7 @@
 //------------------------CONST-----------------------------------
 
 //static const size_t VAR_AMT =  1;
-static const size_t OP_AMT  =  18;
+static const size_t OP_AMT  =  20;
 
 static const double START_VALUE =  -1;
 static const char ID_MARK       = '*';
@@ -29,6 +29,8 @@ static const char* ELSE_STR    	= "sovsem_inache";
 static const char* EQUAL_STR 	= "ravenstvo";
 static const char* GREATER_STR 	= "RSDRPB";
 static const char* LESS_STR 	= "PSDRPM";
+static const char* LESS_EQUAL_STR = "pust";
+static const char* GREATER_EQUAL_STR = "polon";
 
 static const char* PRINTF_STR 	= "slovo";
 
@@ -64,7 +66,9 @@ enum Operation
 	LESS 	= 14,
 	PRINTF 	= 15,
 	WHILE 	= 16,
-	FOR 	= 17
+	FOR 	= 17,
+	GREATER_EQUAL = 18,
+	LESS_EQUAL = 19
 };
 
 //----------------------STRUCT-----------------------------------
@@ -107,6 +111,8 @@ static const struct OperationParameters LESS_STRUCT    	= {LESS_STR    ,  LESS  
 static const struct OperationParameters PRINTF_STRUCT   = {PRINTF_STR  ,  PRINTF };
 static const struct OperationParameters WHILE_STRUCT    = {WHILE_STR   ,  WHILE  };
 static const struct OperationParameters FOR_STRUCT    	= {FOR_STR     ,  FOR    };
+static const struct OperationParameters GREATER_EQUAL_STRUCT    = {GREATER_EQUAL_STR   ,  GREATER_EQUAL  };
+static const struct OperationParameters LESS_EQUAL_STRUCT    	= {LESS_EQUAL_STR     ,  LESS_EQUAL    };
 
 static const struct OperationParameters* operations [OP_AMT] = {&SEP_STRUCT,
 																&CALC_BR_STRUCT,
@@ -125,6 +131,8 @@ static const struct OperationParameters* operations [OP_AMT] = {&SEP_STRUCT,
 																&LESS_STRUCT,
 																&PRINTF_STRUCT,
 																&WHILE_STRUCT,
-																&FOR_STRUCT};
+																&FOR_STRUCT,
+																&GREATER_EQUAL_STRUCT,
+																&LESS_EQUAL_STRUCT};
 
 #endif //_STRUCTURE_H_

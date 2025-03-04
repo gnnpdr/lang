@@ -1,11 +1,9 @@
 #ifndef _DATA_H_
 #define _DATA_H_
 
-//#include "stk.h"
-
 //-----------------------COMMANDS---------------------------------------------------------------------------
 
-static const size_t CMD_AMT  =  20;
+static const size_t CMD_AMT  =  18;
 
 
 enum ArgType
@@ -13,7 +11,6 @@ enum ArgType
     ARG_NUM, 
     ARG_LAB,
     ARG_RAM,
-    ARG_REG,
     ARG_CALL
 };
 
@@ -24,21 +21,19 @@ enum CommandsNums
     SUB_A   = 3 ,
     MUL_A   = 4 ,
     DIV_A   = 5 ,
-    SIN_A   = 6 ,
-    COS_A   = 7 ,
-    OUT_A   = 8 ,
-    HLT_A   = 9 ,
-    POP_A   = 10,
-    JA_A    = 11,
-    JAE_A   = 12,
-    JB_A    = 13,
-    JBE_A   = 14,
-    JE_A    = 15,
-    JNE_A   = 16,
-    JMP_A   = 17,
-    CALL_A  = 18,
-    RET_A   = 19,
-    SQRT_A  = 20
+    OUT_A   = 6 ,
+    HLT_A   = 7 ,
+    POP_A   = 8 ,
+    JA_A    = 9 ,
+    JAE_A   = 10,
+    JB_A    = 11,
+    JBE_A   = 12,
+    JE_A    = 13,
+    JNE_A   = 14,
+    JMP_A   = 15,
+    CALL_A  = 16,
+    RET_A   = 17,
+    SQRT_A  = 18
 };
 
 static const char* POP_STR  =  "pop";
@@ -72,8 +67,6 @@ const struct CommandParameters AddStr   =  {"add"  , ADD_A  , 0};
 const struct CommandParameters SubStr   =  {"sub"  , SUB_A  , 0};
 const struct CommandParameters MulStr   =  {"mul"  , MUL_A  , 0};
 const struct CommandParameters DivStr   =  {"div"  , DIV_A  , 0};
-const struct CommandParameters SinStr   =  {"sin"  , SIN_A  , 1};
-const struct CommandParameters CosStr   =  {"cos"  , COS_A  , 1};
 const struct CommandParameters HltStr   =  {"hlt"  , HLT_A  , 0};
 const struct CommandParameters OutStr   =  {"out"  , OUT_A  , 0};
 const struct CommandParameters PopStr   =  {"pop"  , POP_A  , 1};
@@ -86,15 +79,13 @@ const struct CommandParameters JneStr   =  {"jne"  , JNE_A  , 1};
 const struct CommandParameters JmpStr   =  {"jmp"  , JMP_A  , 1};
 const struct CommandParameters CallStr  =  {"call" , CALL_A , 0};
 const struct CommandParameters RetStr   =  {"ret"  , RET_A  , 0};
-const struct CommandParameters SqrtStr   =  {"sqrt"  , SQRT_A  , 0};
+const struct CommandParameters SqrtStr  =  {"sqrt"  , SQRT_A  , 0};
 
 static const CommandParameters bunch_of_commands [CMD_AMT]  =   {PushStr,
                                                                 AddStr   ,
                                                                 SubStr   ,
                                                                 MulStr   ,
                                                                 DivStr   ,
-                                                                SinStr   ,
-                                                                CosStr   ,
                                                                 HltStr   ,
                                                                 OutStr   ,
                                                                 PopStr   ,
@@ -111,18 +102,18 @@ static const CommandParameters bunch_of_commands [CMD_AMT]  =   {PushStr,
 
 //----------------------------------LABELS---------------------------------------------------------------------
 
-static const size_t LABELS_AMT = 10;
-static const size_t RET_AMT    = 10;
-
 static const char LABEL_MARK = ':';
+
+static const size_t LABELS_AMT    = 10;
 static const size_t LABEL_ARG_AMT = 5;
 
 struct LabelParameters
 {
-    size_t* arg_target;
-    size_t cmd_target;
     char* start_word;
     size_t len;
+
+    size_t cmd_target;
+    size_t* arg_target;
 };
 
 //--------------------------------FUNCS-------------------------------------
@@ -134,61 +125,17 @@ struct FuncParameters
     char* start_word;
     size_t len;
 
-    //size_t var_amt; //чтобы сдвигаться на положенное количество ячеек, если функция будет вызвана не один раз
-    //size_t* vars;  //массив новеров ячеек оперативной памяти, которые используются функцией. Последняя - возвращаемое значение
-    //int* ret_array;   //int на случай, если код слишком большой и error_value_size_t не будет неправильным
-    //int* ret_array;
-    //size_t ret_cnt;
-    size_t cmd_target;  //место для замены
-    size_t call_target;  //то, куда прыгать от call
-    //size_t ret_target;  //заполняться это место будет числом из массива
+    size_t cmd_target;
+    size_t call_target;
 
     size_t ret_word;
-    //word - сам номер слова - чтобы понять, какой для какой функции
-    //target - соответствующий dig_amt, чтобы подставить число в итоговый код
 };
 
-//--------------------------------REGISTERS---------------------------------------------------------------
-/*
-static const size_t REG_AMT = 4;
-
-enum Registers
-{
-    AX = 0,
-    BX = 1,
-    CX = 2,
-    DX = 3
-};
-
-struct RegisterParameters
-{
-    int value;
-    const char* name;
-    size_t num;
-};
-
-static const char* AX_STR = "ax";
-static const char* BX_STR = "bx";
-static const char* CX_STR = "cx";
-static const char* DX_STR = "dx";
-
-static struct RegisterParameters ax = {ERROR_VALUE, AX_STR, AX};
-static struct RegisterParameters bx = {ERROR_VALUE, BX_STR, BX};
-static struct RegisterParameters cx = {ERROR_VALUE, CX_STR, CX};
-static struct RegisterParameters dx = {ERROR_VALUE, DX_STR, DX};
-
-static struct RegisterParameters* registers [REG_AMT] = {&ax,
-                                                         &bx,
-                                                         &cx,
-                                                         &dx};
-*/
 //--------------------------------ARGS----------------------------------------------------------------
 
-static const size_t MK_ARGS_STRS  =  6;
 static const size_t COMPL_ARG_AMT =  2;
-static const size_t RAM_AMT       = 50;
 
-static const char* PLUS  = "+";
+static const char* PLUS    = "+";
 static const char RAM_MARK = '[';
 
 static const int BITS_IN_BYTES = 8;

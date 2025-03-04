@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include "stk.h"
 
-static const char* BIN_FILE_NAME = "bin_code.txt";
-
 LabelParameters* ctor_labels(ErrList *const list);
 void dtor_labels(LabelParameters *const labels);
 
@@ -13,6 +11,7 @@ FuncParameters* ctor_funcs(ErrList *const list);
 void dtor_funcs(FuncParameters *const funcs);
 
 void assembly(Word *const words, LabelParameters *const labels, FuncParameters *const funcs, Stack *const stk_code, ErrList *const list);
+
 
 #define ASM_ASSERT  do                      \
                     {                       \

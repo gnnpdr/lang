@@ -16,5 +16,4 @@ Node* make_node(Type type, double value, Node* Left, Node* Right, ErrList *const
 Node* tree_dtor(Node* node);
 Node* node_dtor(Node* node);
 
-
 #endif //_STRUCT_H_

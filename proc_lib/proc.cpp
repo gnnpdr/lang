@@ -51,7 +51,7 @@ void proc_code(Proc *const proc, Stack *const prog, Stack *const stk, ErrList *c
     size_t ip = 0;
     
     size_t size = proc->size;
-    printf("SIZE %d\n", size);
+    //printf("SIZE %d\n", size);
 
     int* code = proc->code;
 
@@ -61,8 +61,8 @@ void proc_code(Proc *const proc, Stack *const prog, Stack *const stk, ErrList *c
 
     while(ip < size)
     {
-        printf("ip %d\n", ip);
-        printf("CODE %d %d %d\n", code[ip], code[ip + 1], code[ip + 2]);
+        //printf("ip %d\n", ip);
+        //printf("CODE %d %d %d\n", code[ip], code[ip + 1], code[ip + 2]);
 
         switch(code[ip])
         {
@@ -296,7 +296,6 @@ void proc_code_part(Proc *const proc, Stack *const prog, Stack *const stk, size_
 
 void get_call(Proc *const proc, Stack *const prog, Stack *const stk, size_t *const ip, ErrList *const list)
 {
-    printf("HERE\n");
     assert(proc);
     assert(prog);
     assert(list);
@@ -306,19 +305,9 @@ void get_call(Proc *const proc, Stack *const prog, Stack *const stk, size_t *con
     
     (*ip)++;
     stk_push(stk, *ip, list);
-    //printf("NEW ADDRESS %d\n", code[*ip]);
-    //FuncParameters the_func = funcs[code[*ip]];
-    //printf("THE FUNC NUM %d, CALL TARGET %d\n", code[*ip], the_func.call_target);
-
-    //size_t jmp_target = the_func.call_target;
-
-    //*ip = jmp_target;
     (*ip) = code[*ip];
 
     proc_code_part(proc, prog, stk, ip, list);
-
-    //int a = 0; 
-    //scanf("%d", &a);
 }
 
 void get_ret (Proc *const proc, Stack *const stk, size_t *const ip, ErrList *const list)
@@ -328,17 +317,10 @@ void get_ret (Proc *const proc, Stack *const stk, size_t *const ip, ErrList *con
     assert(list);
 
     int* code = proc->code;
-
-    //(*ip)++;
-    //size_t ret_ip = funcs[code[*ip]].ret_array[funcs[code[*ip]].ret_cnt];
     int ret_ip = 0;
     stk_pop(stk, &ret_ip, list);
 
-
-    //printf("new ip %d, ret_cnt %d\n", ret_ip, funcs[code[*ip]].ret_cnt);
-    //(funcs[code[*ip]].ret_cnt)++;
     *ip = ret_ip;
-    //(*ip)++;
 }
 
 int get_arg(Proc *const proc, size_t *const ip)
@@ -514,7 +496,7 @@ void je(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list)
 
     bool do_jump = false;
 
-    ResultOfComparing res = comparing(first_el, sec_el);  //условная функция с кучей компараторов
+    ResultOfComparing res = comparing(first_el, sec_el);
     if (res == EQUAL_RES)
         do_jump = true;
 

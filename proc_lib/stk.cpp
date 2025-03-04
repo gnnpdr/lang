@@ -48,9 +48,7 @@ void stk_push(Stack *const stk, stack_element_t element, ErrList *const list)
         RETURN_VOID
     }
     
-    //printf("DATA ADDR %p\nSIZE %d\n", stk->data, size);
     stack_element_t* data = stk->data;
-    //printf("!!HERE!!\n");
     data[size] = element;
     
     size++;

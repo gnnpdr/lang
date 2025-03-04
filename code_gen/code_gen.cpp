@@ -23,7 +23,6 @@ static void node_push(Node* node, char *const str, ErrList *const list);
 static void node_pop(Node* node, char *const str, ErrList *const list);
 
 char* get_func_label (Id func_id, char *const func_label);
-//надо вложить все группы ассертов в макросы
 
 void code_gen(Tree *const the_tree, Id *const ids, ErrList *const list)
 {
@@ -44,11 +43,12 @@ void code_gen(Tree *const the_tree, Id *const ids, ErrList *const list)
     int sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s%s\n", asm_code, HLT_STR);
     SPRINTF_CHECK_VOID
 
-    fill_input_file(ASM_NAME, asm_code, list);  //добавить возможность менять название
-    free(asm_code);
+    printf("ENTER NAME FOR YOUR ASM FILE\n");
+    char asm_file_name[MAX_STR_LEN] = {};
+    scanf("%s", asm_file_name);
 
-    //int a = 0;
-    //scanf("%d", &a);
+    fill_input_file(asm_file_name, asm_code, list);
+    free(asm_code);
 }
 
 void get_part(Node *const node, size_t *const if_cnt, size_t *const start_if_cnt, Id *const ids, char* asm_code, ErrList *const list)
@@ -168,9 +168,6 @@ void get_part(Node *const node, size_t *const if_cnt, size_t *const start_if_cnt
     if (IS_PRINTF)
         code_printf (node, asm_code, list);
 
-    //if (IS_SQRT)
-    //    code_sqrt (node, asm_code, list);
-
     if (node->type == ID)
         code_id_op(node, if_cnt, start_if_cnt, ids, asm_code, list);
         
@@ -252,8 +249,6 @@ void code_equal(Node* node, char *const asm_code, Id *const ids, ErrList *const 
     assert(ids);
     assert(list);
 
-    
-
     code_expr_part(node->Right, ids, asm_code, list);
     RETURN_VOID
 
@@ -269,9 +264,6 @@ void code_op(Node* node, Id *const ids, char *const asm_code, ErrList *const lis
     assert(ids);
     assert(asm_code);
     assert(list);
-
-    //graph_dump(node, ids, node, list);
-
 
     bool is_unary = false;
     if (node->value == SQRT)
@@ -359,7 +351,6 @@ void code_printf (Node* node, char *const asm_code, ErrList *const list)
 
     int sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s%s\n", asm_code, OutStr.cmd_str);
     SPRINTF_CHECK_VOID
-
 }
 
 //----------CYCLES------------------
@@ -373,14 +364,49 @@ void code_cycle(Node* node, size_t *const if_cnt, size_t *const start_if_cnt, Id
     assert(asm_code);
     assert(list);
 
-    int sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%sNEXT%d:\n", asm_code, *if_cnt);
+    int sprintf_res = 0;
+
+    bool is_num_cnt = false;
+
+    int cnt_ram_num = 10;
+
+    if (node->Left->type == NUM)
+    {
+        is_num_cnt = true;
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s %d\n", asm_code, PUSH_STR, node->Left->value);
+        SPRINTF_CHECK_VOID
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s [%d]\n", asm_code, POP_STR, cnt_ram_num);
+        SPRINTF_CHECK_VOID
+    }
+    else
+        cnt_ram_num = node->Left->value;
+
+    sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%sNEXT%d:\n", asm_code, *if_cnt);
     SPRINTF_CHECK_VOID
 
-    code_expr(node->Left, if_cnt, ids, asm_code, list);
-    RETURN_VOID
-
+    if (IS_FOR)
+    {
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s [%d]\n", asm_code, PUSH_STR, cnt_ram_num);
+        SPRINTF_CHECK_VOID
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s 0\n", asm_code, PUSH_STR);
+        SPRINTF_CHECK_VOID
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s IF_COND%d:\n", asm_code, JE_STR, *if_cnt);
+        SPRINTF_CHECK_VOID
+    }
+    else
+    {
+        code_expr(node->Left, if_cnt, ids, asm_code, list);
+        RETURN_VOID
+    }
+    
     get_part(node->Right, if_cnt, start_if_cnt, ids, asm_code, list);
     RETURN_VOID
+
+    if (IS_FOR)
+    {
+        sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n%s [%d]\n%s 1\n%s\n%s [%d]\n", asm_code, PUSH_STR, cnt_ram_num, PUSH_STR, SubStr.cmd_str, POP_STR, cnt_ram_num);
+        SPRINTF_CHECK_VOID
+    }
 
     sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s%s NEXT%d:\n", asm_code, JMP_STR, *if_cnt);
     SPRINTF_CHECK_VOID
@@ -409,16 +435,9 @@ void code_id_op(Node* node, size_t *const if_cnt, size_t *const start_if_cnt, Id
     if (node->Left == nullptr && node->Right == nullptr)
     {
         sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\ncall %s", asm_code, cmd_name);
-        //size_t* args = ids[node->value].args;
-        /*size_t start_arg = ids[node->value].var_amt * ids[node->value].use_num;
+        SPRINTF_CHECK_VOID
 
-        for (size_t arg = start_arg; arg < start_arg + ids[node->value].var_amt; arg++)
-        {
-            sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s %d", asm_code, args[arg]);
-        }*/
         sprintf_res = sprintf_s(asm_code, MAX_FILE_SIZE, "%s\n", asm_code);
-
-        //(ids[node->value].use_num)++;
     }
     else
     {

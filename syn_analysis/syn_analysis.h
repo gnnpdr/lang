@@ -7,7 +7,7 @@ static const size_t FIRST_PR_AMT = 2;
 static const size_t SEC_PR_AMT = 4;
 static const size_t UNARY_OP_AMT = 2;
 static const size_t BINARY_OP_AMT = 4;
-static const size_t EXPR_OP_AMT = 3;
+static const size_t EXPR_OP_AMT = 5;
 static const double EXP = 2.72;
 
 static const struct OperationParameters sec_pr [SEC_PR_AMT] = {ADD_STRUCT,
@@ -23,7 +23,9 @@ static const struct OperationParameters binary_op [BINARY_OP_AMT] = {	IF_STRUCT,
 																		WHILE_STRUCT,
 																		FOR_STRUCT};
 
-static const struct OperationParameters expr_op [EXPR_OP_AMT] = {	EQUAL_STRUCT,
+static const struct OperationParameters expr_op [EXPR_OP_AMT] = {	GREATER_EQUAL_STRUCT,
+																	LESS_EQUAL_STRUCT,
+																	EQUAL_STRUCT,
 																	GREATER_STRUCT,
 																	LESS_STRUCT};
 

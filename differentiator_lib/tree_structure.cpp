@@ -35,8 +35,6 @@ void tree_ctor (Tree *const the_tree, Node *const start_node)
     the_tree->root = start_node;
 }
 
-
-
 Node* tree_dtor(Node* node)
 {
 	assert(node);

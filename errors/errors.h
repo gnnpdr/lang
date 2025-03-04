@@ -63,15 +63,6 @@ struct ErrList
                                 }                                               \
                             }while(0);
 
-#define FILE_CHECK_SIZE_T(file)    do                                                  \
-                            {                                                   \
-                                if (file == nullptr)                            \
-                                {                                               \
-                                    ERROR(FILE_ERROR)                           \
-                                    return;                                     \
-                                }                                               \
-                            }while(0);
-
 #define STAT_CHECK(name)        do                                              \
                                 {                                               \
                                     if (stat(name, &file_info) == -1)           \

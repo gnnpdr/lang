@@ -35,12 +35,8 @@ void get_code(Input *const asm_text, Word *const words, ErrList *const list)
     size_t len = 1;
     size_t word_num = 0;
 
-    printf("START\n");
-    printf("size %d\n", size);
-
     for (size_t pointer = 0; pointer < size; pointer++)
     {
-        //printf("pointer %d\ntext %.10s\n", pointer, text + pointer);
         if (!isspace(text[pointer]))
         {
             if (text[pointer] == '\0')
@@ -100,7 +96,6 @@ void get_bin_code(Input *const base_text, int *const code, size_t *const dig_amt
     FILE_CHECK(input_file)
 
     char* text = base_text->text;
-    //int* code = proc->code;
 
     size_t size = 0;
 
@@ -144,76 +139,6 @@ void get_bin_code(Input *const base_text, int *const code, size_t *const dig_amt
 
     int close_res = fclose(input_file);
     CLOSE_CHECK
-
-    /*for (int i = 0; i < dig; i++)
-        printf("%d ", code[i]);*/
-
-    //printf("few\n");
     
     *dig_amt = dig;
 }
-
-/*void get_bin_code(Input *const base_text, Proc *const proc, ErrList *const list)
-{
-    assert(base_text);
-    assert(list);
-
-    char* base_file_name = base_text->name;
-    FILE* input_file;
-
-    input_file = fopen(base_file_name, "r");
-    FILE_CHECK(input_file)
-
-    char* text = base_text->text;
-    int* code = proc->code;
-
-    size_t size = 0;
-
-    count_file_size(base_text->name, &size, list);
-    RETURN_VOID
-
-    size_t dig = 0;
-    size_t num_len = 0;
-
-    int num = 0;
-
-    for (int ind = 0; ind < size; ind++)
-    {
-        bool is_negative = false;
-
-        if (isspace(text[ind]) || text[ind] == '\0')
-            continue;
-
-        if (text[ind] == '-')
-        {
-            is_negative = true;
-            ind++;
-        }
-            
-        while (isdigit(text[ind]))
-        {
-            num = num * 10 + text[ind] - '0';
-            num_len++;
-            ind++;
-        }
-
-        if (is_negative)
-            num = num * -1;
-
-        code[dig] = num;
-        num_len = 0;
-        num = 0;
-
-        dig++;
-    }
-
-    int close_res = fclose(input_file);
-    CLOSE_CHECK
-
-    /*for (int i = 0; i < dig; i++)
-        printf("%d ", code[i]);*//*
-
-    //printf("few\n");
-    
-    proc->size = dig;
-}*/

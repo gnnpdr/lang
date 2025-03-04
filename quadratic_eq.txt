@@ -4,15 +4,15 @@
 *discr ravenstvo 0.
 *root_amt ravenstvo 0.
 
-cnt_discr (*a *b *c *discr).
+cnt_discr.
 
 revolution ! *discr RSDRPB 0 ! 
 !
     *root1 ravenstvo 0.
     *root2 ravenstvo 0.
     *koren ravenstvo koren *discr.
-    cnt_root1 (*b *c *koren *root1).
-    cnt_root2 (*b *c *koren *root2).
+    cnt_root1.
+    cnt_root2.
     *root_amt ravenstvo 2.
     slovo *root_amt.
     slovo *root1.
@@ -23,7 +23,7 @@ inache_revolution ! *discr ravenstvo 0 !
 !
     *root1 ravenstvo 0.
     *koren ravenstvo koren *discr.
-    cnt_root1 (*b *c *koren *root1).
+    cnt_root1.
     *root_amt ravenstvo 1.
     slovo *root_amt.
     slovo *root1.
