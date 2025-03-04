@@ -18,8 +18,8 @@ int main(int argc, char** argv)
 	error_list_ctor(&list);
 	MAIN
 
-	text_to_asm(argv, &list);
-	MAIN
+	//text_to_asm(argv, &list);
+	//MAIN
 
 	asm_to_dig(&list);
 	MAIN
@@ -138,10 +138,13 @@ void proc_dig_code(ErrList *const list)
 	
 	Stack prog = {};
     stk_ctor(&prog, list);
+	Stack stk = {};
+    stk_ctor(&stk, list);
 	RETURN_VOID
 	printf("PROC CODE\n");
-	proc_code(&proc, &prog, list); // надо добавить регистры, некоторые функции типа вывод аргумента
+	proc_code(&proc, &prog, &stk, list); // надо добавить регистры, некоторые функции типа вывод аргумента
 
+	stk_dtor(&stk);
 	stk_dtor(&prog);
 	proc_dtor(&proc);
 	input_dtor(&bin_code);

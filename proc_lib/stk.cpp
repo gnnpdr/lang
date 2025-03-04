@@ -35,6 +35,8 @@ void stk_dtor(Stack *const stk)
 
 void stk_push(Stack *const stk, stack_element_t element, ErrList *const list)
 {
+    printf("STK PUSH\n");
+    printf("ELEM %d\n", element);
     STK_ASSERT
 
     size_t size     = stk->size;
@@ -46,10 +48,11 @@ void stk_push(Stack *const stk, stack_element_t element, ErrList *const list)
         RETURN_VOID
     }
     
+    //printf("DATA ADDR %p\nSIZE %d\n", stk->data, size);
     stack_element_t* data = stk->data;
-
+    //printf("!!HERE!!\n");
     data[size] = element;
-
+    
     size++;
     stk->size = size;
 
@@ -109,9 +112,9 @@ void stk_pop(Stack *const stk, stack_element_t* elem, ErrList *const list)
     stk->size = size;
     stk->data = data;
 
-    printf("--------------------------------\nSTACK POP\n");
+    /*printf("--------------------------------\nSTACK POP\n");
     printf("\n\n");
     for (size_t i = 0; i < stk->capacity; i++)
             printf("%d ", stk->data[i]);
-    printf("\n");
+    printf("\n");*/
 }

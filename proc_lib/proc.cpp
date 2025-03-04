@@ -13,9 +13,9 @@ static void jbe(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
 static void je(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
 static void jne(Proc* proc, Stack* prog, size_t *const ip, ErrList *const list);
 
-static void get_call(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list);
-static void proc_code_part(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list);
-static void get_ret (Proc *const proc, size_t *const ip, ErrList *const list);
+static void get_call(Proc *const proc, Stack *const prog, Stack *const stk, size_t *const ip, ErrList *const list);
+static void proc_code_part(Proc *const proc, Stack *const prog, Stack *const stk, size_t *const ip, ErrList *const list);
+static void get_ret (Proc *const proc, Stack *const stk, size_t *const ip, ErrList *const list);
 
 void proc_ctor(Proc *const proc, ErrList *const list)
 {
@@ -28,29 +28,23 @@ void proc_ctor(Proc *const proc, ErrList *const list)
     int* RAM = (int*)calloc(RAM_AMT, sizeof(int));
     ALLOCATION_CHECK_VOID(RAM)
 
-    Stack stk = {};
-    stk_ctor(&stk, list);
 
     for (size_t i = 0; i < RAM_AMT; i++)
         RAM[i] = POISON;
 
-    proc->stk = &stk;
     proc->code = code;
     proc->RAM = RAM;
 }
 
 void proc_dtor(Proc *const proc)
 {
-    stk_dtor(proc->stk);
     free(proc->code);
     free(proc->RAM);
 }
 
 
-
-void proc_code(Proc *const proc, Stack *const prog, ErrList *const list)
+void proc_code(Proc *const proc, Stack *const prog, Stack *const stk, ErrList *const list)
 {
-    printf("HERE\n");
     assert(proc);
     assert(list);
 
@@ -149,7 +143,7 @@ void proc_code(Proc *const proc, Stack *const prog, ErrList *const list)
 
             case CALL_A:
                 printf("CALL\n");
-                get_call(proc, prog, &ip, list);
+                get_call(proc, prog, stk, &ip, list);
                 printf("CALL RETURN\n");
                 break;
 
@@ -181,7 +175,7 @@ void proc_code(Proc *const proc, Stack *const prog, ErrList *const list)
     }
 }
 
-void proc_code_part(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list)
+void proc_code_part(Proc *const proc, Stack *const prog, Stack *const stk, size_t *const ip, ErrList *const list)
 {
     assert(proc);
     assert(list);
@@ -199,6 +193,7 @@ void proc_code_part(Proc *const proc, Stack *const prog, size_t *const ip, ErrLi
     while(*ip < size)
     {
         printf("ip %d\n", *ip);
+        printf("CODE %d %d %d\n", code[*ip], code[*ip + 1], code[*ip + 2]);
         switch(code[*ip])
         {
             case PUSH_A:
@@ -270,7 +265,7 @@ void proc_code_part(Proc *const proc, Stack *const prog, size_t *const ip, ErrLi
 
             case CALL_A:
                 printf("CALL\n");
-                get_call(proc, prog, ip, list);
+                get_call(proc, prog, stk, ip, list);
                 break;
 
             case HLT_A:
@@ -280,7 +275,7 @@ void proc_code_part(Proc *const proc, Stack *const prog, size_t *const ip, ErrLi
 
             case RET_A:
                 printf("RET\n");
-                get_ret (proc, ip, list);
+                get_ret (proc, stk, ip, list);
                 return; //обязательно! именно эта часть и вернет из функции get call
                 break;
 
@@ -294,19 +289,24 @@ void proc_code_part(Proc *const proc, Stack *const prog, size_t *const ip, ErrLi
         for (size_t i = 0; i < 10; i++)
             printf("%d ", proc->RAM[i]);
         printf("\nRAM END\n\n");
+        int a = 0;
+        scanf("%d", &a);
     }
 }
 
-void get_call(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *const list)
+void get_call(Proc *const proc, Stack *const prog, Stack *const stk, size_t *const ip, ErrList *const list)
 {
+    printf("HERE\n");
     assert(proc);
     assert(prog);
     assert(list);
     assert(ip);
 
     int* code = proc->code;
-    stk_push(proc->stk, *ip, list);
+    
     (*ip)++;
+    stk_push(stk, *ip, list);
+    //printf("NEW ADDRESS %d\n", code[*ip]);
     //FuncParameters the_func = funcs[code[*ip]];
     //printf("THE FUNC NUM %d, CALL TARGET %d\n", code[*ip], the_func.call_target);
 
@@ -315,13 +315,13 @@ void get_call(Proc *const proc, Stack *const prog, size_t *const ip, ErrList *co
     //*ip = jmp_target;
     (*ip) = code[*ip];
 
-    proc_code_part(proc, prog, ip, list);
+    proc_code_part(proc, prog, stk, ip, list);
 
     //int a = 0; 
     //scanf("%d", &a);
 }
 
-void get_ret (Proc *const proc, size_t *const ip, ErrList *const list)
+void get_ret (Proc *const proc, Stack *const stk, size_t *const ip, ErrList *const list)
 {
     assert(proc);
     assert(ip);
@@ -332,7 +332,7 @@ void get_ret (Proc *const proc, size_t *const ip, ErrList *const list)
     //(*ip)++;
     //size_t ret_ip = funcs[code[*ip]].ret_array[funcs[code[*ip]].ret_cnt];
     int ret_ip = 0;
-    stk_pop(proc->stk, &ret_ip, list);
+    stk_pop(stk, &ret_ip, list);
 
 
     //printf("new ip %d, ret_cnt %d\n", ret_ip, funcs[code[*ip]].ret_cnt);

@@ -15,8 +15,6 @@ enum ResultOfComparing
 
 struct Proc
 {
-    Stack* stk;
-
     size_t size;
 
     int* code;
@@ -27,7 +25,7 @@ struct Proc
 void proc_ctor(Proc *const proc, ErrList *const list);
 void proc_dtor(Proc *const proc);
 
-void proc_code(Proc *const proc, Stack *const prog, ErrList *const list);
+void proc_code(Proc *const proc, Stack *const prog, Stack *const stk, ErrList *const list);
 
 #define GET_TWO_ARGS    do                                  \
                         {                                   \
