@@ -1,7 +1,8 @@
 #include <stdio.h>
 
-#include "lex_analysis\lex_analysis.h"
-#include "syn_analysis\syn_analysis.h"
+#include "handle_expr\lex_analysis.h"
+#include "handle_expr\syn_analysis.h"
+#include "handle_expr\get_expr.h"
 #include "code_gen\code_gen.h"
 #include "proc_lib\input.h"
 #include "proc_lib\assembly.h"
@@ -138,7 +139,7 @@ void proc_dig_code(ErrList *const list)
     stk_ctor(&stk, list);
 	RETURN_VOID
 
-	proc_code(&proc, &prog, &stk, list); // надо добавить регистры, некоторые функции типа вывод аргумента
+	proc_code(&proc, &prog, &stk, list);
 
 	stk_dtor(&stk);
 	stk_dtor(&prog);

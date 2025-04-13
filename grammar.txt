@@ -11,7 +11,7 @@
 // ID ::= '*'[a - z] +
 // F ::= 'molot' 'serp'
 // N ::= [0 - 9] +
-
+//
 // revolution if
 // darim +
 // grabim - 

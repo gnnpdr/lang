@@ -26,23 +26,7 @@ static Node* get_brace(Token *const tokens, Id *const ids, size_t *const pointer
 static Node* get_num(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
 static Node* get_id(Token *const tokens, Id *const ids, size_t *const pointer, ErrList *const list);
 
-Node* analyse_text(Token *const tokens, Id *const ids, Input *const base_text, ErrList *const list)
-{
-    assert(tokens);
-    assert(ids);
-    assert(list);
-    assert(base_text);
 
-    lex_analysis(tokens, ids, base_text, list);
-	RETURN_PTR
-    
-	Node* root = syn_analysis(tokens, ids, list);
-	RETURN_PTR
-
-    //graph_dump(root, ids, root, list);
-
-    return root;
-}
 
 Node* syn_analysis(Token *const tokens, Id *const ids, ErrList *const list)
 {

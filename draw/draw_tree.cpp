@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-//надо, чтобы нормально перемeнные выводил
-
 #include "draw_tree.h"
 
 static void make_file_names(char* const input_file_name, char* const output_file_name, size_t enter_cnt, ErrList *const list);

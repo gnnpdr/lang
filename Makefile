@@ -8,8 +8,7 @@ CFLAGS += -I $(HOME)
 ERRDIR = errors
 DRAWDIR = draw
 DIFFDIR = differentiator_lib
-LEXDIR = lex_analysis
-SYNDIR = syn_analysis
+EXPRDIR = handle_expr
 GENDIR = code_gen
 PROCDIR = proc_lib
 
@@ -19,23 +18,21 @@ SOURCES = main.cpp
 ERR = errors/errors.cpp 
 DRAW = draw/draw_tree.cpp 
 DIFF = differentiator_lib/tree_structure.cpp differentiator_lib/get_database.cpp
-LEX = lex_analysis/lex_analysis.cpp
-SYN = syn_analysis/syn_analysis.cpp
+EXPR = handle_expr/lex_analysis.cpp handle_expr/syn_analysis.cpp handle_expr/get_expr.cpp
 GEN = code_gen/code_gen.cpp
-PROC = proc_lib\input.cpp proc_lib\stk.cpp proc_lib\assembly.cpp proc_lib\proc.cpp
+PROC = proc_lib/input.cpp proc_lib/stk.cpp proc_lib/assembly.cpp proc_lib/proc.cpp
 
 OBJECTS = $(SOURCES:%.cpp = $(OBJDIR)/%.o)
 ERROBJ = $(ERR:$(ERRDIR)/%.cpp = $(OBJDIR)/%.o)
 DRAWOBJ = $(DRAW:$(DRAWDIR)/%.cpp = $(OBJDIR)/%.o)
 DIFFOBJ = $(DIFF:$(DIFFDIR)/%.cpp = $(OBJDIR)/%.o)
-LEXOBJ = $(LEX:$(LEXDIR)/%.cpp = $(OBJDIR)/%.o)
-SYNOBJ = $(SYN:$(SYNDIR)/%.cpp = $(OBJDIR)/%.o)
+EXPROBJ = $(EXPR:$(EXPRDIR)/%.cpp = $(OBJDIR)/%.o)
 GENOBJ = $(GEN:$(GENDIR)/%.cpp = $(OBJDIR)/%.o)
 PROCOBJ = $(PROC:$(PROCDIR)/%.cpp = $(OBJDIR)/%.o)
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS) $(ERROBJ) $(DIFFOBJ) $(LEXOBJ) $(DRAWOBJ) $(SYNOBJ) $(GENOBJ) $(PROCOBJ)
+$(TARGET): $(OBJECTS) $(ERROBJ) $(DIFFOBJ) $(EXPROBJ) $(DRAWOBJ) $(GENOBJ) $(PROCOBJ)
 	$(CC) $^ -o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : %.cpp
@@ -47,13 +44,10 @@ $(OBJDIR)/%.o : $(ERRDIR)/%.cpp
 $(OBJDIR)/%.o : $(DIFFDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
 
-$(OBJDIR)/%.o : $(LEXDIR)/%.cpp
+$(OBJDIR)/%.o : $(EXPRDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : $(DRAWDIR)/%.cpp
-	$(CC) -c $^ - o $@ $(CFLAGS)
-
-$(OBJDIR)/%.o : $(SYNDIR)/%.cpp
 	$(CC) -c $^ - o $@ $(CFLAGS)
 
 $(OBJDIR)/%.o : $(GENDIR)/%.cpp

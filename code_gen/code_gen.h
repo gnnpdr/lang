@@ -1,8 +1,8 @@
 #ifndef _GEN_H_
 #define _GEN_H_
 
-#include "..\proc_lib\asm_struct.h"
-#include "..\syn_analysis\syn_analysis.h"
+#include "../proc_lib/asm_struct.h"
+#include "../draw/draw_tree.h"#
 
 #define IS_SEP node->type == OP && node->value == SEP
 

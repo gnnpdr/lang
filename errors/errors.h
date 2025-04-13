@@ -22,7 +22,7 @@ enum Errors
     STAT_ERROR,
     SPRINTF_ERROR,
     SYN_ERROR,
-    /*MATH_ERROR,*/
+    MATH_ERROR,
     /*TOKEN_ERROR,*/
     RET_ERROR,
     SSCANF_ERROR

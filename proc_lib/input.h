@@ -1,7 +1,7 @@
 #ifndef _INPUT_H_
 #define _INPUT_H_
 
-#include "..\code_gen\code_gen.h"
+#include "../code_gen/code_gen.h"
 
 enum WordType
 {

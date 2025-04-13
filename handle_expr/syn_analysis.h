@@ -1,7 +1,7 @@
 #ifndef _SYN_H_
 #define _SYN_H_
 
-#include "..\draw\draw_tree.h"
+#include "lex_analysis.h"
 
 static const size_t FIRST_PR_AMT  = 2;
 static const size_t SEC_PR_AMT    = 4;
